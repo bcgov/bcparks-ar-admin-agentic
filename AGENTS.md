@@ -18,3 +18,28 @@ Backend is selected by `agent.mode` in `tier1.config.json`: `heuristic` | `auto`
 ## Upgrade path
 
 Tier 2 adds Spec Kit, constitution, Design System MCP, and human checkpoints. See the platform `bcgov-agentic-glue` bundles when you are ready.
+
+## Tier 2 — Spec-driven delivery
+
+This repository is enrolled in **Tier 2** of the BC Gov agentic SDLC pattern.
+
+### Before implementing
+
+1. Confirm work is in `spec/tasks.md` and traced to `spec/features/*.feature` (or an explicit spec section).
+2. Query **bc-design-system** MCP before UI (`get_component`, `get_guidelines`).
+3. Query **bcgov-sdlc** MCP for constitution / Gherkin / OpenShift checks when relevant.
+4. Do not invent scope outside the signed `spec/spec.md`.
+
+### Checkpoints (humans)
+
+1. Spec sign-off  
+2. Plan / architecture approval  
+3. Review & ship (no agent self-merge)
+
+### Evidence
+
+Update `docs/pr-evidence.md` on implementation PRs (`node .github/tier2/packs/pr-evidence/generate.mjs`).
+
+### Labels
+
+- `ready-for-agent` — triggers **Tier 2 / Assign coding agent** (Copilot draft PR), when `COPILOT_ASSIGN_TOKEN` is set

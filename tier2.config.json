@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "project": "bcparks-ar-admin-agentic",
+  "tier": 2,
+  "include_tier1": true,
+  "checkpoints": {
+    "require_constitution": true,
+    "require_spec": true,
+    "require_plan_on_impl_paths": true,
+    "require_features": true,
+    "strict_placeholders": false,
+    "impl_path_prefixes": [
+      "src/",
+      "apps/",
+      "services/",
+      "packages/",
+      "deploy/",
+      "server/"
+    ]
+  },
+  "spec_review": {
+    "enabled": true,
+    "mode": "heuristic",
+    "paths": [
+      "src/",
+      "apps/",
+      "services/",
+      "server/",
+      "deploy/"
+    ],
+    "require_evidence": true,
+    "evidence_path": "docs/pr-evidence.md"
+  },
+  "coding_agent": {
+    "provider": "copilot",
+    "enabled": true,
+    "auto_assign": true,
+    "assign_label": "ready-for-agent",
+    "assignee": "copilot-swe-agent[bot]",
+    "base_branch": "main",
+    "draft_prs_only": true,
+    "custom_instructions": "",
+    "custom_agent": "",
+    "model": "",
+    "token_secret": "COPILOT_ASSIGN_TOKEN"
+  },
+  "mcp": {
+    "required": [
+      "bc-design-system",
+      "bcgov-sdlc",
+      "github"
+    ],
+    "optional": [
+      "figma"
+    ]
+  },
+  "agent": {
+    "mode": "auto",
+    "llm": {
+      "api_style": "azure-apim",
+      "base_url": "https://ai-services-hub-test-apim.azure-api.net/sdpr-invoice-automation/openai/deployments/gpt-5.1-chat",
+      "api_version": "2025-04-01-preview",
+      "model": "gpt-5.1-chat",
+      "api_key_env": "TIER1_LLM_API_KEY"
+    }
+  }
+}
