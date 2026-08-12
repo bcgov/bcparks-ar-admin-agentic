@@ -20,6 +20,61 @@ describe('KeycloakService', () => {
     });
   });
 
+  // AUTH-001: PKCE S256 init
+  describe('init() — PKCE (AUTH-001)', () => {
+    it('should call Keycloak init with pkceMethod S256 for real auth', async () => {
+      const keycloak = TestBed.get(KeycloakService);
+      const configService = TestBed.get(ConfigService);
+
+      spyOnProperty(configService, 'config', 'get').and.returnValue({
+        KEYCLOAK_ENABLED: true,
+        KEYCLOAK_URL: 'https://example.com/auth',
+        KEYCLOAK_REALM: 'test-realm',
+        KEYCLOAK_CLIENT_ID: 'test-client',
+        ENVIRONMENT: 'production',
+      });
+
+      const mockKeycloak = {
+        onAuthSuccess: null,
+        onAuthError: null,
+        onAuthRefreshSuccess: null,
+        onAuthRefreshError: null,
+        onAuthLogout: null,
+        onTokenExpired: null,
+        init: jasmine.createSpy('init').and.returnValue(Promise.resolve(true)),
+      };
+
+      (window as any).Keycloak = jasmine.createSpy('Keycloak').and.returnValue(mockKeycloak);
+
+      await keycloak.init();
+
+      expect(mockKeycloak.init).toHaveBeenCalledWith(
+        jasmine.objectContaining({ pkceMethod: 'S256' })
+      );
+    });
+
+    it('should not call Keycloak init when local mock auth is active', async () => {
+      const keycloak = TestBed.get(KeycloakService);
+      const configService = TestBed.get(ConfigService);
+
+      spyOnProperty(configService, 'config', 'get').and.returnValue({
+        KEYCLOAK_ENABLED: true,
+        KEYCLOAK_URL: 'https://example.com/auth',
+        KEYCLOAK_REALM: 'test-realm',
+        KEYCLOAK_CLIENT_ID: 'test-client',
+        ENVIRONMENT: 'local',
+        LOCAL_MOCK_AUTH: true,
+      });
+
+      const mockKcInit = jasmine.createSpy('init').and.returnValue(Promise.resolve(true));
+      (window as any).Keycloak = jasmine.createSpy('Keycloak').and.returnValue({ init: mockKcInit });
+
+      await keycloak.init();
+
+      expect(mockKcInit).not.toHaveBeenCalled();
+    });
+  });
+
   it('idp should be `idir` if the token has an idir_userid property', () => {
     spyOn(JwtUtil, 'decodeToken').and.callFake(() => {
       return {
