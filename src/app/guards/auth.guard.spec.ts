@@ -1,5 +1,5 @@
 import { TestBed, inject } from '@angular/core/testing';
-import { Router } from '@angular/router';
+import { Router, RouterStateSnapshot } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { KeycloakService } from '../services/keycloak.service';
 
@@ -29,7 +29,15 @@ describe('AuthGuard', () => {
   afterEach(() => {
     mockRouter.parseUrl.and.stub();
     mockKeycloakService.isAuthenticated.and.stub();
+    mockKeycloakService.isAuthorized.and.stub();
+    mockKeycloakService.isAllowed.and.stub();
+    mockKeycloakService.getIdpFromToken.and.stub();
+    mockKeycloakService.login.calls.reset();
   });
+
+  function createState(url: string) {
+    return { url } as RouterStateSnapshot;
+  }
 
   it('should be created', inject([AuthGuard], (guard: AuthGuard) => {
     expect(guard).toBeTruthy();
@@ -90,5 +98,39 @@ describe('AuthGuard', () => {
     guard.canActivate();
 
     expect(routerMock.parseUrl).toHaveBeenCalledWith('/unauthorized');
+  });
+
+  [
+    '/export-reports?download=1',
+    '/lock-records?x=1',
+    '/review-data?fiscal=2024#summary',
+    '/manage-subareas?foo=bar&baz=qux',
+  ].forEach((url) => {
+    it(`should redirect non-admin users from ${url}`, () => {
+      const routerMock = TestBed.get(Router);
+      routerMock.parseUrl.calls.reset();
+      mockKeycloakService.isAuthenticated.and.returnValue(true);
+      mockKeycloakService.isAuthorized.and.returnValue(true);
+      mockKeycloakService.isAllowed.and.returnValue(false);
+
+      const guard = TestBed.get(AuthGuard);
+      guard.canActivate(null, createState(url));
+
+      expect(routerMock.parseUrl).toHaveBeenCalledWith('/');
+    });
+  });
+
+  it('should allow admin users to activate lock-records when query params are present', () => {
+    const routerMock = TestBed.get(Router);
+    routerMock.parseUrl.calls.reset();
+    mockKeycloakService.isAuthenticated.and.returnValue(true);
+    mockKeycloakService.isAuthorized.and.returnValue(true);
+    mockKeycloakService.isAllowed.and.returnValue(true);
+
+    const guard = TestBed.get(AuthGuard);
+    const result = guard.canActivate(null, createState('/lock-records?fiscal=2024'));
+
+    expect(result).toBeTrue();
+    expect(routerMock.parseUrl).not.toHaveBeenCalledWith('/');
   });
 });
