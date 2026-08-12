@@ -20,6 +20,8 @@ export class AuthGuard {
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot,
   ): boolean | UrlTree {
+    const requestPath = state?.url?.split(/[?#]/, 1)[0];
+
     // When a successful login occurs, we store the identity provider used in sessionStorage.
     const lastIdp = sessionStorage.getItem(
       this.keycloakService.LAST_IDP_AUTHENTICATED,
@@ -66,27 +68,27 @@ export class AuthGuard {
 
     if (
       !this.keycloakService.isAllowed('export-reports') &&
-      state.url === '/export-reports'
+      requestPath === '/export-reports'
     ) {
       return this.router.parseUrl('/');
     }
 
     if (
       !this.keycloakService.isAllowed('lock-records') &&
-      state.url === '/lock-records'
+      requestPath === '/lock-records'
     ) {
       return this.router.parseUrl('/');
     }
 
     if (
       !this.keycloakService.isAllowed('review-data') &&
-      state.url === '/review-data'
+      requestPath === '/review-data'
     ) {
       return this.router.parseUrl('/');
     }
 
     if (!this.keycloakService.isAllowed('manage-subareas') &&
-      state.url === '/manage-subareas'
+      requestPath === '/manage-subareas'
     ) {
       return this.router.parseUrl('/');
     }
