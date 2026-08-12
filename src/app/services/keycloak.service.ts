@@ -11,10 +11,12 @@ declare let Keycloak: any;
 @Injectable()
 export class KeycloakService {
   public LAST_IDP_AUTHENTICATED = 'kc-last-idp-authenticated';
+  private static readonly LOCAL_MOCK_AUTH_KEY = 'ar-local-mock-auth';
   private keycloakAuth: any;
   private keycloakEnabled: boolean;
   private keycloakUrl: string;
   private keycloakRealm: string;
+  private localMockAuth = false;
 
   public readonly idpHintEnum = {
     BCEID: 'bceid',
@@ -28,11 +30,90 @@ export class KeycloakService {
     private toastService: ToastService
   ) {}
 
+  /**
+   * Local-only fake session (sysadmin) for stand-up without Keycloak roles.
+   * Enable: http://localhost:4200/?localMockAuth=1
+   * Disable: http://localhost:4200/?localMockAuth=0
+   * Or set window.__env.LOCAL_MOCK_AUTH = true in a local env override.
+   * Refused unless ENVIRONMENT === 'local'.
+   */
+  private resolveLocalMockAuth(): boolean {
+    const envName = this.configService.config?.['ENVIRONMENT'];
+    if (envName !== 'local') {
+      return false;
+    }
+
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const flag = params.get('localMockAuth');
+      if (flag === '1' || flag === 'true') {
+        sessionStorage.setItem(KeycloakService.LOCAL_MOCK_AUTH_KEY, '1');
+      } else if (flag === '0' || flag === 'false') {
+        sessionStorage.removeItem(KeycloakService.LOCAL_MOCK_AUTH_KEY);
+      }
+    } catch {
+      /* ignore */
+    }
+
+    if (this.configService.config?.['LOCAL_MOCK_AUTH'] === true) {
+      return true;
+    }
+
+    return sessionStorage.getItem(KeycloakService.LOCAL_MOCK_AUTH_KEY) === '1';
+  }
+
+  private buildMockJwt(): string {
+    const payload = {
+      name: 'Local Mock User',
+      preferred_username: 'local.mock',
+      idir_userid: 'LOCALMOCK',
+      resource_access: {
+        'attendance-and-revenue': {
+          roles: ['sysadmin', 'MOC1', 'MOC1:MOC1', 'MOC2', 'MOC2:MOC2'],
+        },
+      },
+    };
+    const encode = (obj: object) =>
+      btoa(JSON.stringify(obj))
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=+$/, '');
+    return `${encode({ alg: 'none', typ: 'JWT' })}.${encode(payload)}.mock`;
+  }
+
+  private initLocalMockAuth(): void {
+    this.localMockAuth = true;
+    this.keycloakEnabled = false;
+    const token = this.buildMockJwt();
+    this.keycloakAuth = {
+      authenticated: true,
+      token,
+      updateToken: () => Promise.resolve(false),
+      login: () => {
+        window.location.href = '/';
+      },
+    };
+    sessionStorage.setItem(this.LAST_IDP_AUTHENTICATED, this.idpHintEnum.IDIR);
+    this.loggerService.log(
+      'LOCAL_MOCK_AUTH active — fake sysadmin session (local ENVIRONMENT only).',
+    );
+    this.toastService.addMessage(
+      'Using local mock auth (sysadmin). Not for shared environments.',
+      'Local mock auth',
+      Constants.ToastTypes.INFO,
+    );
+  }
+
   async init() {
     // Load up the config service data
     this.keycloakEnabled = this.configService.config['KEYCLOAK_ENABLED'];
     this.keycloakUrl = this.configService.config['KEYCLOAK_URL'];
     this.keycloakRealm = this.configService.config['KEYCLOAK_REALM'];
+
+    if (this.resolveLocalMockAuth()) {
+      this.initLocalMockAuth();
+      return;
+    }
 
     if (this.keycloakEnabled) {
       // Bootup KC
