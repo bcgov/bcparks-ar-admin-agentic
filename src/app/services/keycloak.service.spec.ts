@@ -26,15 +26,14 @@ describe('KeycloakService', () => {
       const keycloak = TestBed.get(KeycloakService);
       const configService = TestBed.get(ConfigService);
 
-      configService.config = {
+      spyOnProperty(configService, 'config', 'get').and.returnValue({
         KEYCLOAK_ENABLED: true,
         KEYCLOAK_URL: 'https://example.com/auth',
         KEYCLOAK_REALM: 'test-realm',
         KEYCLOAK_CLIENT_ID: 'test-client',
         ENVIRONMENT: 'production',
-      };
+      });
 
-      let capturedInitOptions: any;
       const mockKeycloak = {
         onAuthSuccess: null,
         onAuthError: null,
@@ -42,10 +41,7 @@ describe('KeycloakService', () => {
         onAuthRefreshError: null,
         onAuthLogout: null,
         onTokenExpired: null,
-        init: jasmine.createSpy('init').and.callFake((opts: any) => {
-          capturedInitOptions = opts;
-          return Promise.resolve(true);
-        }),
+        init: jasmine.createSpy('init').and.returnValue(Promise.resolve(true)),
       };
 
       (window as any).Keycloak = jasmine.createSpy('Keycloak').and.returnValue(mockKeycloak);
@@ -61,14 +57,14 @@ describe('KeycloakService', () => {
       const keycloak = TestBed.get(KeycloakService);
       const configService = TestBed.get(ConfigService);
 
-      configService.config = {
+      spyOnProperty(configService, 'config', 'get').and.returnValue({
         KEYCLOAK_ENABLED: true,
         KEYCLOAK_URL: 'https://example.com/auth',
         KEYCLOAK_REALM: 'test-realm',
         KEYCLOAK_CLIENT_ID: 'test-client',
         ENVIRONMENT: 'local',
         LOCAL_MOCK_AUTH: true,
-      };
+      });
 
       const mockKcInit = jasmine.createSpy('init').and.returnValue(Promise.resolve(true));
       (window as any).Keycloak = jasmine.createSpy('Keycloak').and.returnValue({ init: mockKcInit });
