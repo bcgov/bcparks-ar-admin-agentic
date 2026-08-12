@@ -1,13 +1,7 @@
 # Constitution pointer
 
-The canonical constitution for this bundle lives at:
+The canonical constitution for this service lives at the repository root:
 
-`bundles/greenfield/constitution.md`
+[`constitution.md`](../../constitution.md)
 
-When copying the bundle into a service repo, place that file at:
-
-`.specify/memory/constitution.md`
-
-(or keep a root `constitution.md` and link it from here).
-
-Platform and project articles are defined in the full constitution file.
+Agents and Spec Kit workflows MUST treat that file as source of truth for platform and project articles.

@@ -26,9 +26,9 @@ This repository is enrolled in **Tier 2** of the BC Gov agentic SDLC pattern.
 ### Before implementing
 
 1. Confirm work is in `spec/tasks.md` and traced to `spec/features/*.feature` (or an explicit spec section).
-2. Query **bc-design-system** MCP before UI (`get_component`, `get_guidelines`).
-3. Query **bcgov-sdlc** MCP for constitution / Gherkin / OpenShift checks when relevant.
-4. Do not invent scope outside the signed `spec/spec.md`.
+2. Read root [`constitution.md`](constitution.md) — this is an **Angular** admin UI on **AWS** using the **BC Parks / Digital Space** theme (`@digitalspace/*`), not a greenfield React + OpenShift app.
+3. Match existing `src/app/` patterns; do not introduce a parallel UI stack. Prefer Design System MCP guidance only when it does not conflict with J2/J6 in the constitution.
+4. Do not invent scope outside the signed `spec/spec.md`. Backend behaviour belongs in `bcparks-ar-api`.
 
 ### Checkpoints (humans)
 
