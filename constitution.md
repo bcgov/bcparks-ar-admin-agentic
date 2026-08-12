@@ -118,6 +118,7 @@ Agents MAY only use approved MCP servers and model routes for this classificatio
 
 - Full interactive UI needs Keycloak (`dev.loginproxy.gov.bc.ca` or equivalent) and a running `bcparks-ar-api` (default `http://localhost:3000`). Prefer stories that can be verified with **lint/unit tests** when those dependencies are unavailable.
 - `KEYCLOAK_ENABLED=false` in `env.js` is a local escape hatch only — do not ship that to shared environments.
+- For local stand-up without Keycloak **client roles**, `ENVIRONMENT=local` supports mock auth via `?localMockAuth=1` (fake sysadmin JWT). Never enable in non-local environments.
 - Contribute per BC Parks collaboration guide: https://bcgov.github.io/bcparks/collaborate
 
 ---
