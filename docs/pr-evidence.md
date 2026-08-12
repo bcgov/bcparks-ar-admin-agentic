@@ -81,3 +81,50 @@ Reviewer confirms: PR matches signed spec/plan; no constitution violations; read
 ## Design system & accessibility
 
 No UI changes.
+
+---
+
+# PR evidence — [RA LOG-003] Log authorization failures in AuthGuard
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/fix/log-003-auth-denial-logging |
+| Spec refs | spec/features/log-003-auth-denial-logging.feature |
+| Constitution articles touched | J6 |
+| Authoring agent | GitHub Copilot Coding Agent |
+| Generated | 2026-08-12T22:30:00Z |
+
+## Intent
+
+`AuthGuard` now injects `LoggerService` and emits a `warn`-level log entry before every authorization-failure redirect. Each log entry includes the requested path, the denial reason, and the `preferred_username` identity hint from the session token when available (empty string otherwise). This satisfies LOG-003 (OWASP A09:2021 / CWE-778) without adding any server-side audit endpoint or collecting new personal data beyond what is already in the token.
+
+Additionally, `KeycloakService.getUsername()` is added to expose `preferred_username` for the identity hint.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| Authenticated but not authorized → warn logged with path + reason | Yes | `auth.guard.ts` logs before `parseUrl('/unauthorized')` |
+| Admin-only route denied → warn logged with path + reason | Yes | `auth.guard.ts` logs before each `parseUrl('/')` capability redirect |
+| Identity hint (username) included when available | Yes | `keycloak.service.getUsername()` returns `preferred_username` |
+| No server-side audit endpoint | Yes | Out of scope; not added |
+
+## Design system & accessibility
+
+No UI changes.
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Unit | `yarn test-ci` — `src/app/guards/auth.guard.spec.ts` | Spies assert `logger.warn` called with path + reason for each denial scenario |
+
+## Risks & follow-ups
+
+- Client-side logs are best-effort (browser console); server-side audit is a separate slice.
+
+## Human checkpoint 3
+
+Reviewer confirms: PR matches signed spec/plan; no constitution violations; ready to merge.
+
+- Reviewer: _______________ Date: _______________
