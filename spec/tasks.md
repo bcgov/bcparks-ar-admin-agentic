@@ -1,16 +1,26 @@
-# Tasks — AuthGuard path matching (AUTHZ-001)
+# Tasks — PKCE on Keycloak init (AUTH-001)
 
-Derive from `spec.md` + `features/authz-001-admin-route-guard.feature`. Issue: #6.
+Derive from `spec/spec.md` + `features/auth-001-pkce.feature`. Issue: [#11](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/11).
 
-## Milestone 1 — Close query-string bypass
+## Milestone 1 — Enable PKCE (after checkpoint 2 approval)
 
-- [ ] **TASK-001** — Change `AuthGuard` admin-route checks to compare path without query/fragment (all four protected routes) — covers scenarios *Non-admin denied with query string* and *Admin allowed with query string*
-- [ ] **TASK-002** — Add/extend unit tests in `auth.guard.spec.ts` for denied + allowed cases with `?…` URLs (and at least one fragment or multi-param case)
+- [ ] **TASK-001** — Change real Keycloak `init({})` to include `pkceMethod: 'S256'` in `KeycloakService` — covers scenario *Real Keycloak init enables PKCE S256*
+- [ ] **TASK-002** — Add/extend unit tests proving init options include PKCE S256 on the real-auth path, and that local mock auth does not require Keycloak PKCE init — covers both feature scenarios
 - [ ] **TASK-003** — Run `yarn lint` and `yarn test-ci`; update `docs/pr-evidence.md` on the implementation PR
-- [ ] **TASK-004** — Open **draft** PR linking #6; do not self-merge
+- [ ] **TASK-004** — Open **draft** PR linking #11; do not self-merge
 
-## Backlog (follow-ups, not this PR)
+## After checkpoint 2 merge (human)
 
-- [ ] LOG-003 — Log authorization denials in the guard
-- [ ] AUTHZ-002 — Review `isAllowed()` fall-through for unlisted routes
-- [ ] AUTHZ-003 — Hide manage-subareas nav for non-admins
+- [ ] Add label `ready-for-agent` to #11 **or** implement locally from this task list
+- [ ] Approve waiting Actions on the draft PR; review; merge (checkpoint 3)
+
+## Completed (prior slice)
+
+- [x] AUTHZ-001 — AuthGuard path matching (#6) — shipped
+
+## Backlog (not this slice)
+
+- [ ] AUTH-003 — Logout
+- [ ] AUTH-004 — Token refresh failure UX
+- [ ] AUTH-007 — Bearer host allowlist
+- [ ] LOG-003 — Log authorization denials
