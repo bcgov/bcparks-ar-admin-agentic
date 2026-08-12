@@ -54,3 +54,30 @@ Checklist IDs addressed this PR: N/A — no public UI/content change
 Reviewer confirms: PR matches signed spec/plan; no constitution violations; ready to merge.
 
 - Reviewer: _______________ Date: _______________
+
+---
+
+# PR evidence — [RA AUTH-001] Enable PKCE (S256) on Keycloak OIDC init
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/fix/auth-001-pkce-s256 |
+| Spec refs | spec/features/auth-001-pkce.feature |
+| Constitution articles touched | J6 |
+| Authoring agent | GitHub Copilot Coding Agent |
+| Generated | 2026-08-12T20:21:00Z |
+
+## Intent
+
+`KeycloakService.init()` now passes `{ pkceMethod: 'S256' }` to the Keycloak JS client for all non-mock sessions, satisfying OAuth 2.0 Security BCP for public OIDC clients (OWASP A07:2021 / CWE-287). Local mock auth (`?localMockAuth=1`) is unaffected — Keycloak `init()` is never called in that path.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| Real session: Keycloak init uses pkceMethod S256 | Yes | `keycloak.service.ts` line `init({ pkceMethod: 'S256' })` |
+| Mock auth: Keycloak init not required | Yes | `resolveLocalMockAuth()` short-circuits before KC init; covered by spec test |
+
+## Design system & accessibility
+
+No UI changes.

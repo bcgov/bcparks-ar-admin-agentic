@@ -163,9 +163,9 @@ export class KeycloakService {
             });
         };
 
-        // Initialize.
+        // Initialize with PKCE S256 (OAuth 2.0 Security BCP, AUTH-001).
         this.keycloakAuth
-          .init({})
+          .init({ pkceMethod: 'S256' })
           .then((auth) => {
             this.loggerService.debug(`KC Refresh Success?:${this.keycloakAuth.authServerUrl}`);
             this.loggerService.log(`KC Success: ${auth}`);
