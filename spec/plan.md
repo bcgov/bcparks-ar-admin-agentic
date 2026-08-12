@@ -1,46 +1,47 @@
-# Plan — PKCE on Keycloak init (AUTH-001)
+# Plan — Auth denial logging (LOG-003)
 
-> Architecture and delivery approach for issue [#11](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/11) / RA AUTH-001.  
+> Architecture and delivery approach for issue [#15](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/15) / RA LOG-003.  
 > Checkpoint 1 (spec) is merged. This document is **checkpoint 2**.
 
 ## Summary
 
-For **real** Keycloak sessions, pass `pkceMethod: 'S256'` into `keycloak-js` `init(...)` instead of `init({})`. Leave **local mock auth** on the early-return path (no Keycloak adapter init). Prove via unit/service tests that the real-auth init options include PKCE S256. No hosting, Design System, or realm admin changes in this slice.
+Inject `LoggerService` into `AuthGuard` and emit `warn` **before** each authorization-failure redirect (`/unauthorized` or home `/` for admin-only routes). Log payload includes requested path, denial reason, and a stable identity hint when available. Prove via unit tests with a `LoggerService` spy. No server-side audit API, no route-policy changes, no UI.
 
 ## Architecture
 
 ```text
-App bootstrap
-  → ConfigService (ENVIRONMENT, KEYCLOAK_*)
-  → KeycloakService.init()
-       ├─ if local mock auth → fake JWT session (unchanged)
-       └─ else if KEYCLOAK_ENABLED → keycloakAuth.init({ pkceMethod: 'S256' })
-            → OIDC authorize + token with PKCE
+Router navigation
+  → AuthGuard.canActivate(route, state)
+       ├─ not authenticated → login / IdP (unchanged; not this slice)
+       ├─ not authorized → logger.warn(...) → /unauthorized
+       ├─ admin-only denied → logger.warn(...) → /
+       └─ allowed → true
 ```
 
 ## Key decisions
 
 | Decision | Choice | Rationale |
 | --- | --- | --- |
-| PKCE method | `S256` only | OAuth 2.0 Security BCP; supported by keycloak-js v25 |
-| Where to set it | Options object on `init(...)` in `KeycloakService` | Matches finding location; minimal blast radius |
-| Local mock auth | Unchanged early return | Stand-up without IdP roles must keep working |
-| IdP / realm changes | None in-repo; document residual risk if login fails | Client already public OIDC; PKCE is usually client-side |
-| UI / hosting | No change | Constitution J6 |
-| Verification | Extend `keycloak.service.spec.ts` (or equivalent) | CI without live loginproxy |
+| Where to log | `AuthGuard` at each authz-failure redirect | Matches finding location; minimal blast radius |
+| Log level | `LoggerService.warn` | Visible above typical info/debug; matches signed spec |
+| Identity hint | Prefer existing Keycloak helpers (e.g. username/preferred_username/sub if already exposed); never log raw JWT or full config | Privacy; constitution-friendly |
+| Path in log | Use same path-only form as AUTHZ-001 (`requestPath`) | Consistent with guard matching |
+| Server audit | Out of scope | Explicit CP1 acceptance for pilot |
+| Log-level residual | Environments with `LogLevel.Off` still won’t print (LOG-004) | Document; do not fix LOG-004 here |
+| Verification | Extend `auth.guard.spec.ts` | CI without live IdP |
 
 ## Security & privacy
 
 - Classification: Internal staff UI
-- PIA: No new data collection
+- PIA: No new data collection; only session-derived identity hints already available to the guard
 - Secrets: None
-- Residual risk: If the Keycloak client were misconfigured to reject PKCE, real login could fail until platform adjusts the client — mitigate by smoke-testing IDIR against `dev.loginproxy` after merge (human), and by keeping mock auth for local UI work
+- Residual risk: Client-console logs are not a durable SIEM; acceptable for this pilot per CP1
 
 ## Test approach
 
-- Cover `features/auth-001-pkce.feature` scenarios in unit tests:
-  - Real path: init called with options including PKCE S256 (spy/mock Keycloak constructor/adapter)
-  - Mock path: adapter `init` not used for PKCE when local mock auth is active
+- Cover `features/log-003-auth-denial-logging.feature`:
+  - Unauthorized → `warn` called with path + reason; redirect to `/unauthorized`
+  - Admin-only denial (e.g. lock-records) → `warn` called with path + reason; redirect to `/`
 - CI: `yarn lint` + `yarn test-ci` on the implementation PR
 - Update `docs/pr-evidence.md` on the implementation PR
 
@@ -48,7 +49,7 @@ App bootstrap
 
 - Ship with next admin UI deploy
 - No data migration
-- Optional human smoke: real IDIR login on a lower environment after deploy
+- Optional human smoke: trigger an unauthorized or non-admin admin-route hit locally / lower env and confirm warn appears when log level allows
 
 ## Approval (checkpoint 2) — **human required**
 
@@ -57,4 +58,4 @@ App bootstrap
 | Architect / tech lead | | |
 | Security (if required) | | |
 
-> Do not add `ready-for-agent` to #11 until this table is filled and this plan PR is merged.
+> Do not add `ready-for-agent` to #15 until this table is filled and this plan PR is merged.
