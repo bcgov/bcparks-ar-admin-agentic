@@ -10,7 +10,6 @@ describe('ConfigService', () => {
 
   let mockHttpClient = {
     get: (location) => {
-      console.log("Getting configuration:", location);
       return of({
         debug: true,
         configurationEndpoint: true
@@ -20,7 +19,6 @@ describe('ConfigService', () => {
 
   let mockHttpClientLogLevelZero = {
     get: (location) => {
-      console.log("Getting configuration:", location);
       return of({
         debug: true,
         configurationEndpoint: true,
@@ -71,10 +69,12 @@ describe('ConfigService', () => {
     expect(service.config).toEqual({});
     expect(service.logLevel).toEqual(undefined);
     const consoleError = spyOn(console, 'error');
+    const consoleLog = spyOn(console, 'log');
 
     await service.init();
 
     expect(consoleError).toHaveBeenCalledTimes(0);
+    expect(consoleLog).not.toHaveBeenCalledWith('Configuration:', jasmine.anything());
   });
 
   it('should be created and have log level 0', async () => {
@@ -108,5 +108,19 @@ describe('ConfigService', () => {
     await service.init();
 
     expect(consoleError).toHaveBeenCalled();
+  });
+
+  it('should not dump full configuration when logLevel is not 0', async () => {
+    window['__env'] = {
+      debug: true,
+      configEndpoint: false,
+      logLevel: 3
+    };
+    service = TestBed.inject(ConfigService);
+    const consoleLog = spyOn(console, 'log');
+
+    await service.init();
+
+    expect(consoleLog).not.toHaveBeenCalledWith('Configuration:', jasmine.anything());
   });
 });

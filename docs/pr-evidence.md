@@ -81,3 +81,30 @@ Reviewer confirms: PR matches signed spec/plan; no constitution violations; read
 ## Design system & accessibility
 
 No UI changes.
+
+---
+
+# PR evidence — [RA LOG-001] Do not dump full configuration to browser console
+
+| Field | Value |
+| --- | --- |
+| PR / branch | current working branch |
+| Spec refs | `spec/spec.md` (LOG-001), `spec/features/log-001-no-config-console-dump.feature` |
+| Constitution articles touched | J6 |
+| Authoring agent | GitHub Copilot Coding Agent |
+| Generated | 2026-08-13T20:54:13.617Z |
+
+## Intent
+
+Removed `console.log('Configuration:', this.configuration)` from `ConfigService.init()` so runtime configuration values are no longer dumped to browser console at `logLevel === 0`.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| No full config dump when logLevel is All (0) | Yes | Verified in `config.service.spec.ts` with `console.log` spy |
+| No full config dump when logLevel is not All | Yes | Verified in `config.service.spec.ts` with `console.log` spy |
+
+## Design system & accessibility
+
+No UI changes.
