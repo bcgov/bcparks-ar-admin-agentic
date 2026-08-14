@@ -5,83 +5,59 @@
 
 ---
 
-## Active slice — CONFIG-002 (Content-Security-Policy)
+## Active slice — SECRET-001 (prod certificate input)
 
-**Issue:** [#41](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/41)  
-**Finding:** RA CONFIG-002  
-**Feature:** `features/config-002-cloudfront-csp.feature`
+**Issue:** [#46](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/46)  
+**Finding:** RA SECRET-001  
+**Feature:** `features/secret-001-prod-certificate-arn.feature`
 
 ### Problem
 
-Responses from the admin UI host do not tell the browser which script, style, image, font, connect, or frame sources are allowed. Without that policy, injected script can run, and the Keycloak login host is not an explicit allowlisted partner.
+The production deploy workflow embeds a full ACM certificate identifier (including the production cloud account) in the repository. Anyone who can read the repo can enumerate that account.
 
 ### Outcome
 
-The shared response-headers policy emits a Content-Security-Policy whose allowlist matches how this app actually loads:
+The production deploy step reads the certificate identifier from a production environment input (`DOMAIN_CERTIFICATE_ARN`) instead of a literal in the workflow file. Non-production workflows are unchanged. The value itself is not copied into specs, evidence, or review comments.
 
-- First-party UI assets (scripts, styles, images, fonts) from the same host
-- API calls to the configured attendance API host (same host via `/api`, API Gateway, or `*.bcparks.ca`)
-- Keycloak / loginproxy (`loginproxy.gov.bc.ca` and `*.loginproxy.gov.bc.ca`) for token/XHR, silent-check iframe, and login navigation
-- Inline styles required by the current UI libraries
-- No plugins (`object-src` none); no embedding this app in other sites (`frame-ancestors` none)
-
-HSTS, CORS, and the CONFIG-004 browser headers remain. Proof is structural inspection of the hosting template. Live login/API smoke after deploy is residual.
+**Delivery pause:** do not merge the workflow change until a human has created the `lza-prod` GitHub Environment and set `vars.DOMAIN_CERTIFICATE_ARN`. Merging first would break production deploys.
 
 ### Users & personas
 
 | Persona | Goal |
 | --- | --- |
-| BC Parks staff | Login, API calls, and the UI continue to work after CSP is on |
-| Security reviewer | Confirm CSP is present on the shared policy with a sourced allowlist |
-| Platform operator | Extend the existing policy; keep three behavior attachments |
+| Platform operator | Prod deploy still receives a valid certificate identifier |
+| Security reviewer | Confirm the workflow no longer contains a literal ACM ARN |
+| Release manager | Know the environment variable must exist before the change ships |
 
 ### Scope
 
-#### In scope (#41)
+#### In scope (#46)
 
-- CSP on the existing shared response-headers policy
-- Allowlist derived from SPA assets, API `connect-src`, and Keycloak/loginproxy (see below)
-- Preserve HSTS, CORS, and CONFIG-004 headers and all three attachments
-- Static template proof
+- Replace the hardcoded `DomainCertificateArn` on the LZA prod deploy workflow with `${{ vars.DOMAIN_CERTIFICATE_ARN }}`
+- Static proof that the prod workflow no longer contains a literal `arn:aws:acm:` on that parameter
+- Document the `lza-prod` environment prerequisite
 
 #### Out of scope
 
-- New response-headers policy
-- App UI/API/Keycloak client changes
-- Nonce/hash-based `script-src` or removing `'unsafe-inline'` from styles in this slice
-- Live deploy / login smoke in CI
-
-### Derived allowlist (pre-plan)
-
-Reviewed `src/index.html`, `angular.json` (bundled jQuery/Bootstrap/Popper/keycloak-js — not a CDN), `src/styles.scss` (Bootstrap Icons fonts), `src/env.js` / deploy workflows (`API_LOCATION`, `KEYCLOAK_URL`), and Keycloak init (token XHR + possible silent iframe).
-
-| Directive | Sources | Why |
-| --- | --- | --- |
-| `default-src` / `script-src` / `base-uri` | `'self'` | Bundled SPA + `env.js`; Keycloak JS is npm-bundled, not loaded from loginproxy |
-| `style-src` | `'self' 'unsafe-inline'` | Angular/component styles, ngx-bootstrap datepicker, ngx-toastr |
-| `img-src` / `font-src` | `'self' data:` | Local assets + Bootstrap Icons |
-| `connect-src` | `'self'` + loginproxy + `*.execute-api.ca-central-1.amazonaws.com` + `*.bcparks.ca` | API via `API_LOCATION`; Keycloak token/userinfo |
-| `frame-src` | loginproxy hosts | Keycloak silent SSO iframe |
-| `form-action` | `'self'` + loginproxy hosts | Login redirect/form |
-| `object-src` | `'none'` | No plugins |
-| `frame-ancestors` | `'none'` | Complements CONFIG-004 frame denial |
-
-Exact header string is a checkpoint 2 decision. CSP host wildcards: `https://*.loginproxy.gov.bc.ca` does **not** match apex `https://loginproxy.gov.bc.ca` — both must be listed.
+- Dev/test hardcoded ARNs (SECRET-002)
+- Creating the GitHub Environment or writing the secret/variable (human / org admin)
+- Rotating the certificate
+- Putting the ARN in comments, evidence, or this spec
 
 ### Journeys
 
-1. Shared policy contains CSP with the derived allowlist — see `features/config-002-cloudfront-csp.feature`
+1. Prod workflow uses environment input — see `features/secret-001-prod-certificate-arn.feature`
 
 ### Non-functional requirements
 
-- No UI change; AWS hosting remains
-- Static proof in evidence; post-deploy login/API header smoke residual
+- No application code change
+- Evidence must not reprint the ARN
 
 ### Traceability
 
 | Finding | Issue | Feature |
 | --- | --- | --- |
-| RA CONFIG-002 | #41 | `features/config-002-cloudfront-csp.feature` |
+| RA SECRET-001 | #46 | `features/secret-001-prod-certificate-arn.feature` |
 
 ### Sign-off (checkpoint 1) — **human required**
 
@@ -91,11 +67,16 @@ Exact header string is a checkpoint 2 decision. CSP host wildcards: `https://*.l
 | Tech lead | | |
 | QA | | |
 
-> Do not add `ready-for-agent` to #41 until this spec PR is merged.
+> Do not add `ready-for-agent` to #46 until this spec PR is merged. Do not merge the implementation PR until `lza-prod` / `DOMAIN_CERTIFICATE_ARN` exists.
 
 ---
 
 ## Completed slices
+
+### CONFIG-002 — Content-Security-Policy
+
+- **Issue:** [#41](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/41) (shipped)
+- **Feature:** `features/config-002-cloudfront-csp.feature`
 
 ### CONFIG-004 — Browser security headers
 
