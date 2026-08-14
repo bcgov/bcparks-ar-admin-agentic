@@ -5,59 +5,63 @@
 
 ---
 
-## Active slice — SECRET-001 (prod certificate input)
+## Active slice — TEST-001 (token interceptor coverage)
 
-**Issue:** [#46](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/46)  
-**Finding:** RA SECRET-001  
-**Feature:** `features/secret-001-prod-certificate-arn.feature`
+**Issue:** [#51](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/51)  
+**Finding:** RA TEST-001  
+**Feature:** `features/test-001-token-interceptor.feature`
 
 ### Problem
 
-The production deploy workflow embeds a full ACM certificate identifier (including the production cloud account) in the repository. Anyone who can read the repo can enumerate that account.
+The HTTP interceptor that attaches the staff session token to outbound requests, and that retries after a 403 by refreshing that token, has no automated tests. Regressions in header injection or refresh/retry would ship unnoticed.
 
 ### Outcome
 
-The production deploy step reads the certificate identifier from a production environment input (`DOMAIN_CERTIFICATE_ARN`) instead of a literal in the workflow file. Non-production workflows are unchanged. The value itself is not copied into specs, evidence, or review comments.
+A focused unit spec covers the **current** interceptor behaviour:
 
-**Delivery pause:** do not merge the workflow change until a human has created the `lza-prod` GitHub Environment and set `vars.DOMAIN_CERTIFICATE_ARN`. Merging first would break production deploys.
+1. Authenticated requests get a Bearer token header
+2. Non-403 failures pass through without a refresh
+3. HTTP 403 triggers a token refresh and retries the request
+4. Refresh failure surfaces the error (no new logout path)
+5. Concurrent 403s share one in-flight refresh
+
+This slice does **not** change interceptor production code except as required to make tests compile. AUTH-006 (401 vs 403) and AUTH-007 (host allowlist) stay follow-ups. The assessment’s “omit header when unauthenticated” and “logout on refresh failure” are **not** current behaviour and are out of scope.
 
 ### Users & personas
 
 | Persona | Goal |
 | --- | --- |
-| Platform operator | Prod deploy still receives a valid certificate identifier |
-| Security reviewer | Confirm the workflow no longer contains a literal ACM ARN |
-| Release manager | Know the environment variable must exist before the change ships |
+| Developer | Catch interceptor regressions in CI |
+| Security reviewer | Confirm coverage matches today’s 403-refresh design |
 
 ### Scope
 
-#### In scope (#46)
+#### In scope (#51)
 
-- Replace the hardcoded `DomainCertificateArn` on the LZA prod deploy workflow with `${{ vars.DOMAIN_CERTIFICATE_ARN }}`
-- Static proof that the prod workflow no longer contains a literal `arn:aws:acm:` on that parameter
-- Document the `lza-prod` environment prerequisite
+- `token-interceptor.spec.ts` covering the scenarios above
+- HttpClient testing module (or equivalent Karma/Jasmine HTTP mocks already in the project)
 
 #### Out of scope
 
-- Dev/test hardcoded ARNs (SECRET-002)
-- Creating the GitHub Environment or writing the secret/variable (human / org admin)
-- Rotating the certificate
-- Putting the ARN in comments, evidence, or this spec
+- Changing 403 to 401 (AUTH-006)
+- Restricting which hosts receive the Bearer header (AUTH-007)
+- Adding logout on refresh failure
+- E2E / live Keycloak tests
 
 ### Journeys
 
-1. Prod workflow uses environment input — see `features/secret-001-prod-certificate-arn.feature`
+1. See `features/test-001-token-interceptor.feature`
 
 ### Non-functional requirements
 
-- No application code change
-- Evidence must not reprint the ARN
+- Tests run in existing `yarn test-ci`
+- No production behaviour change
 
 ### Traceability
 
 | Finding | Issue | Feature |
 | --- | --- | --- |
-| RA SECRET-001 | #46 | `features/secret-001-prod-certificate-arn.feature` |
+| RA TEST-001 | #51 | `features/test-001-token-interceptor.feature` |
 
 ### Sign-off (checkpoint 1) — **human required**
 
@@ -67,11 +71,16 @@ The production deploy step reads the certificate identifier from a production en
 | Tech lead | | |
 | QA | | |
 
-> Do not add `ready-for-agent` to #46 until this spec PR is merged. Do not merge the implementation PR until `lza-prod` / `DOMAIN_CERTIFICATE_ARN` exists.
+> Do not add `ready-for-agent` to #51 until this spec PR is merged.
 
 ---
 
 ## Completed slices
+
+### SECRET-001 — Prod certificate input
+
+- **Issue:** [#46](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/46) (paused: `lza-prod` / `DOMAIN_CERTIFICATE_ARN` not configured; draft PR open)
+- **Feature:** `features/secret-001-prod-certificate-arn.feature`
 
 ### CONFIG-002 — Content-Security-Policy
 
