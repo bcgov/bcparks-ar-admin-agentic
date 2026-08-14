@@ -1,3 +1,54 @@
+# PR evidence — [RA CONFIG-002] Missing Content-Security-Policy Header on All CloudFront Cache Behaviors
+
+| Field | Value |
+| --- | --- |
+| PR / branch | current working branch |
+| Spec refs | `spec/spec.md` (CONFIG-002), `spec/features/config-002-cloudfront-csp-header.feature` |
+| Constitution articles touched | J6 |
+| Tasks | CONFIG-002 |
+| Authoring agent | GitHub Copilot Coding Agent |
+| Generated | 2026-08-14T18:22:00Z |
+
+## Intent
+
+Extended `CloudFrontHSTSResponseHeadersPolicy` in `template.yaml` with a `ContentSecurityPolicy` directive in `SecurityHeadersConfig`. The CSP allowlist is derived from:
+
+- First-party SPA assets (`'self'`)
+- Keycloak/loginproxy (`*.gov.bc.ca`, env-specific loginproxy subdomains)
+- API Gateway (`*.execute-api.ca-central-1.amazonaws.com`)
+- `frame-ancestors 'none'` (complements `X-Frame-Options: DENY`)
+
+All three CloudFront cache behaviors share the same policy so the header is applied uniformly.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| CSP header present on all behaviors | Yes | Shared policy `CloudFrontHSTSResponseHeadersPolicy` |
+| `script-src 'self'` | Yes | No CDN scripts, only first-party |
+| `connect-src` includes API and loginproxy | Yes | `*.gov.bc.ca`, `*.execute-api.*` |
+| `frame-ancestors 'none'` | Yes | Prevents framing |
+| `object-src 'none'` | Yes | No plugin content |
+| HSTS, CORS, CONFIG-004 headers preserved | Yes | Unchanged |
+
+## Design system & accessibility
+
+No UI changes.
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Static assertion | `grep -n "ContentSecurityPolicy" template.yaml` | Passes |
+| Static assertion | `grep -n "frame-ancestors" template.yaml` | Passes |
+
+## Risks & follow-ups
+
+- Live header smoke test after deploy recommended (check `Content-Security-Policy` header via curl or browser devtools).
+- If new CDN fonts/scripts are added, `style-src`/`script-src` must be updated.
+
+---
+
 # PR evidence — [RA CONFIG-004] Missing X-Frame-Options, X-Content-Type-Options, Referrer-Policy, and Permissions-Policy Headers
 
 | Field | Value |
