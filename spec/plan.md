@@ -1,52 +1,58 @@
-# Plan — No full config console dump (LOG-001)
+# Plan — Keycloak lifecycle log levels (LOG-002)
 
-> Architecture and delivery approach for issue [#19](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/19) / RA LOG-001.  
+> Architecture and delivery approach for issue [#23](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/23) / RA LOG-002.  
 > Checkpoint 1 (spec) is merged. This document is **checkpoint 2**.
 
 ## Summary
 
-Remove the `console.log('Configuration:', this.configuration)` block in `ConfigService.init()` that fires when `logLevel === 0`. Prove with unit tests that `console.log` is not used to dump the full config object (verbose and non-verbose paths). No sanitized dump, no LOG-004, no UI.
+Raise `onAuthError`, `onAuthRefreshError`, and `onAuthLogout` in `KeycloakService.init()` from `loggerService.debug()` to `warn` or `error`. Optionally include `getUsername()` as an identity hint. Prove with unit tests that invoke the callbacks. No server audit API, no LOG-004, no AUTH-003 logout UI.
 
 ## Architecture
 
 ```text
-App bootstrap
-  → ConfigService.init()
-       ├─ load window.__env (± remote /config)
-       ├─ previously: if logLevel === 0 → console.log(full config)  ← remove
-       └─ return
+KeycloakService.init()  (real path only; mock auth short-circuits)
+  → new Keycloak(config)
+  → callbacks:
+       onAuthSuccess        → debug (unchanged)
+       onAuthError          → warn/error  ← raise
+       onAuthRefreshSuccess → debug (unchanged)
+       onAuthRefreshError   → warn/error  ← raise
+       onAuthLogout         → warn/error  ← raise
+  → init({ pkceMethod: 'S256' })  (AUTH-001, unchanged)
 ```
 
 ## Key decisions
 
 | Decision | Choice | Rationale |
 | --- | --- | --- |
-| Where to change | `ConfigService.init()` in `src/app/services/config.service.ts` | Matches finding location |
-| Replacement dump | None | CP1 accepted remove-entirely |
-| Tests | Extend `config.service.spec.ts`; spy `console.log` | CI without live config endpoint |
-| Remote config fetch | Unchanged | Out of scope |
-| LOG-004 default Off | Unchanged | Separate finding |
+| Where to change | `src/app/services/keycloak.service.ts` lifecycle callbacks | Matches finding location |
+| Levels | `warn` or `error` for error + logout; success stays debug | Visible when debug is off; success noise stays quiet |
+| Identity hint | `getUsername()` when non-empty | Already shipped with LOG-003; no extra PII |
+| Server audit | None | Out of scope; residual risk named |
+| Mock auth | Unchanged | No Keycloak init; callbacks never attach |
+| Tests | Extend `keycloak.service.spec.ts`; spy LoggerService | CI without live IdP |
 
 ## Security & privacy
 
 - Classification: Internal staff UI
-- PIA: No new data collection; we stop exposing config in DevTools
-- Secrets: None added
-- Residual: Other `console.log` / debug paths may still leak fragments (LOG-005 etc.)
+- PIA: No new data collection; username already on the JWT
+- Secrets: None added; do not log tokens
+- Residual: Client console only; LOG-004 default Off can still silence logs if `logLevel` is unset; no server-side audit
 
 ## Test approach
 
-- Cover `features/log-001-no-config-console-dump.feature`:
-  - `logLevel === 0` after init → `console.log` not called with the full configuration dump (`'Configuration:'` / the config object)
-  - non-zero / undefined logLevel → still no dump
+- Cover `features/log-002-keycloak-lifecycle-log-levels.feature`:
+  - After real `init()`, fire `onAuthError` → `warn` or `error` called
+  - Fire `onAuthRefreshError` → `warn` or `error` called
+  - Fire `onAuthLogout` → `warn` or `error` called
+  - When username stubbed, message includes identity hint (at least for auth error)
 - CI: `yarn lint` + `yarn test-ci` on the implementation PR
 - Update `docs/pr-evidence.md` on the implementation PR
 
 ## Rollout
 
 - Ship with next admin UI deploy
-- No data migration
-- Optional human smoke: local start with verbose logLevel, confirm DevTools has no full config dump
+- Optional human smoke: real IDIR login failure / logout and confirm DevTools warn/error (not blocking CI)
 
 ## Approval (checkpoint 2) — **human required**
 
@@ -55,4 +61,4 @@ App bootstrap
 | Architect / tech lead | | |
 | Security (if required) | | |
 
-> Do not add `ready-for-agent` to #19 until this table is filled and this plan PR is merged.
+> Do not add `ready-for-agent` to #23 until this table is filled and this plan PR is merged.
