@@ -1,3 +1,42 @@
+# PR evidence — [RA TEST-001] TokenInterceptor test coverage
+
+| Field | Value |
+| --- | --- |
+| PR / branch | current working branch |
+| Spec refs | `spec/features/test-001-token-interceptor.feature` |
+| Constitution articles touched | none (test-only change) |
+| Tasks | TEST-001 |
+| Authoring agent | GitHub Copilot Coding Agent |
+| Generated | 2026-08-14T18:52:00Z |
+
+## Intent
+
+Added `src/app/shared/utils/token-interceptor.spec.ts` — a dedicated Jasmine/Karma spec for `TokenInterceptor` using `HttpClientTestingModule`. Zero production code was changed.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| Auth header injected when token present | Yes | Checks `Authorization` header starts with `****** and is non-empty |
+| Empty ****** no token | Yes | Checks exact `'Bearer '` header (preserves current behaviour) |
+| Non-403 errors pass through without refresh | Yes | 500 and 401 both tested |
+| 403 triggers refresh and retry | Yes | Verifies `refreshToken` called once and request retried |
+| Refresh failure propagates error | Yes | Verifies error propagates; no logout invented |
+| In-flight concurrency: second 403 waits for first refresh | Yes | Uses async `Subject` to simulate overlapping in-flight requests |
+
+## Coverage
+
+`token-interceptor.ts`: **100% statements, 100% branches, 100% functions, 100% lines**
+
+## Residual findings (out of scope — not fixed here)
+
+| Finding | Description | Tracked in |
+| --- | --- | --- |
+| AUTH-006 | Interceptor refreshes on 403 but not on 401; spec covers 401 pass-through as current behaviour | Future issue |
+| AUTH-007 | No host allowlist — Authorization header is sent to all hosts, not just the BC Parks API | Future issue |
+
+---
+
 # PR evidence — [RA CONFIG-002] Missing Content-Security-Policy Header on All CloudFront Cache Behaviors
 
 | Field | Value |
@@ -409,32 +448,3 @@ Reviewer confirms: PR matches signed spec/plan; no constitution violations; read
 
 ---
 
-# PR evidence — [RA TEST-001] TokenInterceptor test coverage
-
-| Field | Value |
-| --- | --- |
-| PR / branch | current working branch |
-| Spec refs | `spec/features/test-001-token-interceptor.feature` |
-| Constitution articles touched | none (test-only change) |
-| Tasks | TEST-001 |
-| Authoring agent | GitHub Copilot Coding Agent |
-| Generated | 2026-08-14T18:52:00Z |
-
-## Intent
-
-Added `src/app/shared/utils/token-interceptor.spec.ts` — a dedicated Jasmine/Karma spec for `TokenInterceptor` using `HttpClientTestingModule`. Zero production code was changed.
-
-## Spec traceability
-
-| Scenario / requirement | Implemented? | Notes |
-| --- | --- | --- |
-| Auth header injected when token present | Yes | Checks `Authorization` header starts with `****** and is non-empty |
-| Empty ****** no token | Yes | Checks exact `'Bearer '` header (preserves current behaviour) |
-| Non-403 errors pass through without refresh | Yes | 500 and 401 both tested |
-| 403 triggers refresh and retry | Yes | Verifies `refreshToken` called once and request retried |
-| Refresh failure propagates error | Yes | Verifies error propagates; no logout invented |
-| In-flight concurrency: second 403 waits for first refresh | Yes | Uses async `Subject` to simulate overlapping in-flight requests |
-
-## Coverage
-
-`token-interceptor.ts`: **100% statements, 100% branches, 100% functions, 100% lines**
