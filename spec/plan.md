@@ -1,51 +1,49 @@
-# Plan — CloudFront viewer TLS minimum (CRYPTO-001)
+# Plan — CloudFront HSTS (CONFIG-003)
 
-> Architecture and delivery approach for issue [#27](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/27) / RA CRYPTO-001 (alias CONFIG-001).  
+> Architecture and delivery approach for issue [#32](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/32) / RA CONFIG-003.  
 > Checkpoint 1 (spec) is merged. This document is **checkpoint 2**.
 
 ## Summary
 
-Change CloudFront `ViewerCertificate.MinimumProtocolVersion` from `TLSv1` to `TLSv1.2_2021` in `template.yaml`. Prove with a static assertion that `TLSv1` is not the viewer minimum. No header policy work. Live TLS handshake after deploy is residual smoke.
+Replace the managed SimpleCORS response headers policy on all three CloudFront cache behaviours with a custom `AWS::CloudFront::ResponseHeadersPolicy` that sets HSTS and preserves CORS. Do not add CSP or XFO in this slice.
 
 ## Architecture
 
 ```text
 template.yaml
+  CloudFrontSecurityHeadersPolicy (new)
+    StrictTransportSecurity: max-age=31536000; includeSubDomains; override
+    CORS: Access-Control-Allow-Origin * (equivalent to SimpleCORS)
   CloudFrontDistribution
-    ViewerCertificate
-      MinimumProtocolVersion: TLSv1          ← remove
-      MinimumProtocolVersion: TLSv1.2_2021   ← set
+    DefaultCacheBehavior.ResponseHeadersPolicyId → !Ref policy
+    CacheBehaviors[api].ResponseHeadersPolicyId → !Ref policy
+    CacheBehaviors[spa].ResponseHeadersPolicyId → !Ref policy
 ```
 
 ## Key decisions
 
 | Decision | Choice | Rationale |
 | --- | --- | --- |
-| Policy | `TLSv1.2_2021` | Assessment recommended; modern ciphers, TLS 1.2+ |
-| File | `template.yaml` only | Matches finding |
-| Headers | Unchanged | CONFIG-002/003/004 |
-| Tests | Static check (grep/script or documented one-line + CI lint) | No live AWS in `yarn test-ci` |
-| Duplicate | Do not file CONFIG-001 | Same defect |
+| HSTS | max-age 31536000, includeSubDomains, override | Assessment baseline |
+| CORS | Keep allow-origin * + needed methods/headers | Don’t break `/api/*` |
+| CSP/XFO | Not this PR | CONFIG-002 / CONFIG-004 |
+| Proof | Template contains HSTS + three !Ref attachments | No live AWS in CI |
 
 ## Security & privacy
 
-- Residual: old TLS clients cannot connect (acceptable). Runtime handshake not verified in CI.
+- Residual: HSTS only after next CloudFront deploy; preload list not required this slice.
 
 ## Test approach
 
-- Template contains `MinimumProtocolVersion: TLSv1.2_2021` (or `_2019`) and not viewer `TLSv1`
-- Optional: small node/shell check in CI if easy; otherwise evidence + human review of the one-line diff is enough with existing PR Checks (template still parses)
+- Static: `template.yaml` defines ResponseHeadersPolicy with StrictTransportSecurity; all three behaviours reference it; SimpleCORS id `60669652-…` is gone
 - Update `docs/pr-evidence.md`
 
 ## Rollout
 
-- Takes effect on next SAM/CloudFront deploy
-- Human smoke after deploy: TLS 1.0 client rejected (optional)
+- Next SAM deploy. Optional human: `curl -I` for Strict-Transport-Security.
 
 ## Approval (checkpoint 2) — **human required**
 
 | Role | Name | Date |
 | --- | --- | --- |
 | Architect / tech lead | | |
-
-> Do not add `ready-for-agent` to #27 until this plan PR is merged.
