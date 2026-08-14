@@ -5,63 +5,61 @@
 
 ---
 
-## Active slice — LOG-002 (Keycloak lifecycle log levels)
+## Active slice — CRYPTO-001 (CloudFront viewer TLS minimum)
 
-**Issue:** [#23](https://github.com/bcparks-ar-admin-agentic/issues/23)  
-**Finding:** RA LOG-002  
-**Feature:** `features/log-002-keycloak-lifecycle-log-levels.feature`
+**Issue:** [#27](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/27)  
+**Finding:** RA CRYPTO-001 (duplicate CONFIG-001; merged severity High)  
+**Feature:** `features/crypto-001-cloudfront-tls-minimum.feature`
 
 ### Problem
 
-Authentication lifecycle events (success, error, token refresh failure, logout) are only recorded at the most verbose debug level. In typical deployments those messages are silenced, so failed login, failed refresh, and logout leave no client-side trail.
+The public CDN allows outdated TLS 1.0 and 1.1 for people connecting to the admin UI. Modern browsers usually negotiate a newer protocol, but the floor is too low for current cryptographic guidance.
 
 ### Outcome
 
-Failed authentication, failed token refresh, and logout are logged at warn or error so they remain visible when debug is off. Success may stay at a quieter level. When a username is already on the session, the log includes that identity hint — not the full token. Local mock auth (no identity-broker init) is unchanged. A server-side audit sink and changing the default log-off setting (LOG-004) are out of scope.
+The CDN viewer TLS floor is TLS 1.2 or higher (policy `TLSv1.2_2021`, or `TLSv1.2_2019` at minimum). Proof is a static check of the infrastructure template. Live handshake after deploy is residual human smoke. Response headers (HSTS, CSP, XFO) are separate findings.
 
 ### Users & personas
 
 | Persona | Goal |
 | --- | --- |
-| Park Operator / BC Parks staff | Login and logout behave as today; no extra UI |
-| Security reviewer | Confirm auth errors and logout are logged above debug |
-| Local developer | Unit tests fire callbacks and assert log level without a live IdP |
+| Park Operator / BC Parks staff | HTTPS still works in current browsers |
+| Security reviewer | Confirm TLS 1.0/1.1 are no longer permitted on the viewer certificate |
+| Platform operator | Template change only; no SPA behaviour change |
 
 ### Scope
 
-#### In scope (issue #23)
+#### In scope (issue #27)
 
-- Raise auth-error, refresh-error, and logout lifecycle logs from debug to warn or error
-- Optional identity hint from the existing session username helper
-- Unit tests that invoke the callbacks and spy the logger
+- Raise CloudFront `MinimumProtocolVersion` off `TLSv1`
+- Static/template verification in CI or evidence
 
 #### Out of scope
 
-- Server-side persistent audit endpoint
-- Logger default Off (LOG-004) / pipeline `logLevel = 0` (CONFIG-006)
-- AuthGuard denial logging (LOG-003, shipped)
-- Logout *feature* (AUTH-003) — we only log the existing callback if it fires
+- CONFIG-002 CSP, CONFIG-003 HSTS, CONFIG-004 other security headers
+- Certificate ARN / SECRET-001
+- Origin protocol (already TLS 1.2)
+- Live TLS negotiation test in CI
 
 ### Journeys
 
-1. Auth or refresh error is logged at warn/error — see `features/log-002-keycloak-lifecycle-log-levels.feature`
-2. Logout is logged at warn/error — same feature
+1. Viewer TLS minimum is TLS 1.2+ — see `features/crypto-001-cloudfront-tls-minimum.feature`
 
 ### Non-functional requirements
 
-- Accessibility: no UI change expected
-- Privacy: identity hint only (username already in token); no full token or config dump
-- Testability: verifiable in CI without live IdP
+- Accessibility: no UI change
+- Hosting: AWS CloudFront remains (constitution J6 exception)
+- Testability: template string/SAM check; no live AWS required for merge
 
 ### Open questions (for checkpoint 1 reviewers)
 
-- [x] Accept client-side warn/error only (no new audit API) for this pilot slice.
+- [x] Accept `TLSv1.2_2021` as the target policy (not TLS 1.3-only).
 
 ### Traceability
 
 | Finding | Issue | Feature |
 | --- | --- | --- |
-| RA LOG-002 | #23 | `features/log-002-keycloak-lifecycle-log-levels.feature` |
+| RA CRYPTO-001 (alias CONFIG-001) | #27 | `features/crypto-001-cloudfront-tls-minimum.feature` |
 
 ### Sign-off (checkpoint 1) — **human required**
 
@@ -71,32 +69,34 @@ Failed authentication, failed token refresh, and logout are logged at warn or er
 | Tech lead | | |
 | QA (acceptance ownership) | | |
 
-> Do not add `ready-for-agent` to #23 until this table is filled and this spec PR is merged.
+> Do not add `ready-for-agent` to #27 until this table is filled and this spec PR is merged.
 
 ---
 
 ## Completed slices
 
+### LOG-002 — Keycloak lifecycle log levels
+
+- **Issue:** [#23](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/23) (shipped)
+- **Feature:** `features/log-002-keycloak-lifecycle-log-levels.feature`
+- **Summary:** Auth error, refresh error, and logout log at warn/error with optional username hint.
+
 ### LOG-003 — Auth denial logging
 
-- **Issue:** [#15](https://github.com/bcparks-ar-admin-agentic/issues/15) (shipped)
+- **Issue:** [#15](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/15) (shipped)
 - **Feature:** `features/log-003-auth-denial-logging.feature`
-- **Summary:** AuthGuard warn-logs authorization-failure redirects with path, reason, and optional username.
 
 ### LOG-001 — No full config console dump
 
 - **Issue:** [#19](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/19) (shipped)
 - **Feature:** `features/log-001-no-config-console-dump.feature`
-- **Summary:** ConfigService no longer dumps the full runtime configuration object to the browser console.
 
 ### AUTH-001 — PKCE on Keycloak init
 
 - **Issue:** [#11](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/11) (shipped)
 - **Feature:** `features/auth-001-pkce.feature`
-- **Summary:** Real Keycloak init uses PKCE S256; local mock auth unchanged.
 
 ### AUTHZ-001 — Admin route guard path matching
 
 - **Issue:** [#6](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/6) (shipped)
 - **Feature:** `features/authz-001-admin-route-guard.feature`
-- **Summary:** Admin-only route checks use the URL path only so query/hash cannot skip capability checks.
