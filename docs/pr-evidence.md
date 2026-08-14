@@ -1,3 +1,51 @@
+# PR evidence — [RA CONFIG-003] Missing Strict-Transport-Security (HSTS) Header on All CloudFront Cache Behaviors
+
+| Field | Value |
+| --- | --- |
+| PR / branch | current working branch |
+| Spec refs | `spec/spec.md` (CONFIG-003), `spec/features/config-003-cloudfront-hsts.feature` |
+| Constitution articles touched | J6 |
+| Tasks | CONFIG-003 |
+| Authoring agent | GitHub Copilot Coding Agent |
+| Generated | 2026-08-14T18:00:00Z |
+
+## Intent
+
+Added `AWS::CloudFront::ResponseHeadersPolicy` (`CloudFrontHSTSResponseHeadersPolicy`) to `template.yaml` with `StrictTransportSecurity` (max-age 31536000, includeSubDomains, override) and equivalent CORS settings matching the previous SimpleCORS managed policy. All three CloudFront cache behaviors now reference the new policy via `!Ref CloudFrontHSTSResponseHeadersPolicy` instead of the SimpleCORS policy ID.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| Custom response headers policy sets Strict-Transport-Security | Yes | `CloudFrontHSTSResponseHeadersPolicy` in `template.yaml` |
+| All three cache behaviors reference that policy | Yes | `DefaultCacheBehavior` + two `CacheBehaviors` use `!Ref CloudFrontHSTSResponseHeadersPolicy` |
+| CORS equivalent to SimpleCORS still declared | Yes | `CorsConfig` block mirrors SimpleCORS (all origins, all methods, all headers, max-age 600) |
+
+## Design system & accessibility
+
+No UI changes.
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Static assertion | `grep -n "StrictTransportSecurity" template.yaml` | Passes |
+| Static assertion | `grep -c 'CloudFrontHSTSResponseHeadersPolicy' template.yaml` | 4 (1 resource + 3 refs) |
+| Static assertion | `! grep -n "60669652-455b-4ae9-85a4-c4c02393f86c" template.yaml` | Passes (old policy ID absent from cache behaviors) |
+
+## Risks & follow-ups
+
+- Residual live header verification after deploy can confirm the HSTS header is emitted; live testing is intentionally out of scope for merge.
+- CSP and X-Frame-Options are explicitly deferred to later slices (CONFIG-002/004).
+
+## Human checkpoint 3
+
+Reviewer confirms: PR matches signed spec/plan; no constitution violations; ready to merge.
+
+- Reviewer: _______________ Date: _______________
+
+---
+
 # PR evidence — [RA CRYPTO-001] Raise CloudFront viewer TLS minimum
 
 | Field | Value |
