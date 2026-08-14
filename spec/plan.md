@@ -1,11 +1,11 @@
-# Plan — CloudFront browser security headers (CONFIG-004)
+# Plan — CloudFront Content-Security-Policy (CONFIG-002)
 
-> Architecture and delivery approach for issue [#36](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/36) / RA CONFIG-004.  
+> Architecture and delivery approach for issue [#41](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/41) / RA CONFIG-002.  
 > Checkpoint 1 (spec) is merged. This document is **checkpoint 2**.
 
 ## Summary
 
-Extend the existing `CloudFrontHSTSResponseHeadersPolicy` (CONFIG-003) with frame denial, nosniff, Referrer-Policy, and Permissions-Policy. Keep HSTS and CORS. Do not add CSP in this slice.
+Add `ContentSecurityPolicy` to the existing `CloudFrontHSTSResponseHeadersPolicy`. Keep HSTS, CORS, and CONFIG-004 headers. Do not create a second policy. Live login/API smoke is residual, not a merge gate.
 
 ## Architecture
 
@@ -13,43 +13,59 @@ Extend the existing `CloudFrontHSTSResponseHeadersPolicy` (CONFIG-003) with fram
 template.yaml
   CloudFrontHSTSResponseHeadersPolicy (existing)
     SecurityHeadersConfig
-      StrictTransportSecurity          ← keep (CONFIG-003)
-      FrameOptions: DENY               ← new
-      ContentTypeOptions: nosniff      ← new
-      ReferrerPolicy: strict-origin-when-cross-origin  ← new
+      ContentSecurityPolicy            ← new (CONFIG-002)
+      FrameOptions / ContentTypeOptions / ReferrerPolicy / HSTS  ← keep
     CustomHeadersConfig
-      Permissions-Policy               ← new (not a first-class SecurityHeadersConfig field)
+      Permissions-Policy               ← keep
     CorsConfig                         ← keep
   CloudFrontDistribution
     all three cache behaviours already !Ref this policy — leave attachments as-is
 ```
 
+## CSP header (signed allowlist)
+
+Exact `ContentSecurityPolicy` string (single line in the template):
+
+```
+default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https://loginproxy.gov.bc.ca https://*.loginproxy.gov.bc.ca https://*.execute-api.ca-central-1.amazonaws.com https://*.bcparks.ca; frame-src https://loginproxy.gov.bc.ca https://*.loginproxy.gov.bc.ca; form-action 'self' https://loginproxy.gov.bc.ca https://*.loginproxy.gov.bc.ca; object-src 'none'; frame-ancestors 'none'; base-uri 'self'
+```
+
+| Directive | Sources | Why |
+| --- | --- | --- |
+| `script-src` / `default-src` / `base-uri` | `'self'` | Bundled SPA + `env.js`; keycloak-js is npm, not a loginproxy script |
+| `style-src` | `'self' 'unsafe-inline'` | Angular / ngx-bootstrap / toastr inline styles |
+| `img-src` / `font-src` | `'self' data:` | Local assets + Bootstrap Icons |
+| `connect-src` | `'self'` + loginproxy apex+wildcard + `*.execute-api.ca-central-1.amazonaws.com` + `*.bcparks.ca` | `API_LOCATION` (execute-api or CloudFront `/api`) + Keycloak XHR |
+| `frame-src` | loginproxy apex + `*.loginproxy.gov.bc.ca` | Keycloak silent SSO iframe |
+| `form-action` | `'self'` + loginproxy | Login redirect |
+| `object-src` | `'none'` | No plugins |
+| `frame-ancestors` | `'none'` | Complements CONFIG-004 DENY |
+
+CSP `https://*.loginproxy.gov.bc.ca` does **not** match apex `https://loginproxy.gov.bc.ca`; both are required.
+
 ## Key decisions
 
 | Decision | Choice | Rationale |
 | --- | --- | --- |
-| Where | Extend `CloudFrontHSTSResponseHeadersPolicy` | One policy, three attachments already in place |
-| Frame | `FrameOption: DENY` | Admin UI is not framed |
-| MIME | `ContentTypeOptions.Override: true` | CloudFront emits `X-Content-Type-Options: nosniff` |
-| Referrer | `strict-origin-when-cross-origin` | Signed Gherkin |
-| Permissions | Custom header disabling unused capabilities (camera, microphone, geolocation, payment, usb, interest-cohort) | No native `PermissionsPolicy` property on this resource |
-| CSP | Not this PR | CONFIG-002 |
-| Proof | Static template assertions | No live AWS in CI |
+| Where | Extend existing policy `SecurityHeadersConfig.ContentSecurityPolicy` with `Override: true` | One policy, three attachments |
+| Mode | Enforcing CSP (not Report-Only) | Finding asks for the header; report-only would not close it |
+| Live smoke | Residual human follow-up after deploy | CI cannot hit loginproxy/API; do **not** block merge on live proof |
+| Nonce/hashes | Out of scope | Would require app rebuild |
 
 ## Security & privacy
 
-- Residual: headers take effect only after the next CloudFront deploy. Live `curl -I` / browser DevTools header smoke is a human follow-up, not a CI gate.
-- Clickjacking/MIME/referrer controls are browser-enforced; they do not replace API authorization.
+- Residual: a too-tight CSP can break IDIR/BCeID/API until the next deploy. If live smoke fails, widen `connect-src`/`frame-src` with evidence — do not add `'unsafe-eval'` or `*` unless a concrete runtime error requires it.
+- CSP is browser-enforced; it does not replace API authorization.
 
 ## Test approach
 
-- Static: `template.yaml` contains FrameOptions DENY, ContentTypeOptions, ReferrerPolicy `strict-origin-when-cross-origin`, and a Permissions-Policy custom header; HSTS + CORS remain; all three behaviours still `!Ref CloudFrontHSTSResponseHeadersPolicy`
+- Static: template contains `ContentSecurityPolicy` with the directives above; loginproxy apex + wildcard; execute-api ca-central-1; `object-src 'none'`; `frame-ancestors 'none'`; no `ContentSecurityPolicy` Report-Only; HSTS/CORS/CONFIG-004 keys remain; three `!Ref CloudFrontHSTSResponseHeadersPolicy`
 - Update `docs/pr-evidence.md`
-- No Angular/UI tests required
+- No Angular tests required
 
 ## Rollout
 
-- Next SAM deploy. Optional human: `curl -I` for `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, plus HSTS.
+- Next SAM deploy. Optional human: `curl -I` for CSP, then login + one API call. Record failures as residual, not a reason to revert CI-proven template structure.
 
 ## Approval (checkpoint 2) — **human required**
 
