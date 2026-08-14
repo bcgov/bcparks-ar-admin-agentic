@@ -5,7 +5,7 @@
 
 ---
 
-## Active slice — CONFIG-004 (CloudFront browser security headers)
+## Active slice — CONFIG-004 (browser security headers)
 
 **Issue:** [#36](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/36)  
 **Finding:** RA CONFIG-004  
@@ -13,45 +13,42 @@
 
 ### Problem
 
-The CDN now sends HSTS, but still does not tell browsers to refuse framing, refuse MIME sniffing, limit referrers, or restrict powerful browser features. That leaves clickjacking and related browser-abuse paths open on the staff UI.
+CloudFront responses do not prevent framing or MIME sniffing, do not constrain referrer detail, and do not disable unused browser capabilities. This weakens browser-side protection for the authenticated admin UI.
 
 ### Outcome
 
-The existing custom CDN response-headers policy also sets frame denial, nosniff, a strict-enough Referrer-Policy, and a restrictive Permissions-Policy. HSTS and CORS stay as they are. Content-Security-Policy is a later slice. Proof is structural in the template; live headers after deploy are residual smoke.
+The shared CloudFront response policy adds frame denial, nosniff, strict-origin-when-cross-origin referrer handling, and a restrictive permissions policy. HSTS and CORS from CONFIG-003 remain. CSP is a separate later slice.
 
 ### Users & personas
 
 | Persona | Goal |
 | --- | --- |
-| Park Operator / BC Parks staff | App still loads; API CORS still works |
-| Security reviewer | Confirm the four headers are declared without dropping HSTS |
+| BC Parks staff | App and API continue working normally |
+| Security reviewer | Confirm the four protections are emitted by the shared policy |
+| Platform operator | Extend the existing policy; keep three behavior attachments |
 
 ### Scope
 
-#### In scope (issue #36)
+#### In scope (#36)
 
-- X-Frame-Options (DENY or SAMEORIGIN)
-- X-Content-Type-Options: nosniff
-- Referrer-Policy
-- Permissions-Policy
-- Keep CONFIG-003 HSTS + CORS
+- Frame protection, nosniff, Referrer-Policy, Permissions-Policy
+- Preserve HSTS/CORS and all three attachments
+- Static template proof
 
 #### Out of scope
 
-- CONFIG-002 CSP
-- Live header negotiation in CI
+- CSP (CONFIG-002)
+- App UI/API changes
+- Live deploy/header probe in CI
 
 ### Journeys
 
-1. Browser security headers present — see `features/config-004-cloudfront-security-headers.feature`
+1. Shared policy contains browser protections — see `features/config-004-cloudfront-security-headers.feature`
 
 ### Non-functional requirements
 
-- No UI change; AWS CloudFront (J6)
-
-### Open questions (for checkpoint 1 reviewers)
-
-- [x] DENY is acceptable for X-Frame-Options (this admin UI is not framed).
+- No UI change; AWS hosting remains
+- Static proof in evidence; post-deploy smoke residual
 
 ### Traceability
 
@@ -65,12 +62,18 @@ The existing custom CDN response-headers policy also sets frame denial, nosniff,
 | --- | --- | --- |
 | Product / PM | | |
 | Tech lead | | |
+| QA | | |
 
 > Do not add `ready-for-agent` to #36 until this spec PR is merged.
 
 ---
 
 ## Completed slices
+
+### CONFIG-003 — CloudFront HSTS
+
+- **Issue:** [#32](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/32) (shipped)
+- **Feature:** `features/config-003-cloudfront-hsts.feature`
 
 ### CONFIG-003 — CloudFront HSTS — [#32](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/32)
 ### CRYPTO-001 — Viewer TLS 1.2+ — [#27](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/27)
