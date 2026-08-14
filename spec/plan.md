@@ -5,7 +5,7 @@
 
 ## Summary
 
-Add CSP to the existing `CloudFrontHSTSResponseHeadersPolicy`. Keep HSTS, CORS, and CONFIG-004 headers. Do not create a second policy. Live login/API smoke is residual, not a merge gate.
+Add `ContentSecurityPolicy` to the existing `CloudFrontHSTSResponseHeadersPolicy`. Keep HSTS, CORS, and CONFIG-004 headers. Do not create a second policy. Live login/API smoke is residual, not a merge gate.
 
 ## Architecture
 
@@ -13,51 +13,59 @@ Add CSP to the existing `CloudFrontHSTSResponseHeadersPolicy`. Keep HSTS, CORS, 
 template.yaml
   CloudFrontHSTSResponseHeadersPolicy (existing)
     SecurityHeadersConfig
-      StrictTransportSecurity, FrameOptions, ContentTypeOptions, ReferrerPolicy  ← keep
-      ContentSecurityPolicy.ContentSecurityPolicy  ← new (string below)
-    CustomHeadersConfig.Permissions-Policy         ← keep
-    CorsConfig                                     ← keep
+      ContentSecurityPolicy            ← new (CONFIG-002)
+      FrameOptions / ContentTypeOptions / ReferrerPolicy / HSTS  ← keep
+    CustomHeadersConfig
+      Permissions-Policy               ← keep
+    CorsConfig                         ← keep
   CloudFrontDistribution
     all three cache behaviours already !Ref this policy — leave attachments as-is
 ```
 
-## Locked CSP string
+## CSP header (signed allowlist)
 
-Derived in checkpoint 1 from `src/index.html`, `angular.json` (bundled jQuery/Bootstrap/Popper/`keycloak-js`, not a CDN), `src/styles.scss` (Bootstrap Icons), `API_LOCATION` / deploy `API_GATEWAY_URL`, and Keycloak `KEYCLOAK_URL` (`dev.loginproxy.gov.bc.ca` / `loginproxy.gov.bc.ca`). Apex `loginproxy.gov.bc.ca` is listed separately because `*.loginproxy.gov.bc.ca` does not match it.
+Exact `ContentSecurityPolicy` string (single line in the template):
 
 ```
-default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https://*.loginproxy.gov.bc.ca https://loginproxy.gov.bc.ca https://*.execute-api.ca-central-1.amazonaws.com https://*.bcparks.ca; frame-src https://*.loginproxy.gov.bc.ca https://loginproxy.gov.bc.ca; form-action 'self' https://*.loginproxy.gov.bc.ca https://loginproxy.gov.bc.ca
+default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https://loginproxy.gov.bc.ca https://*.loginproxy.gov.bc.ca https://*.execute-api.ca-central-1.amazonaws.com https://*.bcparks.ca; frame-src https://loginproxy.gov.bc.ca https://*.loginproxy.gov.bc.ca; form-action 'self' https://loginproxy.gov.bc.ca https://*.loginproxy.gov.bc.ca; object-src 'none'; frame-ancestors 'none'; base-uri 'self'
 ```
 
-CloudFront native field: `SecurityHeadersConfig.ContentSecurityPolicy` with `Override: true`.
+| Directive | Sources | Why |
+| --- | --- | --- |
+| `script-src` / `default-src` / `base-uri` | `'self'` | Bundled SPA + `env.js`; keycloak-js is npm, not a loginproxy script |
+| `style-src` | `'self' 'unsafe-inline'` | Angular / ngx-bootstrap / toastr inline styles |
+| `img-src` / `font-src` | `'self' data:` | Local assets + Bootstrap Icons |
+| `connect-src` | `'self'` + loginproxy apex+wildcard + `*.execute-api.ca-central-1.amazonaws.com` + `*.bcparks.ca` | `API_LOCATION` (execute-api or CloudFront `/api`) + Keycloak XHR |
+| `frame-src` | loginproxy apex + `*.loginproxy.gov.bc.ca` | Keycloak silent SSO iframe |
+| `form-action` | `'self'` + loginproxy | Login redirect |
+| `object-src` | `'none'` | No plugins |
+| `frame-ancestors` | `'none'` | Complements CONFIG-004 DENY |
+
+CSP `https://*.loginproxy.gov.bc.ca` does **not** match apex `https://loginproxy.gov.bc.ca`; both are required.
 
 ## Key decisions
 
 | Decision | Choice | Rationale |
 | --- | --- | --- |
-| Where | Extend existing policy | Three attachments already in place |
-| `script-src` | `'self'` only | Keycloak JS is npm-bundled via `angular.json` scripts |
-| `style-src` | include `'unsafe-inline'` | Angular / ngx-bootstrap / ngx-toastr; nonce migration is later |
-| API hosts | `'self'` + execute-api + `*.bcparks.ca` | `API_LOCATION` may be CloudFront `/api`, execute-api, or custom domain |
-| IdP | both apex and `*.loginproxy.gov.bc.ca` | token XHR, silent iframe, login navigation |
-| Proof | Static template assertions | No live AWS in CI |
-| Live smoke | Residual after deploy | Not required to merge CP3 |
+| Where | Extend existing policy `SecurityHeadersConfig.ContentSecurityPolicy` with `Override: true` | One policy, three attachments |
+| Mode | Enforcing CSP (not Report-Only) | Finding asks for the header; report-only would not close it |
+| Live smoke | Residual human follow-up after deploy | CI cannot hit loginproxy/API; do **not** block merge on live proof |
+| Nonce/hashes | Out of scope | Would require app rebuild |
 
 ## Security & privacy
 
-- Residual: headers take effect only after the next CloudFront deploy. Human follow-up: `curl -I` for `Content-Security-Policy` plus a login + one API call watching the console for CSP violations.
+- Residual: a too-tight CSP can break IDIR/BCeID/API until the next deploy. If live smoke fails, widen `connect-src`/`frame-src` with evidence — do not add `'unsafe-eval'` or `*` unless a concrete runtime error requires it.
 - CSP is browser-enforced; it does not replace API authorization.
-- `'unsafe-inline'` on styles is an accepted residual for this slice.
 
 ## Test approach
 
-- Static: `template.yaml` `ContentSecurityPolicy` contains the locked string (or equivalent directives); HSTS + CORS + CONFIG-004 headers remain; all three behaviours still `!Ref CloudFrontHSTSResponseHeadersPolicy`
+- Static: template contains `ContentSecurityPolicy` with the directives above; loginproxy apex + wildcard; execute-api ca-central-1; `object-src 'none'`; `frame-ancestors 'none'`; no `ContentSecurityPolicy` Report-Only; HSTS/CORS/CONFIG-004 keys remain; three `!Ref CloudFrontHSTSResponseHeadersPolicy`
 - Update `docs/pr-evidence.md`
-- No Angular/UI tests required
+- No Angular tests required
 
 ## Rollout
 
-- Next SAM deploy. Optional human: header probe + IDIR login + one API request.
+- Next SAM deploy. Optional human: `curl -I` for CSP, then login + one API call. Record failures as residual, not a reason to revert CI-proven template structure.
 
 ## Approval (checkpoint 2) — **human required**
 
