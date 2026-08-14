@@ -5,61 +5,61 @@
 
 ---
 
-## Active slice — CRYPTO-001 (CloudFront viewer TLS minimum)
+## Active slice — CONFIG-003 (CloudFront HSTS)
 
-**Issue:** [#27](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/27)  
-**Finding:** RA CRYPTO-001 (duplicate CONFIG-001; merged severity High)  
-**Feature:** `features/crypto-001-cloudfront-tls-minimum.feature`
+**Issue:** [#32](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/32)  
+**Finding:** RA CONFIG-003  
+**Feature:** `features/config-003-cloudfront-hsts.feature`
 
 ### Problem
 
-The public CDN allows outdated TLS 1.0 and 1.1 for people connecting to the admin UI. Modern browsers usually negotiate a newer protocol, but the floor is too low for current cryptographic guidance.
+The CDN redirects HTTP to HTTPS but does not send Strict-Transport-Security, so browsers do not remember that HTTPS is required. First visits (and cache expiry) can still start on HTTP and be stripped.
 
 ### Outcome
 
-The CDN viewer TLS floor is TLS 1.2 or higher (policy `TLSv1.2_2021`, or `TLSv1.2_2019` at minimum). Proof is a static check of the infrastructure template. Live handshake after deploy is residual human smoke. Response headers (HSTS, CSP, XFO) are separate findings.
+All CDN cache behaviours send HSTS with a long max-age and includeSubDomains. CORS behaviour the API needs today is preserved. Other security headers (CSP, X-Frame-Options, etc.) are later slices. Proof is structural in the template; live header checks after deploy are residual smoke.
 
 ### Users & personas
 
 | Persona | Goal |
 | --- | --- |
-| Park Operator / BC Parks staff | HTTPS still works in current browsers |
-| Security reviewer | Confirm TLS 1.0/1.1 are no longer permitted on the viewer certificate |
-| Platform operator | Template change only; no SPA behaviour change |
+| Park Operator / BC Parks staff | Site still loads over HTTPS; API calls still work |
+| Security reviewer | Confirm HSTS is declared on all three behaviours |
+| Platform operator | Template-only change |
 
 ### Scope
 
-#### In scope (issue #27)
+#### In scope (issue #32)
 
-- Raise CloudFront `MinimumProtocolVersion` off `TLSv1`
-- Static/template verification in CI or evidence
+- Custom CloudFront response headers policy with HSTS
+- Attach it to all three cache behaviours
+- Keep equivalent CORS to current SimpleCORS
 
 #### Out of scope
 
-- CONFIG-002 CSP, CONFIG-003 HSTS, CONFIG-004 other security headers
-- Certificate ARN / SECRET-001
-- Origin protocol (already TLS 1.2)
-- Live TLS negotiation test in CI
+- CONFIG-002 CSP, CONFIG-004 XFO/nosniff/referrer/permissions
+- CRYPTO-001 TLS floor (shipped)
+- Live header negotiation in CI
 
 ### Journeys
 
-1. Viewer TLS minimum is TLS 1.2+ — see `features/crypto-001-cloudfront-tls-minimum.feature`
+1. HSTS present on all cache behaviours — see `features/config-003-cloudfront-hsts.feature`
 
 ### Non-functional requirements
 
 - Accessibility: no UI change
-- Hosting: AWS CloudFront remains (constitution J6 exception)
-- Testability: template string/SAM check; no live AWS required for merge
+- Hosting: AWS CloudFront (J6)
+- Testability: template inspection
 
 ### Open questions (for checkpoint 1 reviewers)
 
-- [x] Accept `TLSv1.2_2021` as the target policy (not TLS 1.3-only).
+- [x] Accept includeSubDomains + ~1 year max-age as the HSTS baseline for this pilot.
 
 ### Traceability
 
 | Finding | Issue | Feature |
 | --- | --- | --- |
-| RA CRYPTO-001 (alias CONFIG-001) | #27 | `features/crypto-001-cloudfront-tls-minimum.feature` |
+| RA CONFIG-003 | #32 | `features/config-003-cloudfront-hsts.feature` |
 
 ### Sign-off (checkpoint 1) — **human required**
 
@@ -67,36 +67,24 @@ The CDN viewer TLS floor is TLS 1.2 or higher (policy `TLSv1.2_2021`, or `TLSv1.
 | --- | --- | --- |
 | Product / PM | | |
 | Tech lead | | |
-| QA (acceptance ownership) | | |
 
-> Do not add `ready-for-agent` to #27 until this table is filled and this spec PR is merged.
+> Do not add `ready-for-agent` to #32 until this spec PR is merged.
 
 ---
 
 ## Completed slices
 
-### LOG-002 — Keycloak lifecycle log levels
+### CRYPTO-001 — CloudFront viewer TLS minimum
 
-- **Issue:** [#23](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/23) (shipped)
-- **Feature:** `features/log-002-keycloak-lifecycle-log-levels.feature`
-- **Summary:** Auth error, refresh error, and logout log at warn/error with optional username hint.
+- **Issue:** [#27](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/27) (shipped) · alias CONFIG-001
+- **Feature:** `features/crypto-001-cloudfront-tls-minimum.feature`
 
-### LOG-003 — Auth denial logging
+### LOG-002 — Keycloak lifecycle log levels — [#23](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/23)
 
-- **Issue:** [#15](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/15) (shipped)
-- **Feature:** `features/log-003-auth-denial-logging.feature`
+### LOG-003 — Auth denial logging — [#15](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/15)
 
-### LOG-001 — No full config console dump
+### LOG-001 — No full config console dump — [#19](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/19)
 
-- **Issue:** [#19](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/19) (shipped)
-- **Feature:** `features/log-001-no-config-console-dump.feature`
+### AUTH-001 — PKCE — [#11](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/11)
 
-### AUTH-001 — PKCE on Keycloak init
-
-- **Issue:** [#11](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/11) (shipped)
-- **Feature:** `features/auth-001-pkce.feature`
-
-### AUTHZ-001 — Admin route guard path matching
-
-- **Issue:** [#6](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/6) (shipped)
-- **Feature:** `features/authz-001-admin-route-guard.feature`
+### AUTHZ-001 — Admin route guard — [#6](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/6)
