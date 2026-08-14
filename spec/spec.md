@@ -5,61 +5,63 @@
 
 ---
 
-## Active slice — LOG-001 (no full config console dump)
+## Active slice — LOG-002 (Keycloak lifecycle log levels)
 
-**Issue:** [#19](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/19)  
-**Finding:** RA LOG-001  
-**Feature:** `features/log-001-no-config-console-dump.feature`
+**Issue:** [#23](https://github.com/bcparks-ar-admin-agentic/issues/23)  
+**Finding:** RA LOG-002  
+**Feature:** `features/log-002-keycloak-lifecycle-log-levels.feature`
 
 ### Problem
 
-When logging is set to the most verbose level, the app prints its entire runtime configuration into the browser console. That dump includes API location and identity-broker details (realm, client id, auth URL). Staff or anyone with DevTools during a verbose session can read those values.
+Authentication lifecycle events (success, error, token refresh failure, logout) are only recorded at the most verbose debug level. In typical deployments those messages are silenced, so failed login, failed refresh, and logout leave no client-side trail.
 
 ### Outcome
 
-Initialising config never writes the full configuration object to the browser console, including when log level is “all”. Automated tests prove this with a console spy. Optional sanitized/dev-only inspection and changing default log level (LOG-004) are out of scope.
+Failed authentication, failed token refresh, and logout are logged at warn or error so they remain visible when debug is off. Success may stay at a quieter level. When a username is already on the session, the log includes that identity hint — not the full token. Local mock auth (no identity-broker init) is unchanged. A server-side audit sink and changing the default log-off setting (LOG-004) are out of scope.
 
 ### Users & personas
 
 | Persona | Goal |
 | --- | --- |
-| Park Operator / BC Parks staff | App starts as today; no extra UI |
-| Security reviewer | Confirm config is not dumped to DevTools |
-| Local developer | Unit tests cover the verbose log-level path |
+| Park Operator / BC Parks staff | Login and logout behave as today; no extra UI |
+| Security reviewer | Confirm auth errors and logout are logged above debug |
+| Local developer | Unit tests fire callbacks and assert log level without a live IdP |
 
 ### Scope
 
-#### In scope (issue #19)
+#### In scope (issue #23)
 
-- Stop logging the full configuration object from config initialisation
-- Unit tests: logLevel All (0) and a non-All level — no full dump
+- Raise auth-error, refresh-error, and logout lifecycle logs from debug to warn or error
+- Optional identity hint from the existing session username helper
+- Unit tests that invoke the callbacks and spy the logger
 
 #### Out of scope
 
-- Sanitized/pretty config dump for local debug (unless already trivial and not required)
-- Default log level Off (LOG-004), Keycloak lifecycle levels (LOG-002), auth denial logging (LOG-003)
-- Server-side audit sink, CloudFront headers, logout
+- Server-side persistent audit endpoint
+- Logger default Off (LOG-004) / pipeline `logLevel = 0` (CONFIG-006)
+- AuthGuard denial logging (LOG-003, shipped)
+- Logout *feature* (AUTH-003) — we only log the existing callback if it fires
 
 ### Journeys
 
-1. Verbose log level does not dump full config — see `features/log-001-no-config-console-dump.feature`
-2. Other log levels also do not dump full config — same feature
+1. Auth or refresh error is logged at warn/error — see `features/log-002-keycloak-lifecycle-log-levels.feature`
+2. Logout is logged at warn/error — same feature
 
 ### Non-functional requirements
 
 - Accessibility: no UI change expected
-- Privacy: do not log full config, tokens, or secrets
-- Testability: verifiable in CI without live IdP or remote config endpoint
+- Privacy: identity hint only (username already in token); no full token or config dump
+- Testability: verifiable in CI without live IdP
 
 ### Open questions (for checkpoint 1 reviewers)
 
-- [ ] Accept removing the dump entirely (no sanitized replacement) for this pilot slice?
+- [x] Accept client-side warn/error only (no new audit API) for this pilot slice.
 
 ### Traceability
 
 | Finding | Issue | Feature |
 | --- | --- | --- |
-| RA LOG-001 | #19 | `features/log-001-no-config-console-dump.feature` |
+| RA LOG-002 | #23 | `features/log-002-keycloak-lifecycle-log-levels.feature` |
 
 ### Sign-off (checkpoint 1) — **human required**
 
@@ -69,20 +71,23 @@ Initialising config never writes the full configuration object to the browser co
 | Tech lead | | |
 | QA (acceptance ownership) | | |
 
-> Do not add `ready-for-agent` to #19 until this table is filled and this spec PR is merged.
-
----
-
-## In flight (not this slice)
-
-### LOG-003 — Auth denial logging
-
-- **Issue:** [#15](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/15) · impl [PR #18](https://github.com/bcgov/bcparks-ar-admin-agentic/pull/18) (checkpoint 3 pending)
-- **Feature:** `features/log-003-auth-denial-logging.feature`
+> Do not add `ready-for-agent` to #23 until this table is filled and this spec PR is merged.
 
 ---
 
 ## Completed slices
+
+### LOG-003 — Auth denial logging
+
+- **Issue:** [#15](https://github.com/bcparks-ar-admin-agentic/issues/15) (shipped)
+- **Feature:** `features/log-003-auth-denial-logging.feature`
+- **Summary:** AuthGuard warn-logs authorization-failure redirects with path, reason, and optional username.
+
+### LOG-001 — No full config console dump
+
+- **Issue:** [#19](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/19) (shipped)
+- **Feature:** `features/log-001-no-config-console-dump.feature`
+- **Summary:** ConfigService no longer dumps the full runtime configuration object to the browser console.
 
 ### AUTH-001 — PKCE on Keycloak init
 
