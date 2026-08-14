@@ -67,6 +67,37 @@ Resources:
           QueryStringsConfig:
             QueryStringBehavior: all
 
+  CloudFrontHSTSResponseHeadersPolicy:
+    Type: AWS::CloudFront::ResponseHeadersPolicy
+    Properties:
+      ResponseHeadersPolicyConfig:
+        Name: !Sub ${AWS::StackName}-${Env}-hsts-cors-policy
+        Comment: "HSTS + CORS (equivalent to SimpleCORS) for all cache behaviors"
+        CorsConfig:
+          AccessControlAllowCredentials: false
+          AccessControlAllowHeaders:
+            Items:
+              - "*"
+          AccessControlAllowMethods:
+            Items:
+              - GET
+              - HEAD
+              - OPTIONS
+              - PUT
+              - POST
+              - PATCH
+              - DELETE
+          AccessControlAllowOrigins:
+            Items:
+              - "*"
+          AccessControlMaxAgeSec: 600
+          OriginOverride: false
+        SecurityHeadersConfig:
+          StrictTransportSecurity:
+            AccessControlMaxAgeSec: 31536000
+            IncludeSubdomains: true
+            Override: true
+
   CloudFrontDistribution:
     Type: AWS::CloudFront::Distribution
     Properties:
@@ -121,8 +152,8 @@ Resources:
           CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
           TargetOriginId: !Ref DistS3Bucket
           ViewerProtocolPolicy: redirect-to-https
-          # Simple CORS
-          ResponseHeadersPolicyId: 60669652-455b-4ae9-85a4-c4c02393f86c
+          # HSTS + CORS
+          ResponseHeadersPolicyId: !Ref CloudFrontHSTSResponseHeadersPolicy
         CacheBehaviors:
           - PathPattern: !Sub /${ApiStage}/*
             AllowedMethods:
@@ -137,8 +168,8 @@ Resources:
             CachePolicyId: !Ref CloudFrontAPICachePolicy
             TargetOriginId: !Sub ${ApiGatewayId}
             ViewerProtocolPolicy: redirect-to-https
-            # Simple CORS
-            ResponseHeadersPolicyId: 60669652-455b-4ae9-85a4-c4c02393f86c
+            # HSTS + CORS
+            ResponseHeadersPolicyId: !Ref CloudFrontHSTSResponseHeadersPolicy
           - PathPattern: !Sub ${BaseHref}*
             Compress: true
             AllowedMethods:
@@ -149,8 +180,8 @@ Resources:
             CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
             TargetOriginId: !Ref DistS3Bucket
             ViewerProtocolPolicy: redirect-to-https
-            # Simple CORS
-            ResponseHeadersPolicyId: 60669652-455b-4ae9-85a4-c4c02393f86c
+            # HSTS + CORS
+            ResponseHeadersPolicyId: !Ref CloudFrontHSTSResponseHeadersPolicy
         Logging:
           Bucket: !GetAtt LogsS3Bucket.DomainName
           IncludeCookies: false
