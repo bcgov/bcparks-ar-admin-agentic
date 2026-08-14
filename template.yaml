@@ -89,7 +89,7 @@ Resources:
         ViewerCertificate:
           AcmCertificateArn: !Ref DomainCertificateArn
           SslSupportMethod: sni-only
-          MinimumProtocolVersion: TLSv1
+          MinimumProtocolVersion: TLSv1.2_2021
         Comment: !Sub "CloudFront distribution for ${AWS::StackName}"
         DefaultRootObject: !Sub index.html
         Enabled: true
