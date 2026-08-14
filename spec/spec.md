@@ -5,64 +5,61 @@
 
 ---
 
-## Active slice — LOG-003 (auth denial logging)
+## Active slice — LOG-001 (no full config console dump)
 
-**Issue:** [#15](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/15)  
-**Finding:** RA LOG-003  
-**Feature:** `features/log-003-auth-denial-logging.feature`
+**Issue:** [#19](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/19)  
+**Finding:** RA LOG-001  
+**Feature:** `features/log-001-no-config-console-dump.feature`
 
 ### Problem
 
-When staff are signed in but lack the right capability for a page, the app quietly redirects them (to unauthorized or home). Those denials are not written to any log. Someone probing admin routes or hitting unauthorized after login leaves no client-side trail for operators to review.
+When logging is set to the most verbose level, the app prints its entire runtime configuration into the browser console. That dump includes API location and identity-broker details (realm, client id, auth URL). Staff or anyone with DevTools during a verbose session can read those values.
 
 ### Outcome
 
-Every authorization-failure redirect from the route guard records a warn-level log that includes the requested path and why access was denied, plus a stable identity hint when the session already has one (not the raw token). Staff experience (redirect destinations) stays the same. Automated tests prove the log calls without a live identity provider. Building a server-side audit API is not part of this slice.
+Initialising config never writes the full configuration object to the browser console, including when log level is “all”. Automated tests prove this with a console spy. Optional sanitized/dev-only inspection and changing default log level (LOG-004) are out of scope.
 
 ### Users & personas
 
 | Persona | Goal |
 | --- | --- |
-| Park Operator / BC Parks staff | Same redirects as today when not allowed |
-| Security reviewer / ops | See warn logs when authorization is denied |
-| Local developer | Behaviour covered in unit tests; mock auth still works |
+| Park Operator / BC Parks staff | App starts as today; no extra UI |
+| Security reviewer | Confirm config is not dumped to DevTools |
+| Local developer | Unit tests cover the verbose log-level path |
 
 ### Scope
 
-#### In scope (issue #15)
+#### In scope (issue #19)
 
-- Warn-level log on each AuthGuard authorization-failure redirect (not authorized; admin-only route denied)
-- Log content: requested path, denial reason, identity hint when available
-- Unit tests asserting the log is emitted for both scenarios
+- Stop logging the full configuration object from config initialisation
+- Unit tests: logLevel All (0) and a non-All level — no full dump
 
 #### Out of scope
 
-- Server-side / central audit sink (future finding or platform work)
-- Changing who is allowed on which routes (AUTHZ-002 and related)
-- Raising Keycloak lifecycle log levels (LOG-002), dumping or scrubbing config logs (LOG-001)
-- Logout (AUTH-003), PKCE (shipped), CloudFront headers
+- Sanitized/pretty config dump for local debug (unless already trivial and not required)
+- Default log level Off (LOG-004), Keycloak lifecycle levels (LOG-002), auth denial logging (LOG-003)
+- Server-side audit sink, CloudFront headers, logout
 
 ### Journeys
 
-1. Unauthorized user denial is logged — see `features/log-003-auth-denial-logging.feature`
-2. Admin-only route denial is logged — same feature
+1. Verbose log level does not dump full config — see `features/log-001-no-config-console-dump.feature`
+2. Other log levels also do not dump full config — same feature
 
 ### Non-functional requirements
 
 - Accessibility: no UI change expected
-- Privacy: only identity hints already present in the session; no new PII collection; do not log full tokens or full config
-- Testability: verifiable in CI without live IdP
-- Residual: whether warn lines appear in a given environment still depends on configured log level (LOG-004 is separate)
+- Privacy: do not log full config, tokens, or secrets
+- Testability: verifiable in CI without live IdP or remote config endpoint
 
 ### Open questions (for checkpoint 1 reviewers)
 
-- [ ] Is browser-console warn acceptable for this pilot slice, with server-side audit deferred explicitly?
+- [ ] Accept removing the dump entirely (no sanitized replacement) for this pilot slice?
 
 ### Traceability
 
 | Finding | Issue | Feature |
 | --- | --- | --- |
-| RA LOG-003 | #15 | `features/log-003-auth-denial-logging.feature` |
+| RA LOG-001 | #19 | `features/log-001-no-config-console-dump.feature` |
 
 ### Sign-off (checkpoint 1) — **human required**
 
@@ -72,7 +69,16 @@ Every authorization-failure redirect from the route guard records a warn-level l
 | Tech lead | | |
 | QA (acceptance ownership) | | |
 
-> Do not add `ready-for-agent` to #15 until this table is filled and this spec PR is merged.
+> Do not add `ready-for-agent` to #19 until this table is filled and this spec PR is merged.
+
+---
+
+## In flight (not this slice)
+
+### LOG-003 — Auth denial logging
+
+- **Issue:** [#15](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/15) · impl [PR #18](https://github.com/bcgov/bcparks-ar-admin-agentic/pull/18) (checkpoint 3 pending)
+- **Feature:** `features/log-003-auth-denial-logging.feature`
 
 ---
 
