@@ -1,3 +1,50 @@
+# PR evidence — [RA LOG-002] Raise Keycloak lifecycle log levels
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-log-002-keycloak-authentication-logging |
+| Spec refs | `spec/spec.md` (LOG-002), `spec/features/log-002-keycloak-lifecycle-log-levels.feature` |
+| Constitution articles touched | P3, P5, P7, J3, J5 |
+| Tasks | TASK-001, TASK-002, TASK-003 |
+| Authoring agent | GitHub Copilot Coding Agent |
+| Generated | 2026-08-14T17:38:26Z |
+
+## Intent
+
+`KeycloakService` now logs `onAuthError` and `onAuthRefreshError` at `error` level and `onAuthLogout` at `warn` level so those lifecycle events are still visible when debug logging is off. When `preferred_username` is already available, the lifecycle message includes it as a stable identity hint without logging the full token. Local mock auth remains unchanged.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| Auth error logged at warn/error | Yes | `keycloak.service.ts` now emits `loggerService.error(...)` from `onAuthError` |
+| Refresh error logged at warn/error | Yes | `keycloak.service.ts` now emits `loggerService.error(...)` from `onAuthRefreshError` |
+| Logout logged at warn/error | Yes | `keycloak.service.ts` now emits `loggerService.warn(...)` from `onAuthLogout` |
+| Username hint included when available | Yes | Lifecycle log helper appends `preferred_username` from `getUsername()` |
+
+## Design system & accessibility
+
+No UI changes.
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Unit | `yarn test-ci --include src/app/services/keycloak.service.spec.ts` | Passed (8/8) |
+| Unit | `yarn test-ci` | Passed (208/208) |
+
+## Risks & follow-ups
+
+- Logs remain client-side only; server-side audit capture is explicitly out of scope for LOG-002.
+
+## Human checkpoint 3
+
+Reviewer confirms: PR matches signed spec/plan; no constitution violations; ready to merge.
+
+- Reviewer: _______________ Date: _______________
+
+---
+
 # PR evidence — [RA AUTHZ-001] Fix AuthGuard bypass via query params on admin routes
 
 | Field | Value |
