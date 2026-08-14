@@ -6,6 +6,7 @@ import {
   ActivatedRouteSnapshot,
 } from '@angular/router';
 import { KeycloakService } from '../services/keycloak.service';
+import { LoggerService } from '../services/logger.service';
 
 @Injectable({
   providedIn: 'root',
@@ -14,6 +15,7 @@ export class AuthGuard {
   constructor(
     private readonly keycloakService: KeycloakService,
     private readonly router: Router,
+    private readonly logger: LoggerService,
   ) { }
 
   canActivate(
@@ -60,9 +62,15 @@ export class AuthGuard {
       }
     }
 
+    const username = this.keycloakService.getUsername();
+    const identity = username ? ` user="${username}"` : '';
+
     // Not authorized
     if (!this.keycloakService.isAuthorized()) {
       // login was successful but the user doesn't have necessary Keycloak roles.
+      this.logger.warn(
+        `AuthGuard denied access: path="${requestPath}" reason="not authorized"${identity}`,
+      );
       return this.router.parseUrl('/unauthorized');
     }
 
@@ -70,6 +78,9 @@ export class AuthGuard {
       !this.keycloakService.isAllowed('export-reports') &&
       requestPath === '/export-reports'
     ) {
+      this.logger.warn(
+        `AuthGuard denied access: path="${requestPath}" reason="missing role export-reports"${identity}`,
+      );
       return this.router.parseUrl('/');
     }
 
@@ -77,6 +88,9 @@ export class AuthGuard {
       !this.keycloakService.isAllowed('lock-records') &&
       requestPath === '/lock-records'
     ) {
+      this.logger.warn(
+        `AuthGuard denied access: path="${requestPath}" reason="missing role lock-records"${identity}`,
+      );
       return this.router.parseUrl('/');
     }
 
@@ -84,12 +98,18 @@ export class AuthGuard {
       !this.keycloakService.isAllowed('review-data') &&
       requestPath === '/review-data'
     ) {
+      this.logger.warn(
+        `AuthGuard denied access: path="${requestPath}" reason="missing role review-data"${identity}`,
+      );
       return this.router.parseUrl('/');
     }
 
     if (!this.keycloakService.isAllowed('manage-subareas') &&
       requestPath === '/manage-subareas'
     ) {
+      this.logger.warn(
+        `AuthGuard denied access: path="${requestPath}" reason="missing role manage-subareas"${identity}`,
+      );
       return this.router.parseUrl('/');
     }
 

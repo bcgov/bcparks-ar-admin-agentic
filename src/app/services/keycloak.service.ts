@@ -316,6 +316,22 @@ export class KeycloakService {
   }
 
   /**
+   * Returns the preferred_username claim from the current token, or an empty
+   * string when no token is present.  Used as a stable identity hint in logs.
+   *
+   * @returns {string} preferred_username or ''
+   * @memberof KeycloakService
+   */
+  public getUsername(): string {
+    const token = this.getToken();
+    if (!token) {
+      return '';
+    }
+    const jwt = JwtUtil.decodeToken(token);
+    return jwt?.preferred_username ?? '';
+  }
+
+  /**
    * Redirects to keycloak and logs in
    *
    * @param {string} idpHint see idpHintEnum for valid values
