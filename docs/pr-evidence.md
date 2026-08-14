@@ -1,3 +1,63 @@
+# PR evidence — [RA CONFIG-004] Missing X-Frame-Options, X-Content-Type-Options, Referrer-Policy, and Permissions-Policy Headers
+
+| Field | Value |
+| --- | --- |
+| PR / branch | current working branch |
+| Spec refs | `spec/spec.md` (CONFIG-004), `spec/features/config-004-cloudfront-security-headers.feature` |
+| Constitution articles touched | J6 |
+| Tasks | CONFIG-004 |
+| Authoring agent | GitHub Copilot Coding Agent |
+| Generated | 2026-08-14T18:10:00Z |
+
+## Intent
+
+Extended `CloudFrontHSTSResponseHeadersPolicy` in `template.yaml` with four additional security headers:
+
+- `X-Frame-Options: DENY` — prevents clickjacking of authenticated admin users
+- `X-Content-Type-Options: nosniff` — disables MIME-type sniffing
+- `Referrer-Policy: strict-origin-when-cross-origin` — limits referrer leakage
+- `Permissions-Policy` (via `CustomHeadersConfig`) — disables unused powerful browser APIs (camera, microphone, geolocation, payment, usb, interest-cohort)
+
+HSTS and CORS from CONFIG-003 are unchanged. CSP (CONFIG-002) is not included per spec scope.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| Sets X-Frame-Options | Yes | `FrameOptions: DENY` in `SecurityHeadersConfig` |
+| Sets X-Content-Type-Options: nosniff | Yes | `ContentTypeOptions` in `SecurityHeadersConfig` |
+| Sets Referrer-Policy | Yes | `ReferrerPolicy: strict-origin-when-cross-origin` |
+| Sets Permissions-Policy | Yes | `CustomHeadersConfig` item |
+| HSTS from CONFIG-003 still present | Yes | `StrictTransportSecurity` unchanged |
+| CSP not added | Yes | No `ContentSecurityPolicy` block |
+
+## Design system & accessibility
+
+No UI changes.
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Static assertion | `grep -n "FrameOptions" template.yaml` | Passes |
+| Static assertion | `grep -n "ContentTypeOptions" template.yaml` | Passes |
+| Static assertion | `grep -n "ReferrerPolicy" template.yaml` | Passes |
+| Static assertion | `grep -n "Permissions-Policy" template.yaml` | Passes |
+| Static assertion | `grep -n "StrictTransportSecurity" template.yaml` | Passes |
+
+## Risks & follow-ups
+
+- Live header smoke test after deploy recommended to confirm all headers emitted.
+- `Permissions-Policy` value is restrictive by default; expand if specific APIs are needed in future.
+
+## Human checkpoint 3
+
+Reviewer confirms: PR matches signed spec/plan; no constitution violations; ready to merge.
+
+- Reviewer: _______________ Date: _______________
+
+---
+
 # PR evidence — [RA CONFIG-003] Missing Strict-Transport-Security (HSTS) Header on All CloudFront Cache Behaviors
 
 | Field | Value |
