@@ -1,48 +1,32 @@
-# Plan — CloudFront HSTS (CONFIG-003)
+# Plan — CloudFront browser security headers (CONFIG-004)
 
-> Architecture and delivery approach for issue [#32](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/32) / RA CONFIG-003.  
-> Checkpoint 1 (spec) is merged. This document is **checkpoint 2**.
+> Issue [#36](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/36); checkpoint 1 merged.
 
 ## Summary
 
-Replace the managed SimpleCORS response headers policy on all three CloudFront cache behaviours with a custom `AWS::CloudFront::ResponseHeadersPolicy` that sets HSTS and preserves CORS. Do not add CSP or XFO in this slice.
+Extend `CloudFrontHSTSResponseHeadersPolicy` in `template.yaml`. Use native CloudFront `SecurityHeadersConfig` for frame denial, nosniff, and referrer policy; use `CustomHeadersConfig` for `Permissions-Policy`. Preserve HSTS, CORS, and all three behavior references. No CSP.
 
-## Architecture
+## Decisions
 
-```text
-template.yaml
-  CloudFrontSecurityHeadersPolicy (new)
-    StrictTransportSecurity: max-age=31536000; includeSubDomains; override
-    CORS: Access-Control-Allow-Origin * (equivalent to SimpleCORS)
-  CloudFrontDistribution
-    DefaultCacheBehavior.ResponseHeadersPolicyId → !Ref policy
-    CacheBehaviors[api].ResponseHeadersPolicyId → !Ref policy
-    CacheBehaviors[spa].ResponseHeadersPolicyId → !Ref policy
-```
+| Header | Configuration |
+| --- | --- |
+| X-Frame-Options | `FrameOption: DENY`, override |
+| X-Content-Type-Options | native ContentTypeOptions, override |
+| Referrer-Policy | `strict-origin-when-cross-origin`, override |
+| Permissions-Policy | custom header disabling camera, microphone, geolocation, payment, usb (override) |
 
-## Key decisions
+## Risks and proof
 
-| Decision | Choice | Rationale |
-| --- | --- | --- |
-| HSTS | max-age 31536000, includeSubDomains, override | Assessment baseline |
-| CORS | Keep allow-origin * + needed methods/headers | Don’t break `/api/*` |
-| CSP/XFO | Not this PR | CONFIG-002 / CONFIG-004 |
-| Proof | Template contains HSTS + three !Ref attachments | No live AWS in CI |
+- CloudFront property casing/schema must be valid; static review / `sam validate --lint` if available.
+- Restrictive Permissions-Policy must only disable capabilities unused by the app.
+- Confirm HSTS + CORS remain and the policy still has three attachments.
+- Existing PR lint/test remain green; live `curl -I` is residual.
 
-## Security & privacy
+## Scope exclusions
 
-- Residual: HSTS only after next CloudFront deploy; preload list not required this slice.
+CSP (CONFIG-002), UI code, APIs, origins, TLS, certificate ARN.
 
-## Test approach
-
-- Static: `template.yaml` defines ResponseHeadersPolicy with StrictTransportSecurity; all three behaviours reference it; SimpleCORS id `60669652-…` is gone
-- Update `docs/pr-evidence.md`
-
-## Rollout
-
-- Next SAM deploy. Optional human: `curl -I` for Strict-Transport-Security.
-
-## Approval (checkpoint 2) — **human required**
+## Approval — checkpoint 2
 
 | Role | Name | Date |
 | --- | --- | --- |
