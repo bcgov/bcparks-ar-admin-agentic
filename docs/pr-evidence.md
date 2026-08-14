@@ -1,3 +1,47 @@
+# PR evidence — [RA SECRET-001] Production certificate ARN provided via environment variable
+
+| Field | Value |
+| --- | --- |
+| PR / branch | current working branch |
+| Spec refs | `spec/spec.md` (SECRET-001), `spec/features/secret-001-prod-certificate-arn.feature` |
+| Constitution articles touched | J6 |
+| Tasks | TASK-001, TASK-002, TASK-003 |
+| Authoring agent | GitHub Copilot Coding Agent |
+| Generated | 2026-08-14T18:34:12Z |
+
+## Intent
+
+Updated `.github/workflows/lza-deploy-admin-prod.yaml` so SAM deploy reads:
+
+- `DomainCertificateArn="${{ vars.DOMAIN_CERTIFICATE_ARN }}"`
+
+No literal ACM certificate ARN is retained on that parameter override line.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| Prod workflow sets `DomainCertificateArn` from `vars.DOMAIN_CERTIFICATE_ARN` | Yes | `lza-deploy-admin-prod.yaml` SAM `--parameter-overrides` |
+| Parameter is not a literal `arn:aws:acm:` value | Yes | Static check on override line |
+| Do not merge before env var exists | Yes | Draft-only pause retained per plan/spec |
+
+## Design system & accessibility
+
+No UI changes.
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Static assertion | `grep -n 'DomainCertificateArn=' .github/workflows/lza-deploy-admin-prod.yaml` | Passes |
+| Static assertion | `grep -n 'DomainCertificateArn=' .github/workflows/lza-deploy-admin-prod.yaml | grep -v 'arn:aws:acm:'` | Passes |
+
+## Risks & follow-ups
+
+- Human prerequisite: ensure GitHub Environment `lza-prod` defines `DOMAIN_CERTIFICATE_ARN` before merge.
+
+---
+
 # PR evidence — [RA TEST-001] TokenInterceptor test coverage
 
 | Field | Value |
