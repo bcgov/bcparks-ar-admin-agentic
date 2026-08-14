@@ -13,49 +13,49 @@
 
 ### Problem
 
-The HTTP helper that attaches the staff session token to API calls, and retries after a forbidden response by refreshing that token, has no automated tests. A regression in header injection or refresh/retry would ship unnoticed.
+The HTTP interceptor that attaches the staff session token to outbound requests, and that retries after a 403 by refreshing that token, has no automated tests. Regressions in header injection or refresh/retry would ship unnoticed.
 
 ### Outcome
 
-There is a focused unit spec for that helper covering **current** behaviour:
+A focused unit spec covers the **current** interceptor behaviour:
 
-- Requests include an `Authorization: Bearer …` header from the session token (empty Bearer when no token — do not change that here).
-- Errors other than 403 pass through without a refresh.
-- A 403 triggers a token refresh and a retry of the same request with the (possibly new) header.
-- If a refresh is already in flight, later 403s wait for it rather than starting a second refresh.
-- If refresh fails, the error is propagated (no new logout behaviour in this slice).
+1. Authenticated requests get a Bearer token header
+2. Non-403 failures pass through without a refresh
+3. HTTP 403 triggers a token refresh and retries the request
+4. Refresh failure surfaces the error (no new logout path)
+5. Concurrent 403s share one in-flight refresh
+
+This slice does **not** change interceptor production code except as required to make tests compile. AUTH-006 (401 vs 403) and AUTH-007 (host allowlist) stay follow-ups. The assessment’s “omit header when unauthenticated” and “logout on refresh failure” are **not** current behaviour and are out of scope.
 
 ### Users & personas
 
 | Persona | Goal |
 | --- | --- |
 | Developer | Catch interceptor regressions in CI |
-| Security reviewer | Confirm token attachment and 403 retry are locked by tests |
-| Staff user | No behaviour change |
+| Security reviewer | Confirm coverage matches today’s 403-refresh design |
 
 ### Scope
 
 #### In scope (#51)
 
-- New `token-interceptor.spec.ts` (or equivalent) for `TokenInterceptor`
-- Coverage listed under Outcome
-- Tests use the existing Angular HTTP testing utilities; mock Keycloak `getToken` / `refreshToken`
+- `token-interceptor.spec.ts` covering the scenarios above
+- HttpClient testing module (or equivalent Karma/Jasmine HTTP mocks already in the project)
 
 #### Out of scope
 
-- Changing interceptor behaviour (including adding logout on refresh failure)
-- AUTH-006: treat 401 the same as 403
-- AUTH-007: only attach tokens to allowlisted API hosts
-- E2E / live Keycloak
+- Changing 403 to 401 (AUTH-006)
+- Restricting which hosts receive the Bearer header (AUTH-007)
+- Adding logout on refresh failure
+- E2E / live Keycloak tests
 
 ### Journeys
 
-1. Interceptor coverage — see `features/test-001-token-interceptor.feature`
+1. See `features/test-001-token-interceptor.feature`
 
 ### Non-functional requirements
 
-- Tests run in existing `npm run test-ci` / CI Test job
-- No production code change unless a test cannot compile against current API (prefer tests-only)
+- Tests run in existing `yarn test-ci`
+- No production behaviour change
 
 ### Traceability
 
@@ -75,18 +75,12 @@ There is a focused unit spec for that helper covering **current** behaviour:
 
 ---
 
-## Paused slices
-
-### SECRET-001 — Prod certificate environment input
-
-- **Issue:** [#46](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/46) (paused)
-- **Feature:** `features/secret-001-prod-certificate-arn.feature`
-- **Draft impl:** [#50](https://github.com/bcgov/bcparks-ar-admin-agentic/pull/50)
-- **Blocker:** GitHub Environment `lza-prod` / `DOMAIN_CERTIFICATE_ARN` is not configured (API 404). Do not merge until a human sets it.
-
----
-
 ## Completed slices
+
+### SECRET-001 — Prod certificate input
+
+- **Issue:** [#46](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/46) (paused: `lza-prod` / `DOMAIN_CERTIFICATE_ARN` not configured; draft PR open)
+- **Feature:** `features/secret-001-prod-certificate-arn.feature`
 
 ### CONFIG-002 — Content-Security-Policy
 
@@ -95,7 +89,7 @@ There is a focused unit spec for that helper covering **current** behaviour:
 
 ### CONFIG-004 — Browser security headers
 
-- **Issue:** [#36](https://github.com/bcparks-ar-admin-agentic/issues/36) (shipped)
+- **Issue:** [#36](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/36) (shipped)
 - **Feature:** `features/config-004-cloudfront-security-headers.feature`
 
 ### CONFIG-003 — CloudFront HSTS
