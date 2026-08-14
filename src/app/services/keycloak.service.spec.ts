@@ -75,6 +75,77 @@ describe('KeycloakService', () => {
     });
   });
 
+  describe('init() lifecycle logging (LOG-002)', () => {
+    const realAuthConfig = {
+      KEYCLOAK_ENABLED: true,
+      KEYCLOAK_URL: 'https://example.com/auth',
+      KEYCLOAK_REALM: 'test-realm',
+      KEYCLOAK_CLIENT_ID: 'test-client',
+      ENVIRONMENT: 'production',
+    };
+
+    async function initRealSession(keycloak, configService) {
+      spyOnProperty(configService, 'config', 'get').and.returnValue(realAuthConfig);
+
+      const mockKeycloak = {
+        onAuthSuccess: null,
+        onAuthError: null,
+        onAuthRefreshSuccess: null,
+        onAuthRefreshError: null,
+        onAuthLogout: null,
+        onTokenExpired: null,
+        init: jasmine.createSpy('init').and.returnValue(Promise.resolve(true)),
+      };
+
+      (window as any).Keycloak = jasmine
+        .createSpy('Keycloak')
+        .and.returnValue(mockKeycloak);
+
+      await keycloak.init();
+
+      return mockKeycloak;
+    }
+
+    it('should log auth errors at error level with username when available', async () => {
+      const keycloak = TestBed.get(KeycloakService);
+      const configService = TestBed.get(ConfigService);
+      const loggerService = TestBed.get(LoggerService);
+      const mockKeycloak = await initRealSession(keycloak, configService);
+      spyOn(keycloak, 'getUsername').and.returnValue('idir.user');
+      const errorSpy = spyOn(loggerService, 'error');
+
+      mockKeycloak.onAuthError();
+
+      expect(errorSpy).toHaveBeenCalledWith(
+        'onAuthError (username: idir.user)'
+      );
+    });
+
+    it('should log token refresh errors at error level', async () => {
+      const keycloak = TestBed.get(KeycloakService);
+      const configService = TestBed.get(ConfigService);
+      const loggerService = TestBed.get(LoggerService);
+      const mockKeycloak = await initRealSession(keycloak, configService);
+      const errorSpy = spyOn(loggerService, 'error');
+
+      mockKeycloak.onAuthRefreshError();
+
+      expect(errorSpy).toHaveBeenCalledWith('onAuthRefreshError');
+    });
+
+    it('should log logout at warn level', async () => {
+      const keycloak = TestBed.get(KeycloakService);
+      const configService = TestBed.get(ConfigService);
+      const loggerService = TestBed.get(LoggerService);
+      const mockKeycloak = await initRealSession(keycloak, configService);
+      const warnSpy = spyOn(loggerService, 'warn');
+
+      mockKeycloak.onAuthLogout();
+
+      expect(warnSpy).toHaveBeenCalledWith('onAuthLogout');
+    });
+  });
+
   it('idp should be `idir` if the token has an idir_userid property', () => {
     spyOn(JwtUtil, 'decodeToken').and.callFake(() => {
       return {

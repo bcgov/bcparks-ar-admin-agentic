@@ -104,6 +104,13 @@ export class KeycloakService {
     );
   }
 
+  private getLifecycleLogMessage(eventName: string): string {
+    const username = this.getUsername();
+    return username
+      ? `${eventName} (username: ${username})`
+      : eventName;
+  }
+
   async init() {
     // Load up the config service data
     this.keycloakEnabled = this.configService.config['KEYCLOAK_ENABLED'];
@@ -136,7 +143,7 @@ export class KeycloakService {
         };
 
         this.keycloakAuth.onAuthError = () => {
-          this.loggerService.debug('onAuthError');
+          this.loggerService.error(this.getLifecycleLogMessage('onAuthError'));
         };
 
         this.keycloakAuth.onAuthRefreshSuccess = () => {
@@ -144,11 +151,13 @@ export class KeycloakService {
         };
 
         this.keycloakAuth.onAuthRefreshError = () => {
-          this.loggerService.debug('onAuthRefreshError');
+          this.loggerService.error(
+            this.getLifecycleLogMessage('onAuthRefreshError')
+          );
         };
 
         this.keycloakAuth.onAuthLogout = () => {
-          this.loggerService.debug('onAuthLogout');
+          this.loggerService.warn(this.getLifecycleLogMessage('onAuthLogout'));
         };
 
         // Try to get refresh tokens in the background
