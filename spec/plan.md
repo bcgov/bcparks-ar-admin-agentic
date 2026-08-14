@@ -1,50 +1,58 @@
-# Plan — Production certificate environment input (SECRET-001)
+# Plan — Token interceptor unit coverage (TEST-001)
 
-> Architecture and delivery approach for issue [#46](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/46) / RA SECRET-001.  
+> Architecture and delivery approach for issue [#51](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/51) / RA TEST-001.  
 > Checkpoint 1 (spec) is merged. This document is **checkpoint 2**.
 
 ## Summary
 
-Replace the hardcoded `DomainCertificateArn` on the LZA **prod** deploy workflow with `${{ vars.DOMAIN_CERTIFICATE_ARN }}`. Do not reprint the current ARN in evidence or comments. **Do not merge the implementation** until a human has created GitHub Environment `lza-prod` and set that variable — the environment currently 404s via API, so a merge would break prod deploy.
+Add `src/app/shared/utils/token-interceptor.spec.ts` covering current `TokenInterceptor` behaviour. Do **not** change production interceptor logic (no 401 handling, no host allowlist, no logout-on-refresh-failure).
 
 ## Architecture
 
 ```text
-.github/workflows/lza-deploy-admin-prod.yaml
-  jobs.deploy.environment: lza-prod          ← already set
-  SAM --parameter-overrides
-    DomainCertificateArn="${{ vars.DOMAIN_CERTIFICATE_ARN }}"  ← new
+token-interceptor.spec.ts
+  mock KeycloakService { getToken(), refreshToken() }
+  TokenInterceptor.intercept(req, next)
+    addAuthHeader → Authorization: Bearer <token or ''>
+    403 → refreshToken() → retry with header
+    other errors → throwError (no refresh)
+    concurrent 403 → wait on tokenRefreshed$ (single refresh)
 ```
 
-`vars.*` is scoped to the job `environment`. Until `lza-prod` exists and `DOMAIN_CERTIFICATE_ARN` is set, the expression is empty at runtime.
+Prefer constructing `TokenInterceptor` with a mock `KeycloakService` and a fake `HttpHandler`, or Angular 19 `provideHttpClient` + `provideHttpClientTesting()` / `HttpTestingController`. Either is fine if all Gherkin scenarios are asserted.
 
 ## Key decisions
 
 | Decision | Choice | Rationale |
 | --- | --- | --- |
-| Scope | Prod workflow only | Finding is SECRET-001; dev/test ARNs are SECRET-002 |
-| Source | `${{ vars.DOMAIN_CERTIFICATE_ARN }}` | Signed spec; GitHub Environment variable, not a repo secret (ARN is an identifier, but still must leave the file) |
-| Evidence | Assert `vars.DOMAIN_CERTIFICATE_ARN` present and no literal `arn:aws:acm:` on that override | Do not paste the old value |
-| Merge | **Pause before CP3 merge** | `lza-prod` is not configured (API 404). Human must create the environment and variable |
-| Draft impl | Allowed | Copilot may open a draft PR; leave draft until the env exists |
+| Production code | Tests only | Finding is missing coverage, not a logic bug |
+| Empty token | Still `Bearer ` (empty) | Current `getToken() \|\| ''` |
+| 401 | Pass through | AUTH-006 follow-up |
+| Host allowlist | None | AUTH-007 follow-up |
+| Refresh failure | Propagate error | Current `throwError`; do not add logout |
+| CI | Existing `test-ci` job | No new runner |
 
 ## Security & privacy
 
-- Residual: the historical ARN remains in git history after the file change. Rotation/history rewrite is out of scope.
-- Residual: deploy stays broken until the env var is set — that is why we pause merge.
-- Do not put the ARN in `docs/pr-evidence.md`, review comments, or commit messages.
+- Tests must not log real tokens. Use fixtures like `test-token`.
+- Residual: interceptor still attaches Bearer to every host (AUTH-007) and ignores 401 (AUTH-006). Record in evidence, do not fix here.
 
 ## Test approach
 
-- Static: prod workflow `DomainCertificateArn=` uses `vars.DOMAIN_CERTIFICATE_ARN`; that override line is not a literal ACM ARN
-- Update `docs/pr-evidence.md` without the identifier
-- No application tests
+| Scenario | Assertion |
+| --- | --- |
+| Bearer attached | `Authorization` is `Bearer test-token` when `getToken()` returns `test-token` |
+| Missing token | Header is `Bearer ` (empty suffix); `refreshToken` not called on success |
+| Non-403 | e.g. 500 or 401 → error propagated; `refreshToken` not called |
+| 403 success | `refreshToken` called; retry has Bearer header |
+| Concurrent 403 | `refreshToken` called once; both retries proceed after refresh |
+| Refresh fail | `refreshToken` errors; subscriber gets error; no logout API called |
+
+Update `docs/pr-evidence.md` with test command + pass.
 
 ## Rollout
 
-1. Human: create GitHub Environment `lza-prod` (if missing) and set variable `DOMAIN_CERTIFICATE_ARN` to the existing ACM certificate ARN.
-2. Then merge the implementation PR.
-3. Next tagged prod deploy should pass the parameter from the environment.
+- Merge when CI Test job is green. No deploy smoke.
 
 ## Approval (checkpoint 2) — **human required**
 
