@@ -1,3 +1,48 @@
+# PR evidence — [RA CRYPTO-001] Raise CloudFront viewer TLS minimum
+
+| Field | Value |
+| --- | --- |
+| PR / branch | current working branch |
+| Spec refs | `spec/spec.md` (CRYPTO-001), `spec/features/crypto-001-cloudfront-tls-minimum.feature` |
+| Constitution articles touched | P4, P5, P7, J5, J6 |
+| Tasks | TASK-001, TASK-002, TASK-003 |
+| Authoring agent | GitHub Copilot Coding Agent |
+| Generated | 2026-08-14T17:50:31Z |
+
+## Intent
+
+Raised the CloudFront `ViewerCertificate.MinimumProtocolVersion` in `template.yaml` from `TLSv1` to `TLSv1.2_2021` so viewer connections no longer permit deprecated TLS 1.0/1.1. No certificate ARN, header policy, or origin TLS settings were changed.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| Viewer minimum is TLS 1.2+ | Yes | `template.yaml` now sets `MinimumProtocolVersion: TLSv1.2_2021` |
+| Viewer minimum is not `TLSv1` | Yes | Static verification scoped to `template.yaml` confirms `TLSv1` is absent from `ViewerCertificate` |
+
+## Design system & accessibility
+
+No UI changes.
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Static assertion | `grep -n "MinimumProtocolVersion" /home/runner/work/bcparks-ar-admin-agentic/bcparks-ar-admin-agentic/template.yaml` | Passed |
+| Static assertion | `! grep -n "MinimumProtocolVersion: TLSv1$" /home/runner/work/bcparks-ar-admin-agentic/bcparks-ar-admin-agentic/template.yaml` | Passed |
+
+## Risks & follow-ups
+
+- Residual human smoke after deploy can confirm negotiated protocols externally; live TLS probing is intentionally out of scope for merge.
+
+## Human checkpoint 3
+
+Reviewer confirms: PR matches signed spec/plan; no constitution violations; ready to merge.
+
+- Reviewer: _______________ Date: _______________
+
+---
+
 # PR evidence — [RA LOG-002] Raise Keycloak lifecycle log levels
 
 | Field | Value |
