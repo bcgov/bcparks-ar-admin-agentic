@@ -1,71 +1,50 @@
-# Plan — CloudFront Content-Security-Policy (CONFIG-002)
+# Plan — Production certificate environment input (SECRET-001)
 
-> Architecture and delivery approach for issue [#41](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/41) / RA CONFIG-002.  
+> Architecture and delivery approach for issue [#46](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/46) / RA SECRET-001.  
 > Checkpoint 1 (spec) is merged. This document is **checkpoint 2**.
 
 ## Summary
 
-Add `ContentSecurityPolicy` to the existing `CloudFrontHSTSResponseHeadersPolicy`. Keep HSTS, CORS, and CONFIG-004 headers. Do not create a second policy. Live login/API smoke is residual, not a merge gate.
+Replace the hardcoded `DomainCertificateArn` on the LZA **prod** deploy workflow with `${{ vars.DOMAIN_CERTIFICATE_ARN }}`. Do not reprint the current ARN in evidence or comments. **Do not merge the implementation** until a human has created GitHub Environment `lza-prod` and set that variable — the environment currently 404s via API, so a merge would break prod deploy.
 
 ## Architecture
 
 ```text
-template.yaml
-  CloudFrontHSTSResponseHeadersPolicy (existing)
-    SecurityHeadersConfig
-      ContentSecurityPolicy            ← new (CONFIG-002)
-      FrameOptions / ContentTypeOptions / ReferrerPolicy / HSTS  ← keep
-    CustomHeadersConfig
-      Permissions-Policy               ← keep
-    CorsConfig                         ← keep
-  CloudFrontDistribution
-    all three cache behaviours already !Ref this policy — leave attachments as-is
+.github/workflows/lza-deploy-admin-prod.yaml
+  jobs.deploy.environment: lza-prod          ← already set
+  SAM --parameter-overrides
+    DomainCertificateArn="${{ vars.DOMAIN_CERTIFICATE_ARN }}"  ← new
 ```
 
-## CSP header (signed allowlist)
-
-Exact `ContentSecurityPolicy` string (single line in the template):
-
-```
-default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https://loginproxy.gov.bc.ca https://*.loginproxy.gov.bc.ca https://*.execute-api.ca-central-1.amazonaws.com https://*.bcparks.ca; frame-src https://loginproxy.gov.bc.ca https://*.loginproxy.gov.bc.ca; form-action 'self' https://loginproxy.gov.bc.ca https://*.loginproxy.gov.bc.ca; object-src 'none'; frame-ancestors 'none'; base-uri 'self'
-```
-
-| Directive | Sources | Why |
-| --- | --- | --- |
-| `script-src` / `default-src` / `base-uri` | `'self'` | Bundled SPA + `env.js`; keycloak-js is npm, not a loginproxy script |
-| `style-src` | `'self' 'unsafe-inline'` | Angular / ngx-bootstrap / toastr inline styles |
-| `img-src` / `font-src` | `'self' data:` | Local assets + Bootstrap Icons |
-| `connect-src` | `'self'` + loginproxy apex+wildcard + `*.execute-api.ca-central-1.amazonaws.com` + `*.bcparks.ca` | `API_LOCATION` (execute-api or CloudFront `/api`) + Keycloak XHR |
-| `frame-src` | loginproxy apex + `*.loginproxy.gov.bc.ca` | Keycloak silent SSO iframe |
-| `form-action` | `'self'` + loginproxy | Login redirect |
-| `object-src` | `'none'` | No plugins |
-| `frame-ancestors` | `'none'` | Complements CONFIG-004 DENY |
-
-CSP `https://*.loginproxy.gov.bc.ca` does **not** match apex `https://loginproxy.gov.bc.ca`; both are required.
+`vars.*` is scoped to the job `environment`. Until `lza-prod` exists and `DOMAIN_CERTIFICATE_ARN` is set, the expression is empty at runtime.
 
 ## Key decisions
 
 | Decision | Choice | Rationale |
 | --- | --- | --- |
-| Where | Extend existing policy `SecurityHeadersConfig.ContentSecurityPolicy` with `Override: true` | One policy, three attachments |
-| Mode | Enforcing CSP (not Report-Only) | Finding asks for the header; report-only would not close it |
-| Live smoke | Residual human follow-up after deploy | CI cannot hit loginproxy/API; do **not** block merge on live proof |
-| Nonce/hashes | Out of scope | Would require app rebuild |
+| Scope | Prod workflow only | Finding is SECRET-001; dev/test ARNs are SECRET-002 |
+| Source | `${{ vars.DOMAIN_CERTIFICATE_ARN }}` | Signed spec; GitHub Environment variable, not a repo secret (ARN is an identifier, but still must leave the file) |
+| Evidence | Assert `vars.DOMAIN_CERTIFICATE_ARN` present and no literal `arn:aws:acm:` on that override | Do not paste the old value |
+| Merge | **Pause before CP3 merge** | `lza-prod` is not configured (API 404). Human must create the environment and variable |
+| Draft impl | Allowed | Copilot may open a draft PR; leave draft until the env exists |
 
 ## Security & privacy
 
-- Residual: a too-tight CSP can break IDIR/BCeID/API until the next deploy. If live smoke fails, widen `connect-src`/`frame-src` with evidence — do not add `'unsafe-eval'` or `*` unless a concrete runtime error requires it.
-- CSP is browser-enforced; it does not replace API authorization.
+- Residual: the historical ARN remains in git history after the file change. Rotation/history rewrite is out of scope.
+- Residual: deploy stays broken until the env var is set — that is why we pause merge.
+- Do not put the ARN in `docs/pr-evidence.md`, review comments, or commit messages.
 
 ## Test approach
 
-- Static: template contains `ContentSecurityPolicy` with the directives above; loginproxy apex + wildcard; execute-api ca-central-1; `object-src 'none'`; `frame-ancestors 'none'`; no `ContentSecurityPolicy` Report-Only; HSTS/CORS/CONFIG-004 keys remain; three `!Ref CloudFrontHSTSResponseHeadersPolicy`
-- Update `docs/pr-evidence.md`
-- No Angular tests required
+- Static: prod workflow `DomainCertificateArn=` uses `vars.DOMAIN_CERTIFICATE_ARN`; that override line is not a literal ACM ARN
+- Update `docs/pr-evidence.md` without the identifier
+- No application tests
 
 ## Rollout
 
-- Next SAM deploy. Optional human: `curl -I` for CSP, then login + one API call. Record failures as residual, not a reason to revert CI-proven template structure.
+1. Human: create GitHub Environment `lza-prod` (if missing) and set variable `DOMAIN_CERTIFICATE_ARN` to the existing ACM certificate ARN.
+2. Then merge the implementation PR.
+3. Next tagged prod deploy should pass the parameter from the environment.
 
 ## Approval (checkpoint 2) — **human required**
 

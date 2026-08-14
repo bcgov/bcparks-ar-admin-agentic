@@ -1,22 +1,22 @@
-# Tasks — CloudFront Content-Security-Policy (CONFIG-002)
+# Tasks — Production certificate environment input (SECRET-001)
 
-Derive from `spec/spec.md` + `features/config-002-cloudfront-csp.feature`. Issue: [#41](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/41).
+Derive from `spec/spec.md` + `features/secret-001-prod-certificate-arn.feature`. Issue: [#46](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/46).
 
-## Milestone 1 — CSP on shared policy (after checkpoint 2 approval)
+## Milestone 1 — Workflow change (after checkpoint 2 approval)
 
-- [ ] **TASK-001** — In `template.yaml` `CloudFrontHSTSResponseHeadersPolicy` `SecurityHeadersConfig`, add `ContentSecurityPolicy` with `Override: true` and the exact policy string from `spec/plan.md` (script `'self'`; style `'self' 'unsafe-inline'`; img/font `'self' data:`; connect `'self'` + loginproxy apex+wildcard + `*.execute-api.ca-central-1.amazonaws.com` + `*.bcparks.ca`; frame-src loginproxy apex+wildcard; form-action `'self'` + loginproxy; `object-src 'none'`; `frame-ancestors 'none'`; `base-uri 'self'`)
-- [ ] **TASK-002** — Keep HSTS, CORS, CONFIG-004 headers (`FrameOptions`, `ContentTypeOptions`, `ReferrerPolicy`, `Permissions-Policy`) and all three `ResponseHeadersPolicyId: !Ref CloudFrontHSTSResponseHeadersPolicy` attachments. Do **not** add a second policy or Report-Only CSP.
-- [ ] **TASK-003** — Update `docs/pr-evidence.md` with static proof of the directives; open **draft** PR linking #41 (`Fixes #41`); do not self-merge
+- [ ] **TASK-001** — In `.github/workflows/lza-deploy-admin-prod.yaml` SAM `--parameter-overrides`, set `DomainCertificateArn=${{ vars.DOMAIN_CERTIFICATE_ARN }}`. Do not change `environment: lza-prod`. Do not touch dev/test workflows.
+- [ ] **TASK-002** — Update `docs/pr-evidence.md` with static proof that the override uses `vars.DOMAIN_CERTIFICATE_ARN` and is not a literal `arn:aws:acm:` value. **Do not reprint the previous ARN.**
+- [ ] **TASK-003** — Open **draft** PR linking #46 (`Fixes #46`). Do **not** self-merge. Leave draft.
 
 ## After checkpoint 2 merge (human)
 
-- [ ] Label #41 `ready-for-agent`
-- [ ] Review; merge (checkpoint 3). Live login/API header smoke is residual — not a merge gate.
+- [ ] Label #46 `ready-for-agent` so Copilot can open the draft (optional; allowed)
+- [ ] **PAUSE before checkpoint 3 merge** until a human creates GitHub Environment `lza-prod` and sets `DOMAIN_CERTIFICATE_ARN`. Comment the blocker on the issue/PR. Then continue the High queue (TEST-001).
 
 ## Completed (prior slices)
 
-- [x] AUTHZ-001 (#6), AUTH-001 (#11), LOG-001 (#19), LOG-003 (#15), LOG-002 (#23), CRYPTO-001 (#27), CONFIG-003 (#32), CONFIG-004 (#36)
+- [x] AUTHZ-001 (#6), AUTH-001 (#11), LOG-001 (#19), LOG-003 (#15), LOG-002 (#23), CRYPTO-001 (#27), CONFIG-003 (#32), CONFIG-004 (#36), CONFIG-002 (#41)
 
 ## Next (not this slice)
 
-- [ ] SECRET-001, TEST-001
+- [ ] TEST-001 token interceptor coverage
