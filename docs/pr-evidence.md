@@ -414,7 +414,7 @@ Reviewer confirms: PR matches signed spec/plan; no constitution violations; read
 | Field | Value |
 | --- | --- |
 | PR / branch | current working branch |
-| Spec refs | `src/app/shared/utils/token-interceptor.ts` |
+| Spec refs | `spec/features/test-001-token-interceptor.feature` |
 | Constitution articles touched | none (test-only change) |
 | Tasks | TEST-001 |
 | Authoring agent | GitHub Copilot Coding Agent |
