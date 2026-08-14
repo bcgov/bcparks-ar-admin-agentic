@@ -1,23 +1,23 @@
-# Tasks — CloudFront viewer TLS minimum (CRYPTO-001)
+# Tasks — CloudFront HSTS (CONFIG-003)
 
-Derive from `spec/spec.md` + `features/crypto-001-cloudfront-tls-minimum.feature`. Issue: [#27](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/27).
+Derive from `spec/spec.md` + `features/config-003-cloudfront-hsts.feature`. Issue: [#32](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/32).
 
-## Milestone 1 — Raise TLS floor (after checkpoint 2 approval)
+## Milestone 1 — HSTS policy (after checkpoint 2 approval)
 
-- [ ] **TASK-001** — In `template.yaml` `ViewerCertificate`, set `MinimumProtocolVersion: TLSv1.2_2021` (replace `TLSv1`). Do not change ResponseHeadersPolicyId, origins, or certificate ARN.
-- [ ] **TASK-002** — Prove statically (comment/grep in evidence, or a tiny test/script) that the viewer minimum is not `TLSv1`
-- [ ] **TASK-003** — Update `docs/pr-evidence.md`; open **draft** PR linking #27; do not self-merge
+- [ ] **TASK-001** — Add `AWS::CloudFront::ResponseHeadersPolicy` in `template.yaml` with Strict-Transport-Security (max-age ≥ 31536000, includeSubDomains, override) and CORS equivalent to SimpleCORS
+- [ ] **TASK-002** — Point all three cache behaviours’ `ResponseHeadersPolicyId` at that resource (`!Ref`); remove `60669652-455b-4ae9-85a4-c4c02393f86c`
+- [ ] **TASK-003** — Do **not** add CSP, X-Frame-Options, nosniff, Referrer-Policy, or Permissions-Policy in this PR
+- [ ] **TASK-004** — Update `docs/pr-evidence.md`; open **draft** PR linking #32; do not self-merge
 
 ## After checkpoint 2 merge (human)
 
-- [ ] Add label `ready-for-agent` to #27
-- [ ] Review; merge (checkpoint 3). Post-deploy TLS smoke is residual.
+- [ ] Label #32 `ready-for-agent`
+- [ ] Review; merge (checkpoint 3). Live header smoke is residual.
 
 ## Completed (prior slices)
 
-- [x] AUTHZ-001 (#6), AUTH-001 (#11), LOG-001 (#19), LOG-003 (#15), LOG-002 (#23)
+- [x] AUTHZ-001 (#6), AUTH-001 (#11), LOG-001 (#19), LOG-003 (#15), LOG-002 (#23), CRYPTO-001 (#27)
 
-## Backlog (not this slice)
+## Next (not this slice)
 
-- [ ] CONFIG-003 HSTS, CONFIG-004 headers, CONFIG-002 CSP
-- [ ] SECRET-001
+- [ ] CONFIG-004 other headers, CONFIG-002 CSP
