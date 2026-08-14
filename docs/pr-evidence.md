@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | PR / branch | current working branch |
-| Spec refs | `spec/spec.md` (CONFIG-002), `spec/features/config-002-cloudfront-csp-header.feature` |
+| Spec refs | `spec/spec.md` (CONFIG-002), `spec/features/config-002-cloudfront-csp.feature` |
 | Constitution articles touched | J6 |
 | Tasks | CONFIG-002 |
 | Authoring agent | GitHub Copilot Coding Agent |
