@@ -273,6 +273,17 @@ export class KeycloakService {
   }
 
   /**
+   * Redirects to Keycloak and logs out.
+   *
+   * @memberof KeycloakService
+   */
+  logout() {
+    const baseHref = document.querySelector('base')?.getAttribute('href') || '/';
+    const redirectUri = new URL(baseHref, window.location.origin).toString();
+    return this.keycloakAuth && this.keycloakAuth.logout({ redirectUri });
+  }
+
+  /**
    * Infers the identity provider from the JWT token
    *
    * @remarks

@@ -18,6 +18,7 @@ export class HeaderComponent implements OnDestroy {
   public envName: string;
   public showBanner = true;
   public welcomeMsg: String;
+  public isAuthenticated: boolean;
   public isAuthorized: boolean;
   public isMenuCollapsed = true;
   public routes: any[] = [];
@@ -47,6 +48,7 @@ export class HeaderComponent implements OnDestroy {
         })
     );
 
+    this.isAuthenticated = this.keycloakService.isAuthenticated();
     this.isAuthorized = this.keycloakService.isAuthorized();
     this.welcomeMsg = this.keycloakService.getWelcomeMessage();
 
@@ -54,6 +56,10 @@ export class HeaderComponent implements OnDestroy {
     if (this.envName === 'prod' || this.envName === 'lza-prod') {
       this.showBanner = false;
     }
+  }
+
+  logout() {
+    this.keycloakService.logout();
   }
 
   ngOnDestroy() {

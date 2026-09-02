@@ -63,10 +63,9 @@ export class AuthGuard {
 
     if (lastIdp === null) {
       // Store the identity provider that was used to successfully log in.
-      // Even if the user is unauthorized, we still want to store this because
-      // we don't have a logout, so there is no point allowing the user to select
-      // a different IDP, as Keycloak will just ignore the selection when the user
-      // is authenticated already.
+      // Even if the user is unauthorized, we still want to remember the last
+      // successful IDP so future login attempts can reuse it until the user logs
+      // out and Keycloak terminates the session.
       const idp = this.keycloakService.getIdpFromToken();
       if (idp !== '') {
         sessionStorage.setItem(

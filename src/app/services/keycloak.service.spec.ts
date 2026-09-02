@@ -158,6 +158,20 @@ describe('KeycloakService', () => {
     expect(decodeTokenSpy).not.toHaveBeenCalled();
   });
 
+  it('logout delegates to the Keycloak adapter with an app base redirect URI', () => {
+    const keycloak = TestBed.get(KeycloakService);
+    const keycloakAuth = {
+      logout: jasmine.createSpy('logout'),
+    };
+    (keycloak as any).keycloakAuth = keycloakAuth;
+
+    keycloak.logout();
+
+    expect(keycloakAuth.logout).toHaveBeenCalledOnceWith({
+      redirectUri: new URL('/', window.location.origin).toString(),
+    });
+  });
+
   describe('Keycloak lifecycle logging', () => {
     let keycloak: KeycloakService;
     let loggerService: jasmine.SpyObj<LoggerService>;
