@@ -1,12 +1,6 @@
-# Tasks — {{SERVICE_NAME}}
+# Tasks — AUTHZ-001 (active)
 
-Derive from `spec.md` + `features/`. Prefer vertical slices.
-
-## Milestone 1
-
-- [ ] {{TASK-001}} — {{description}} — covers `features/{{…}}.feature` scenarios {{…}}
-- [ ] {{TASK-002}} — …
-
-## Backlog
-
-- [ ] …
+- [ ] Path-only match in `AuthGuard` admin capability checks
+- [ ] Unit tests for `@R-01.1`–`@R-01.5` in `auth.guard.spec.ts`
+- [ ] Append `docs/pr-evidence.md` for AUTHZ-001
+- [ ] Checkpoint 3 review + merge (must change `src/`)
