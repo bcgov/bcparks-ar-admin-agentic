@@ -6,6 +6,7 @@ import {
   ActivatedRouteSnapshot,
 } from '@angular/router';
 import { KeycloakService } from '../services/keycloak.service';
+import { LoggerService } from '../services/logger.service';
 
 @Injectable({
   providedIn: 'root',
@@ -14,7 +15,24 @@ export class AuthGuard {
   constructor(
     private readonly keycloakService: KeycloakService,
     private readonly router: Router,
+    private readonly loggerService: LoggerService,
   ) { }
+
+  /**
+   * Records a structured security audit event for an authorization failure
+   * without leaking the raw auth token or any secrets.
+   */
+  private logAuthzFailure(requestedUrl: string | undefined, outcome: string) {
+    const { userId, email } = this.keycloakService.getUserIdentity();
+    this.loggerService.warn({
+      eventType: 'authz_denied',
+      userId,
+      email,
+      requestedUrl: requestedUrl ?? '',
+      outcome,
+      timestamp: new Date().toISOString(),
+    });
+  }
 
   canActivate(
     route: ActivatedRouteSnapshot,
@@ -61,6 +79,7 @@ export class AuthGuard {
     // Not authorized
     if (!this.keycloakService.isAuthorized()) {
       // login was successful but the user doesn't have necessary Keycloak roles.
+      this.logAuthzFailure(state?.url, 'no_roles');
       return this.router.parseUrl('/unauthorized');
     }
 
@@ -70,6 +89,7 @@ export class AuthGuard {
       !this.keycloakService.isAllowed('export-reports') &&
       requestedPath === '/export-reports'
     ) {
+      this.logAuthzFailure(state.url, 'not_allowed:export-reports');
       return this.router.parseUrl('/');
     }
 
@@ -77,6 +97,7 @@ export class AuthGuard {
       !this.keycloakService.isAllowed('lock-records') &&
       requestedPath === '/lock-records'
     ) {
+      this.logAuthzFailure(state.url, 'not_allowed:lock-records');
       return this.router.parseUrl('/');
     }
 
@@ -84,12 +105,14 @@ export class AuthGuard {
       !this.keycloakService.isAllowed('review-data') &&
       requestedPath === '/review-data'
     ) {
+      this.logAuthzFailure(state.url, 'not_allowed:review-data');
       return this.router.parseUrl('/');
     }
 
     if (!this.keycloakService.isAllowed('manage-subareas') &&
       requestedPath === '/manage-subareas'
     ) {
+      this.logAuthzFailure(state.url, 'not_allowed:manage-subareas');
       return this.router.parseUrl('/');
     }
 

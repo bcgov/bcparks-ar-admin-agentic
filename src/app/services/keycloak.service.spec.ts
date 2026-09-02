@@ -61,4 +61,44 @@ describe('KeycloakService', () => {
     const idp = keycloak.getIdpFromToken();
     expect(idp).toEqual('bcsc');
   });
+
+  it('getUserIdentity should return empty userId/email when there is no token', () => {
+    const keycloak = TestBed.get(KeycloakService);
+    spyOn(keycloak, 'getToken').and.callFake(() => {
+      return undefined;
+    });
+    expect(keycloak.getUserIdentity()).toEqual({ userId: '', email: '' });
+  });
+
+  it('getUserIdentity should return the sub and email claims from the token', () => {
+    spyOn(JwtUtil, 'decodeToken').and.callFake(() => {
+      return {
+        sub: 'abc-123',
+        email: 'person@example.com',
+      };
+    });
+    const keycloak = TestBed.get(KeycloakService);
+    spyOn(keycloak, 'getToken').and.callFake(() => {
+      return 'not-empty';
+    });
+    expect(keycloak.getUserIdentity()).toEqual({
+      userId: 'abc-123',
+      email: 'person@example.com',
+    });
+  });
+
+  it('getUserIdentity should not leak the raw token', () => {
+    spyOn(JwtUtil, 'decodeToken').and.callFake(() => {
+      return {
+        sub: 'abc-123',
+        email: 'person@example.com',
+      };
+    });
+    const keycloak = TestBed.get(KeycloakService);
+    spyOn(keycloak, 'getToken').and.callFake(() => {
+      return 'super-secret-raw-token-value';
+    });
+    const identity = keycloak.getUserIdentity();
+    expect(JSON.stringify(identity)).not.toContain('super-secret-raw-token-value');
+  });
 });

@@ -286,4 +286,27 @@ export class KeycloakService {
     // if it's not BCeID or IDIR
     return this.idpHintEnum.BCSC;
   }
+
+  /**
+   * Extracts a minimal, non-sensitive identity summary from the current auth
+   * token for use in security audit log entries. Never returns the raw token.
+   *
+   * @returns {{ userId: string; email: string }} the user's subject id and
+   * email, or empty strings when unavailable.
+   * @memberof KeycloakService
+   */
+  getUserIdentity(): { userId: string; email: string } {
+    const token = this.getToken();
+
+    if (!token) {
+      return { userId: '', email: '' };
+    }
+
+    const jwt = JwtUtil.decodeToken(token);
+
+    return {
+      userId: jwt?.sub ?? '',
+      email: jwt?.email ?? '',
+    };
+  }
 }
