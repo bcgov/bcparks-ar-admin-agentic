@@ -36,6 +36,14 @@
         <div *ngIf="isAuthorized" class="navbar-text me-3">
           {{ welcomeMsg }}
         </div>
+        <button
+          *ngIf="isAuthenticated"
+          type="button"
+          class="btn btn-outline-light"
+          (click)="logout()"
+        >
+          Log out
+        </button>
       </div>
     </div>
   </nav>
@@ -57,6 +65,11 @@
         <div *ngIf="isAuthorized" class="navbar-text welcome-text p-2">
           {{ welcomeMsg }}
         </div>
+        <li *ngIf="isAuthenticated" class="nav-item">
+          <button type="button" class="logout-button" (click)="logout()">
+            Log out
+          </button>
+        </li>
       </ul>
     </div>
   </div>

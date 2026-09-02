@@ -759,3 +759,70 @@ Same shape as `REVIEW.md` — required before merge. Do not replace with a free-
 **Residual risk:** `JwtUtil.decodeToken` remains unverified and is still exported for any future caller; no lint rule prevents re-introducing it on the real-auth path. Server-side/API authorization remains the enforcement boundary regardless of client-side claim source.
 
 - Reviewer: _______________ Date: _______________
+
+---
+
+# PR evidence — [RA AUTH-003] User-initiated logout
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-auth-003-add-logout-mechanism |
+| Spec refs | spec/features/auth-003-logout.feature |
+| Constitution articles touched | P1, P2, P5, P7, J3, J5 |
+| Tasks | AUTH-003 entries in spec/tasks.md |
+| Authoring agent | GitHub Copilot Coding Agent |
+| Generated | 2026-09-02T19:34:37.089Z |
+
+## Intent
+
+Authenticated staff now have a visible **Log out** control in the application header. Activating it delegates to `KeycloakService.logout()`, which calls the Keycloak adapter logout API with the application base URL as `redirectUri`, allowing users on shared terminals to proactively end their session.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| `auth-003-logout.feature` (`@R-13.1`) | Yes | `KeycloakService.logout()` calls `keycloakAuth.logout({ redirectUri })`, using the current app base URL resolved against `window.location.origin`. Covered by `src/app/services/keycloak.service.spec.ts`. |
+| `auth-003-logout.feature` (`@R-13.2`) | Yes | Header shows native button controls labelled “Log out” when `KeycloakService.isAuthenticated()` is true, and clicking one invokes `KeycloakService.logout()`. Covered by `src/app/header/header.component.spec.ts`. |
+| AuthGuard obsolete comment | Yes | Removed the comment claiming there is no logout and replaced it with wording consistent with logout support. |
+
+
+## Design system & accessibility
+
+| Check | Result |
+| --- | --- |
+| DS components used (list) | Brownfield app follows existing BC Parks/Digital Space Angular stack per constitution P2; added native `<button>` controls using existing Bootstrap/Parks header patterns. BC Design System MCP was not available in this environment. |
+| Tokens used (not hard-coded colour) | Existing `$bcgold` and `$secondary-nav` theme tokens; no new hard-coded brand colours. |
+| BC Sans imported | Unchanged; no font changes. |
+| Manual a11y notes | Log out controls use visible text labels and native buttons, so they are keyboard activatable and exposed with an accessible name. |
+
+## Public-service minimums
+
+Checklist IDs addressed this PR: P1 accessibility baseline for labelled, keyboard-operable controls.
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Unit | `yarn test-ci --include src/app/services/keycloak.service.spec.ts --include src/app/header/header.component.spec.ts` | Passed: 18 SUCCESS |
+| Lint | `yarn lint` | Passed with existing warnings: 0 errors, 59 pre-existing `@angular-eslint/prefer-standalone` warnings. |
+| Build | `yarn build` | Passed with pre-existing Sass deprecation/selector warnings from the existing style stack. |
+| Acceptance / feature | `spec/features/auth-003-logout.feature` | Implemented by focused service and header unit coverage for `@R-13.1` and `@R-13.2`. |
+| A11y automation | Not run | No automated a11y test harness exists for this header slice; manual review performed for native labelled button controls. |
+
+## Risks & follow-ups
+
+- Full live Keycloak logout redirect could not be exercised locally; this repository’s test environment uses mocked Keycloak objects and no live IdP.
+- The redirect URI choice is the app base URL resolved from the document `<base>` element against `window.location.origin`, matching the spec preference for current origin / app base URL.
+- No `localMockAuth` logout path was invented, per the AUTH-003 out-of-scope constraints.
+
+## Review receipt (checkpoint 3)
+
+Same shape as `REVIEW.md` — required before merge. Do not replace with a free-form sign-off.
+
+**Checked:** AUTH-003 `@R-13.1`–`@R-13.2`; `spec/spec.md` active AUTH-003 slice; `spec/tasks.md`; `KeycloakService.logout()` adapter call; header button visibility/click wiring; obsolete AuthGuard comment removed; focused unit tests, lint, and build.
+
+**Could not check:** End-to-end browser flow against a live Keycloak realm, including actual identity provider logout and post-logout redirect; no live IdP/API dependencies are available in this environment. BC Design System MCP was not available, so UI review used the repository’s brownfield Parks/Digital Space constitution guidance.
+
+**Residual risk:** Logout depends on Keycloak realm/client redirect configuration accepting the app base URL. Post-deploy smoke testing should confirm the configured environment redirects correctly.
+
+- Reviewer: _______________ Date: _______________

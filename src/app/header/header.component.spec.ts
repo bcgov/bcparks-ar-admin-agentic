@@ -1,7 +1,8 @@
 import { HttpClient, HttpHandler } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
+import { By } from '@angular/platform-browser';
+import { NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
 import { ConfigService } from '../services/config.service';
 import { KeycloakService } from '../services/keycloak.service';
 
@@ -11,16 +12,31 @@ describe('HeaderComponent', () => {
   let component: HeaderComponent;
   let fixture: ComponentFixture<HeaderComponent>;
   const mockConfigService = jasmine.createSpyObj('ConfigService', {}, { config: { ENVIRONMENT: 'prod'} });
+  let mockKeycloakService: jasmine.SpyObj<KeycloakService>;
 
   beforeEach(async () => {
+    mockKeycloakService = jasmine.createSpyObj('KeycloakService', [
+      'getWelcomeMessage',
+      'isAllowed',
+      'isAuthenticated',
+      'isAuthorized',
+      'logout',
+    ]);
+    mockKeycloakService.isAllowed.and.returnValue(true);
+    mockKeycloakService.isAuthenticated.and.returnValue(false);
+    mockKeycloakService.isAuthorized.and.returnValue(false);
+    mockKeycloakService.getWelcomeMessage.and.returnValue('');
+
     await TestBed.configureTestingModule({
-      imports: [RouterTestingModule],
+      imports: [NgbCollapseModule, RouterTestingModule],
       declarations: [HeaderComponent],
       providers: [
         {
           provide: ConfigService, useValue: mockConfigService
         },
-        KeycloakService,
+        {
+          provide: KeycloakService, useValue: mockKeycloakService
+        },
         HttpClient,
         HttpHandler
       ]
@@ -34,5 +50,24 @@ describe('HeaderComponent', () => {
     expect(component).toBeTruthy();
 
     expect(component.showBanner).toBe(false);
+  });
+
+  it('shows a log out control when authenticated and invokes Keycloak logout', () => {
+    mockKeycloakService.isAuthenticated.and.returnValue(true);
+    mockKeycloakService.isAuthorized.and.returnValue(true);
+    mockKeycloakService.getWelcomeMessage.and.returnValue('Jane Doe');
+
+    fixture = TestBed.createComponent(HeaderComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    const logoutButtons = fixture.debugElement.queryAll(
+      By.css('button')
+    ).filter((button) => button.nativeElement.textContent.trim() === 'Log out');
+
+    expect(logoutButtons.length).toBeGreaterThan(0);
+    logoutButtons[0].nativeElement.click();
+
+    expect(mockKeycloakService.logout).toHaveBeenCalledTimes(1);
   });
 });
