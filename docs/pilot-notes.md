@@ -33,6 +33,7 @@ Run the **same 45 recommended** rapid-assessment findings as `agentic-b`, end-to
 | 2026-09-02 | 8 | CONFIG-004 shipped via Copilot [#128](https://github.com/bcgov/bcparks-ar-admin-agentic/pull/128) | Extended HSTS policy with XFO/nosniff/Referrer/Permissions-Policy; CSP deferred to CONFIG-002 |
 | 2026-09-02 | 9 | CONFIG-002 shipped via Copilot [#131](https://github.com/bcgov/bcparks-ar-admin-agentic/pull/131) | CSP on shared CloudFront policy; style-src unsafe-inline brownfield residual |
 | 2026-09-02 | 10 | AUTH-001 shipped via Copilot [#134](https://github.com/bcgov/bcparks-ar-admin-agentic/pull/134) | PKCE S256 on Keycloak init; unit coverage |
+| 2026-09-02 | 11 | SECRET-001 shipped via Copilot [#137](https://github.com/bcgov/bcparks-ar-admin-agentic/pull/137) | DomainCertificateArn from vars; ops must set lza-prod var |
 | _(more during run)_ | | | |
 
 ## Metrics reviews
