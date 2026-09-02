@@ -7,19 +7,19 @@
 
 ## Active slice
 
-### AUTHZ-004 — isAdmin role constant
+### AUTHZ-005 — isAdmin optional chaining
 
-- **Issue:** [#88](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/88)
-- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `AUTHZ-004`
-- **Feature:** `features/authz-004-isadmin-role-constant.feature`
+- **Issue:** [#89](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/89)
+- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `AUTHZ-005`
+- **Feature:** `features/authz-005-isadmin-optional-chaining.feature`
 
 #### Problem
 
-isAdmin() uses hardcoded role string instead of centralized constant.
+isAdmin() optional chain stops before .includes(); atypical JWT without roles throws TypeError.
 
 #### Outcome
 
-isAdmin() uses Constants.ApplicationRoles.ADMIN with no behaviour change when value is sysadmin.
+isAdmin() returns false safely when roles is missing; no TypeError propagates to canActivate().
 
 #### Users & personas
 
@@ -34,7 +34,7 @@ isAdmin() uses Constants.ApplicationRoles.ADMIN with no behaviour change when va
 
 - Implement assessment Expected for this finding
 - Unit tests as appropriate
-- Append evidence; must change src/
+- Append evidence; must change src/ or workflows/
 
 **Out of scope**
 
@@ -56,4 +56,4 @@ isAdmin() uses Constants.ApplicationRoles.ADMIN with no behaviour change when va
 
 ## Completed slices (recent)
 
-- Prior rematch slices shipped — see wiki
+- Prior rematch slices 1–30 shipped — see wiki
