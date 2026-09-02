@@ -28,6 +28,7 @@ Run the **same 45 recommended** rapid-assessment findings as `agentic-b`, end-to
 | 2026-09-02 | 0 | Closed stale Copilot PR #50 | Pre-reset SECRET-001 draft |
 | 2026-09-02 | 1–2 | Spec/plan via orchestrator; impl via Copilot | Prefer cloud for code |
 | 2026-09-02 | 2 | Closed conflicted #105 backlog-links PR | Re-link later from main |
+| 2026-09-02 | 5 | Plan #116 merged before `tasks.md` commit; follow-up #118 + merge conflict on #117 vs main | Orchestrator raced CI; document: land tasks in same commit as plan |
 | _(more during run)_ | | | |
 
 ## Metrics reviews

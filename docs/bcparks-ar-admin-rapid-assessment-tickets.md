@@ -23,7 +23,7 @@ Generated: 2026-08-12 · Reset for agentic-b: 2026-08-31 · Raw findings: **55**
 | CONFIG-003 | High | CONFIGURATION | cloudfront-cdn | Missing Strict-Transport-Security (HSTS) Header on All CloudFront C... | yes | #64 |
 | CONFIG-004 | High | CONFIGURATION | cloudfront-cdn | Missing X-Frame-Options, X-Content-Type-Options, Referrer-Policy, a... | yes | #104 |
 | LOG-001 | High | SECURITY_LOGGING | shared-infrastructure | Full configuration object written to browser console | yes | shipped #56 |
-| LOG-002 | High | SECURITY_LOGGING | auth-layer | Keycloak authentication lifecycle events logged at debug level only | yes | #66 |
+| LOG-002 | High | SECURITY_LOGGING | auth-layer | Keycloak authentication lifecycle events logged at debug level only | yes | shipped #66 |
 | LOG-003 | High | SECURITY_LOGGING | auth-layer | Authorization failures in AuthGuard are never logged | yes | shipped #57 |
 | SECRET-001 | High | SECRETS | cloudfront-cdn | Production AWS Account ID Embedded in ACM Certificate ARN in Prod C... | yes | #67 |
 | TEST-001 | High | TESTING | auth-layer | HTTP token interceptor has zero test coverage | yes | shipped #68 |
