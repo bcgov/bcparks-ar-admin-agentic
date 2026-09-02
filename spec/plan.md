@@ -1,18 +1,33 @@
-# Plan — Enable Trivy automatic triggers (CONFIG-005)
+# Plan — CONFIG-006 deployment pipeline log levels
 
-> Issue [#72](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/72) / RA CONFIG-005. Checkpoint 2.
+> Checkpoint 2 for issue [#73](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/73).
 
-## Summary
+## Approach
 
-Uncomment push (main), pull_request, and weekly schedule triggers in `.github/workflows/analysis.yaml`. Keep workflow_dispatch and existing Trivy scanners. Must change `.github/workflows/`.
+Replace hardcoded `window.__env.logLevel = 0` in all three LZA deploy workflows with environment-appropriate values from `LogLevel` enum:
 
-## Tasks
+| Pipeline | Environment | New logLevel | Enum name |
+| --- | --- | --- | --- |
+| `lza-deploy-admin-prod.yaml` | lza-prod | 4 | Error |
+| `lza-deploy-admin-test.yaml` | lza-test | 3 | Warn |
+| `lza-deploy-admin-dev.yaml` | lza-dev | 2 | Info |
 
-1. Enable automatic triggers in analysis.yaml
-2. Append evidence; CP3 merge
+Add inline YAML comments referencing `LogLevel` enum in `logger.service.ts` for maintainers.
 
-## Approval (checkpoint 2)
+## Out of scope
 
-| Role | Name | Date |
-| --- | --- | --- |
-| Architect / tech lead | | |
+- Runtime log level switching (requires redeploy)
+- Removing LoggerService console output entirely
+- SIEM integration
+- Changing local `src/env.js` (optional residual)
+
+## Risks
+
+- Operators debugging prod issues lose debug-level console output (intentional; use lower envs)
+- LOG-001 already prevents config dump at logLevel 0; this removes the All level trigger in deploys
+
+## Verification
+
+- Grep deploy workflows for `logLevel = 0` → zero matches
+- Static assert prod/test/dev values match @R-16.1 and @R-16.2
+- Append `docs/pr-evidence.md` (must touch `.github/workflows/`)
