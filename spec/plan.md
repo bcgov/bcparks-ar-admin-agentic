@@ -1,3 +1,3 @@
-# Plan — AUTHZ-004 isAdmin centralized role constant
+# Plan — AUTHZ-005 isAdmin optional chaining
 
-Replace hardcoded 'sysadmin' in isAdmin() with Constants.ApplicationRoles.ADMIN. Extend unit tests. Append evidence.
+Add `?.` before `.includes()` (or equivalent guard). Extend unit tests for missing roles. Append evidence.
