@@ -1,35 +1,44 @@
-# Plan — CloudFront HSTS (CONFIG-003)
+# Plan — Browser security headers (CONFIG-004)
 
-> Architecture and delivery for issue [#64](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/64) / RA CONFIG-003.  
+> Architecture and delivery for issue [#104](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/104) / RA CONFIG-004.  
 > Checkpoint 1 (spec) is merged. This document is **checkpoint 2**.
 
 ## Summary
 
-Replace managed SimpleCORS response headers policy with a **custom** `AWS::CloudFront::ResponseHeadersPolicy` that sets HSTS (`max-age` ≥ 31536000, `includeSubDomains`, preload if supported) **and** CORS equivalent to SimpleCORS. Attach to all three cache behaviours. Do **not** add CSP/XFO/Referrer/Permissions (CONFIG-002/004). Must change `template.yaml`.
+Extend the existing custom `AWS::CloudFront::ResponseHeadersPolicy` (`CloudFrontResponseHeadersPolicy`) so it also sets **X-Frame-Options DENY**, **X-Content-Type-Options nosniff**, **Referrer-Policy strict-origin-when-cross-origin**, and a restrictive **Permissions-Policy**. Keep all three cache behaviours on that policy. Preserve HSTS + CORS from CONFIG-003. Do **not** add CSP (CONFIG-002). Must change `template.yaml`.
 
 ## Architecture
 
 ```text
-CloudFrontHSTSResponseHeadersPolicy
-  SecurityHeadersConfig.StrictTransportSecurity
-  CorsConfig (SimpleCORS parity)
+CloudFrontResponseHeadersPolicy
+  SecurityHeadersConfig
+    StrictTransportSecurity (keep)
+    FrameOptions: DENY
+    ContentTypeOptions: Override true (nosniff)
+    ReferrerPolicy: strict-origin-when-cross-origin
+  CustomHeadersConfig (Permissions-Policy)
+    camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()
+  CorsConfig (keep SimpleCORS parity)
 CloudFrontDistribution cache behaviours ×3
-  ResponseHeadersPolicyId: !Ref CloudFrontHSTSResponseHeadersPolicy
+  ResponseHeadersPolicyId: !Ref CloudFrontResponseHeadersPolicy (unchanged wiring)
 ```
 
 ## Key decisions
 
 | Decision | Choice | Rationale |
 | --- | --- | --- |
-| Scope | HSTS + CORS only | Keep CONFIG-002/004 separate |
-| max-age | 31536000 | Assessment / preload readiness |
-| Evidence | `--append --finding CONFIG-003` | Preserve receipts |
+| Scope | Four headers only | Matches assessment; CSP is CONFIG-002 |
+| Frame options | DENY | Strongest clickjacking control for admin UI |
+| Referrer | strict-origin-when-cross-origin | Common gov default; reduces leakage |
+| Permissions-Policy | CustomHeadersConfig deny-list | Not a native SecurityHeadersConfig property on CloudFront |
+| Evidence | `--append --finding CONFIG-004` | Preserve prior receipts |
 
 ## Tasks
 
-1. Add custom response headers policy; wire all three behaviours
-2. Append `docs/pr-evidence.md` for CONFIG-003
-3. Checkpoint 3 + merge (must change `template.yaml`)
+1. Extend `CloudFrontResponseHeadersPolicy` in `template.yaml` with FrameOptions, ContentTypeOptions, ReferrerPolicy, Permissions-Policy; keep HSTS/CORS
+2. Confirm all three behaviours still `!Ref` the policy
+3. Append `docs/pr-evidence.md` for CONFIG-004
+4. Checkpoint 3 + merge (must change `template.yaml`; refuse evidence-only)
 
 ## Approval (checkpoint 2)
 
