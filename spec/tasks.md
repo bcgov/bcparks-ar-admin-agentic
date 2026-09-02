@@ -1,8 +1,7 @@
-# Tasks — BW-001
+# Tasks — BW-002
 
-> Issue [#90](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/90)
+> Issue [#91](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/91)
 
-- [x] **TASK-001** — Add unlock UI path
-- [x] **TASK-002** — Wire lock=false to service
-- [x] **TASK-003** — Component tests
-- [x] **TASK-004** — Append evidence
+- [ ] **TASK-001** — Correct endpoint key
+- [ ] **TASK-002** — Unit test
+- [ ] **TASK-003** — Append evidence
