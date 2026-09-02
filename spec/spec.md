@@ -7,19 +7,19 @@
 
 ## Active slice
 
-### AUTHZ-003 — hide manage-subareas nav
+### AUTHZ-004 — isAdmin role constant
 
-- **Issue:** [#87](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/87)
-- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `AUTHZ-003`
-- **Feature:** `features/authz-003-header-manage-subareas.feature`
+- **Issue:** [#88](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/88)
+- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `AUTHZ-004`
+- **Feature:** `features/authz-004-isadmin-role-constant.feature`
 
 #### Problem
 
-manage-subareas navigation link visible in header for non-admin users.
+isAdmin() uses hardcoded role string instead of centralized constant.
 
 #### Outcome
 
-Header hides manage-subareas unless keycloakService.isAllowed('manage-subareas').
+isAdmin() uses Constants.ApplicationRoles.ADMIN with no behaviour change when value is sysadmin.
 
 #### Users & personas
 
