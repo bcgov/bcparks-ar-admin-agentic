@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
+import { LoggerService } from './logger.service';
 
 //
 // This service/class provides a centralized place to persist config values
@@ -11,7 +12,11 @@ import { firstValueFrom } from 'rxjs';
 export class ConfigService {
   private configuration: any = {};
 
-  constructor(private httpClient: HttpClient) {}
+  // LoggerService depends on ConfigService for its log level, so it cannot be
+  // injected directly here without creating a circular constructor
+  // dependency. Instead, resolve it lazily (after this service has finished
+  // constructing) via the Injector.
+  constructor(private httpClient: HttpClient, private injector: Injector) {}
   /**
    * Initialize the Config Service.  Get configuration data from front-end build, or back-end if nginx
    * is configured to pass the /config endpoint to a dynamic service that returns JSON.
@@ -33,8 +38,12 @@ export class ConfigService {
           this.httpClient.get(configUrl)
         );
       } catch (e) {
-        // If all else fails, we'll just use the variables found in env.js
-        console.error('Error getting remote configuration:', e);
+        // If all else fails, we'll just use the variables found in env.js.
+        // Log only the error message (not the raw error/stack) to avoid
+        // exposing internal API URLs or stack traces to anyone with the
+        // browser console open.
+        const message = e && typeof e === 'object' && 'message' in e ? e.message : String(e);
+        this.injector.get(LoggerService).error(`Error getting remote configuration: ${message}`);
       }
     }
 
