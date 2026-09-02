@@ -1,3 +1,3 @@
-# Plan — AUTHZ-003 hide manage-subareas header nav
+# Plan — AUTHZ-004 isAdmin centralized role constant
 
-Filter manage-subareas in HeaderComponent via isAllowed('manage-subareas'), matching other admin links. Unit tests admin vs non-admin. Append evidence.
+Replace hardcoded 'sysadmin' in isAdmin() with Constants.ApplicationRoles.ADMIN. Extend unit tests. Append evidence.
