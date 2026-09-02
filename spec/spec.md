@@ -7,46 +7,44 @@
 
 ## Active slice
 
-### AUTH-003 — User-initiated logout
+### AUTHZ-002 — Enforce admin-only export-reports and review-data
 
-- **Issue:** [#70](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/70)
-- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `AUTH-003`
-- **Feature:** `features/auth-003-logout.feature`
+- **Issue:** [#71](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/71)
+- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `AUTHZ-002`
+- **Feature:** `features/authz-002-admin-only-routes.feature`
 
 #### Problem
 
-There is no logout: Keycloak login exists, but no `logout()` API and no header control. AuthGuard comments acknowledge the gap. On shared terminals, sessions only end when tokens expire.
+`KeycloakService.isAllowed()` only treats `lock-records` and `manage-subareas` as admin-only. `export-reports` and `review-data` always return true for non-admins, so AuthGuard blocks for those routes are dead. A unit test already expects denial for export-reports when `isAllowed` is false — the list was never updated.
 
 #### Outcome
 
-Authenticated staff can **proactively end their session**: `KeycloakService` exposes logout that calls the Keycloak adapter logout with a redirect URI, and the application header shows a **Log out** control when authenticated. AuthGuard comments that claimed “we don’t have a logout” are updated so they don’t contradict behaviour. Unit tests cover service logout (and header wiring as practical).
+`export-reports` and `review-data` are admin-only capabilities: non-admins are denied by `isAllowed`, admins are allowed. AuthGuard redirects non-admins away from those paths. Unit tests cover service + guard behaviour. Expected is not narrowed.
 
 #### Users & personas
 
 | Persona | Goal |
 | --- | --- |
-| Parks staff on shared workstation | End session before leaving |
-| Security reviewer | Confirm adapter logout + visible control |
-| Developer | Unit tests without live IdP |
+| Non-admin staff | Cannot reach export-reports / review-data |
+| Admin staff | Can use those capabilities |
+| Security reviewer | Dead guard conditions become live |
 
 #### Scope
 
 **In scope**
 
-- `KeycloakService.logout()` → `keycloakAuth.logout({ redirectUri })` (or equivalent)
-- Header “Log out” control when authenticated
-- Update obsolete AuthGuard comment(s)
-- Unit tests; evidence; must change `src/`
+- Add `export-reports` and `review-data` to admin-only route list in `isAllowed()`
+- Unit tests for isAllowed + AuthGuard redirects
+- Evidence; must change `src/`
 
 **Out of scope**
 
-- Inventing full `localMockAuth` logout path (not present)
-- IdP realm logout configuration changes beyond client redirectUri
-- Changing IDP selection UX beyond what’s needed once logout exists
+- New routes beyond these two
+- Server-side API authorization (companion API)
 
 #### Open questions
 
-- **Redirect URI:** Prefer current origin / app base URL after logout (document exact choice in evidence).
+- None blocking.
 
 #### Sign-off (checkpoint 1)
 
@@ -60,11 +58,11 @@ Authenticated staff can **proactively end their session**: `KeycloakService` exp
 
 ## Completed slices (recent)
 
-### AUTH-002 — Role/IDP claims from library-verified Keycloak session
+### AUTH-003 — User-initiated logout
 
-- **Issue:** [#69](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/69) (shipped)
-- **Feature:** `features/auth-002-token-claims.feature`
+- **Issue:** [#70](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/70) (shipped)
+- **Feature:** `features/auth-003-logout.feature`
 
-### SECRET-001 / AUTH-001 / CONFIG-* / …
+### AUTH-002 / SECRET-001 / AUTH-001 / CONFIG-* / …
 
 - Shipped — see rematch wiki
