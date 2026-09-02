@@ -1,33 +1,35 @@
-# Plan — CloudFront viewer TLS 1.2+ (CRYPTO-001)
+# Plan — CloudFront HSTS (CONFIG-003)
 
-> Architecture and delivery for issue [#74](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/74) / RA CRYPTO-001.  
+> Architecture and delivery for issue [#64](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/64) / RA CONFIG-003.  
 > Checkpoint 1 (spec) is merged. This document is **checkpoint 2**.
 
 ## Summary
 
-Change `template.yaml` CloudFront `ViewerCertificate.MinimumProtocolVersion` from `TLSv1` to **`TLSv1.2_2021`**. Append evidence. Must change the template (infra path — not evidence-only).
+Replace managed SimpleCORS response headers policy with a **custom** `AWS::CloudFront::ResponseHeadersPolicy` that sets HSTS (`max-age` ≥ 31536000, `includeSubDomains`, preload if supported) **and** CORS equivalent to SimpleCORS. Attach to all three cache behaviours. Do **not** add CSP/XFO/Referrer/Permissions (CONFIG-002/004). Must change `template.yaml`.
 
 ## Architecture
 
 ```text
-template.yaml
-  AWS::CloudFront::Distribution
-    ViewerCertificate.MinimumProtocolVersion: TLSv1.2_2021
+CloudFrontHSTSResponseHeadersPolicy
+  SecurityHeadersConfig.StrictTransportSecurity
+  CorsConfig (SimpleCORS parity)
+CloudFrontDistribution cache behaviours ×3
+  ResponseHeadersPolicyId: !Ref CloudFrontHSTSResponseHeadersPolicy
 ```
 
 ## Key decisions
 
 | Decision | Choice | Rationale |
 | --- | --- | --- |
-| Policy | `TLSv1.2_2021` | Assessment recommended |
-| Tests | Static assert / grep in CI or document template inspection | No app unit test required |
-| Evidence | `--append --finding CRYPTO-001` | Preserve prior receipts |
+| Scope | HSTS + CORS only | Keep CONFIG-002/004 separate |
+| max-age | 31536000 | Assessment / preload readiness |
+| Evidence | `--append --finding CONFIG-003` | Preserve receipts |
 
 ## Tasks
 
-1. Set `MinimumProtocolVersion: TLSv1.2_2021` in `template.yaml`
-2. Append `docs/pr-evidence.md` for CRYPTO-001
-3. Checkpoint 3 + merge (must change template / allowed impl path)
+1. Add custom response headers policy; wire all three behaviours
+2. Append `docs/pr-evidence.md` for CONFIG-003
+3. Checkpoint 3 + merge (must change `template.yaml`)
 
 ## Approval (checkpoint 2)
 
