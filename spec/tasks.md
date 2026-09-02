@@ -4,7 +4,7 @@
 
 ## Active slice — LOG-006
 
-- [ ] **TASK-001** — Emit JSON log objects with required fields (@R-19.1)
-- [ ] **TASK-002** — warn/error set securityEvent true (@R-19.2)
-- [ ] **TASK-003** — Unit tests in logger.service.spec.ts
-- [ ] **TASK-004** — Append docs/pr-evidence.md
+- [x] **TASK-001** — Emit JSON log objects with required fields (@R-19.1)
+- [x] **TASK-002** — warn/error set securityEvent true (@R-19.2)
+- [x] **TASK-003** — Unit tests in logger.service.spec.ts
+- [x] **TASK-004** — Append docs/pr-evidence.md

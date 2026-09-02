@@ -51,18 +51,30 @@ export class LoggerService {
 
   log(msg: any, level: LogLevel = LogLevel.Debug) {
     if (this.shouldLog(level)) {
-      const logEntry = {
-        level: level,
-        date: new Date().getTime() / 1000, // Epoch time
-        message: msg
-      };
+      const logEntry = this.buildLogEntry(msg, level);
 
-      console.log(this.entryToString(logEntry));
+      console.log(this.entryToJson(logEntry));
     }
   }
 
-  private entryToString(logEntry) {
-    return `(${LogLevel[logEntry.level]}) ${this.logWithDate ? logEntry.date + ' ' : '' }${logEntry.message}`;
+  // Structured log entry per RA finding LOG-006. userId/sessionId/correlationId
+  // are placeholders (null) until wired to Keycloak/request context (LOG-007).
+  private buildLogEntry(msg: any, level: LogLevel) {
+    return {
+      level: LogLevel[level],
+      timestamp: new Date().toISOString(),
+      userId: null,
+      sessionId: null,
+      correlationId: null,
+      message: msg,
+      context: null,
+      // @R-19.2: warnings and errors are security-relevant by default.
+      securityEvent: level >= LogLevel.Warn && level !== LogLevel.Off
+    };
+  }
+
+  private entryToJson(logEntry): string {
+    return JSON.stringify(logEntry);
   }
 
   private shouldLog(level: LogLevel): boolean {
