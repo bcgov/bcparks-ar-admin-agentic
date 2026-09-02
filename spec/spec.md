@@ -7,44 +7,44 @@
 
 ## Active slice
 
-### AUTHZ-002 — Enforce admin-only export-reports and review-data
+### CONFIG-005 — Enable automatic Trivy security scan triggers
 
-- **Issue:** [#71](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/71)
-- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `AUTHZ-002`
-- **Feature:** `features/authz-002-admin-only-routes.feature`
+- **Issue:** [#72](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/72)
+- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `CONFIG-005`
+- **Feature:** `features/config-005-trivy-triggers.feature`
 
 #### Problem
 
-`KeycloakService.isAllowed()` only treats `lock-records` and `manage-subareas` as admin-only. `export-reports` and `review-data` always return true for non-admins, so AuthGuard blocks for those routes are dead. A unit test already expects denial for export-reports when `isAllowed` is false — the list was never updated.
+The Analysis workflow’s Trivy scan has push, pull_request, and schedule triggers commented out — only manual `workflow_dispatch` remains. PR checks run lint/unit tests without a security scan gate, so code can reach main and production without automated Trivy coverage.
 
 #### Outcome
 
-`export-reports` and `review-data` are admin-only capabilities: non-admins are denied by `isAllowed`, admins are allowed. AuthGuard redirects non-admins away from those paths. Unit tests cover service + guard behaviour. Expected is not narrowed.
+The Analysis workflow runs Trivy automatically on **push to main**, on **pull_request** events, and on a **weekly schedule**, in addition to manual dispatch. The Trivy job still scans vulnerabilities, secrets, and config. Verification is by inspecting workflow YAML (and observing the job on PRs).
 
 #### Users & personas
 
 | Persona | Goal |
 | --- | --- |
-| Non-admin staff | Cannot reach export-reports / review-data |
-| Admin staff | Can use those capabilities |
-| Security reviewer | Dead guard conditions become live |
+| Security reviewer | Automatic Trivy gate exists |
+| Developers | See scan results on PRs |
+| Operators | Weekly scheduled coverage |
 
 #### Scope
 
 **In scope**
 
-- Add `export-reports` and `review-data` to admin-only route list in `isAllowed()`
-- Unit tests for isAllowed + AuthGuard redirects
-- Evidence; must change `src/`
+- Enable push / pull_request / schedule triggers in `.github/workflows/analysis.yaml`
+- Evidence append; must change `.github/workflows/`
 
 **Out of scope**
 
-- New routes beyond these two
-- Server-side API authorization (companion API)
+- Changing Trivy severity thresholds or scanners (unless required to enable triggers)
+- Adding Trivy into `on-pr.yaml` as a duplicate if Analysis already runs on pull_request
+- Making Trivy a required status check in branch protection (org residual)
 
 #### Open questions
 
-- None blocking.
+- **Timeout:** Existing 1-minute timeout may be tight once triggers fire more often — document residual if scans time out; do not disable the job.
 
 #### Sign-off (checkpoint 1)
 
@@ -58,11 +58,11 @@
 
 ## Completed slices (recent)
 
-### AUTH-003 — User-initiated logout
+### AUTHZ-002 — Enforce admin-only export-reports and review-data
 
-- **Issue:** [#70](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/70) (shipped)
-- **Feature:** `features/auth-003-logout.feature`
+- **Issue:** [#71](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/71) (shipped)
+- **Feature:** `features/authz-002-admin-only-routes.feature`
 
-### AUTH-002 / SECRET-001 / AUTH-001 / CONFIG-* / …
+### AUTH-003 / AUTH-002 / SECRET-001 / …
 
 - Shipped — see rematch wiki
