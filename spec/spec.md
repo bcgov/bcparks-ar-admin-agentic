@@ -7,19 +7,19 @@
 
 ## Active slice
 
-### LOG-007 — Browser-console logging limitation documented
+### SECRET-002 — Non-production AWS account IDs not hardcoded
 
-- **Issue:** [#78](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/78)
-- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `LOG-007`
-- **Feature:** `features/log-007-browser-console-logging.feature`
+- **Issue:** [#79](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/79)
+- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `SECRET-002`
+- **Feature:** `features/secret-002-nonprod-account-ids.feature`
 
 #### Problem
 
-All application logging is browser-console only with no documented persistence or forward path, so operators cannot tell whether SIEM gaps are intentional.
+Non-production AWS account IDs and certificate ARNs are hardcoded across CI/CD workflows, scripts, and templates.
 
 #### Outcome
 
-Logging architecture is documented as console-only today, with an optional future LOG_SHIPPING_ENDPOINT hook described but not implemented. LoggerService carries matching constants/JSDoc so the constraint is visible in src/.
+Dev/test deploys read DomainCertificateArn from vars; SAM template has no committed ARN default; setup scripts require account/profile via env vars.
 
 #### Users & personas
 
@@ -32,14 +32,15 @@ Logging architecture is documented as console-only today, with an optional futur
 
 **In scope**
 
-- Add docs/logging-architecture.md (console-only + forward path)
-- Add LoggerService constants/JSDoc referencing the doc (must touch src/)
-- Append evidence
+- lza-deploy-admin-dev/test workflows
+- template.yaml DomainCertificateArn Default removal
+- Setup/migration scripts env-var requirements
+- Append evidence; must change `.github/workflows/` and/or scripts
 
 **Out of scope**
 
-- Implementing HTTP log shipping or SIEM SDKs
-- Backend audit endpoint
+- Provisioning GitHub environment vars (operator)
+- SECRET-004 ApiGatewayId
 
 #### Open questions
 
@@ -57,6 +58,4 @@ Logging architecture is documented as console-only today, with an optional futur
 
 ## Completed slices (recent)
 
-### LOG-006 — Structured JSON log format
-
-- **Issue:** [#77](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/77) (shipped)
+### LOG-007 … prior rematch slices shipped
