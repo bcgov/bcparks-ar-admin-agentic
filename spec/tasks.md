@@ -1,10 +1,8 @@
-# Tasks — LOG-006 structured JSON log format
+# Tasks — LOG-007 browser-console logging limitation
 
-> Issue [#77](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/77)
+> Issue [#78](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/78)
 
-## Active slice — LOG-006
-
-- [x] **TASK-001** — Emit JSON log objects with required fields (@R-19.1)
-- [x] **TASK-002** — warn/error set securityEvent true (@R-19.2)
-- [x] **TASK-003** — Unit tests in logger.service.spec.ts
-- [x] **TASK-004** — Append docs/pr-evidence.md
+- [ ] **TASK-001** — docs/logging-architecture.md console-only (@R-20.1)
+- [ ] **TASK-002** — Document optional LOG_SHIPPING_ENDPOINT forward path (@R-20.2)
+- [ ] **TASK-003** — LoggerService constants/JSDoc in src/
+- [ ] **TASK-004** — Append docs/pr-evidence.md

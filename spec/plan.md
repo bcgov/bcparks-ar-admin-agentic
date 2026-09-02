@@ -1,17 +1,19 @@
-# Plan — LOG-006 structured JSON log format
+# Plan — LOG-007 browser-console logging limitation
 
-> Checkpoint 2 for issue [#77](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/77).
+> Checkpoint 2 for issue [#78](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/78).
 
 ## Approach
 
-Replace `entryToString()` plain-text formatter with JSON serialization containing:
-`level`, `timestamp` (ISO-8601), `message`, `userId`, `sessionId`, `correlationId`, `context`, `securityEvent`.
+1. Add `docs/logging-architecture.md` documenting console-only output and no SIEM yet.
+2. Document forward path: optional `window.__env.LOG_SHIPPING_ENDPOINT` — not implemented.
+3. Add exported constants + JSDoc on LoggerService referencing the doc (required `src/` touch for rematch gate).
+4. Append evidence.
 
-- `warn()` and `error()` set `securityEvent: true` by default (@R-19.2)
-- Identity/correlation fields null until wired to Keycloak (extensible)
-- SIEM shipping out of scope
+## Out of scope
+
+- HTTP log shipping, CloudWatch RUM, backend audit API
 
 ## Verification
 
-- Unit tests parse JSON output and assert fields (@R-19.1, @R-19.2)
-- Append evidence; must touch `src/`
+- Doc asserts console-only + forward-path keyword (@R-20.1/@R-20.2)
+- Must change `src/` (not evidence/docs-only)
