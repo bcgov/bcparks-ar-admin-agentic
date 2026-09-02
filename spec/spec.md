@@ -7,40 +7,40 @@
 
 ## Active slice
 
-### LOG-004 — LoggerService default when logLevel missing
+### LOG-005 — Sanitize error logging
 
-- **Issue:** [#75](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/75)
-- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `LOG-004`
-- **Feature:** `features/log-004-logger-default-level.feature`
+- **Issue:** [#76](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/76)
+- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `LOG-005`
+- **Feature:** `features/log-005-sanitize-error-logging.feature`
 
 #### Problem
 
-LoggerService initialises to LogLevel.Off. If env.js omits `logLevel`, ConfigService returns undefined and comparisons silence every log — including security warnings — across the application.
+Raw error objects are logged to the console (ConfigService remote config failures; Angular bootstrap catch), which can expose stack traces and internal URLs in DevTools.
 
 #### Outcome
 
-When `logLevel` is unset, the effective level is **Warn** (not Off). A one-time console warning tells operators to set logLevel explicitly for debug. Warnings and errors remain visible.
+Failure paths log **message strings only** (via LoggerService where available; message-only console.error at bootstrap). Raw Error objects are not passed to console.error.
 
 #### Users & personas
 
 | Persona | Goal |
 | --- | --- |
-| Operators | Misconfigured deploys still surface warnings/errors |
-| Developers | Clear signal when logLevel was omitted |
+| Operators | Errors visible without leaking stacks |
+| Security reviewers | No raw exception dumps in console |
 
 #### Scope
 
 **In scope**
 
-- Change LoggerService default / effective-level fallback to Warn
-- One-time warn when logLevel unset
+- ConfigService remote-config error path
+- `main.ts` bootstrap catch
 - Unit tests; append evidence; must change `src/`
 
 **Out of scope**
 
-- Changing deploy pipeline logLevel values (CONFIG-006)
 - Structured JSON format (LOG-006)
-- Server-side log shipping (LOG-007)
+- Global ErrorHandler (LOG-008)
+- Server-side shipping (LOG-007)
 
 #### Open questions
 
@@ -58,11 +58,10 @@ When `logLevel` is unset, the effective level is **Warn** (not Off). A one-time 
 
 ## Completed slices (recent)
 
+### LOG-004 — LoggerService default when logLevel missing
+
+- **Issue:** [#75](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/75) (shipped)
+
 ### CONFIG-006 — Deployment pipeline log levels
 
 - **Issue:** [#73](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/73) (shipped)
-- **Feature:** `features/config-006-deploy-log-level.feature`
-
-### CONFIG-005 / AUTHZ-002 / …
-
-- Shipped — see rematch wiki
