@@ -17,51 +17,51 @@ Generated: 2026-08-12 · Reset for agentic-b: 2026-08-31 · Raw findings: **55**
 
 | ID | Severity | Domain | Component | Title | File? | GitHub |
 | --- | --- | --- | --- | --- | --- | --- |
-| AUTH-001 | High | AUTHENTICATION | auth-layer | Keycloak OIDC client initialised with `{}` — PKCE (S256) not config... | yes | pending |
+| AUTH-001 | High | AUTHENTICATION | auth-layer | Keycloak OIDC client initialised with `{}` — PKCE (S256) not config... | yes | #62 |
 | AUTHZ-001 | High | AUTHORIZATION | auth-layer | Authorization bypass via URL query parameter injection on admin-onl... | yes | #55 |
-| CONFIG-002 | High | CONFIGURATION | cloudfront-cdn | Missing Content-Security-Policy Header on All CloudFront Cache Beha... | yes | pending |
-| CONFIG-003 | High | CONFIGURATION | cloudfront-cdn | Missing Strict-Transport-Security (HSTS) Header on All CloudFront C... | yes | pending |
-| CONFIG-004 | High | CONFIGURATION | cloudfront-cdn | Missing X-Frame-Options, X-Content-Type-Options, Referrer-Policy, a... | yes | pending |
+| CONFIG-002 | High | CONFIGURATION | cloudfront-cdn | Missing Content-Security-Policy Header on All CloudFront Cache Beha... | yes | #63 |
+| CONFIG-003 | High | CONFIGURATION | cloudfront-cdn | Missing Strict-Transport-Security (HSTS) Header on All CloudFront C... | yes | #64 |
+| CONFIG-004 | High | CONFIGURATION | cloudfront-cdn | Missing X-Frame-Options, X-Content-Type-Options, Referrer-Policy, a... | yes | #104 |
 | LOG-001 | High | SECURITY_LOGGING | shared-infrastructure | Full configuration object written to browser console | yes | #56 |
-| LOG-002 | High | SECURITY_LOGGING | auth-layer | Keycloak authentication lifecycle events logged at debug level only | yes | pending |
+| LOG-002 | High | SECURITY_LOGGING | auth-layer | Keycloak authentication lifecycle events logged at debug level only | yes | #66 |
 | LOG-003 | High | SECURITY_LOGGING | auth-layer | Authorization failures in AuthGuard are never logged | yes | #57 |
-| SECRET-001 | High | SECRETS | cloudfront-cdn | Production AWS Account ID Embedded in ACM Certificate ARN in Prod C... | yes | pending |
-| TEST-001 | High | TESTING | auth-layer | HTTP token interceptor has zero test coverage | yes | pending |
-| AUTH-002 | Medium | AUTHENTICATION | auth-layer | Client-side `JwtUtil.decodeToken()` performs no signature verificat... | yes | pending |
-| AUTH-003 | Medium | AUTHENTICATION | auth-layer | No logout mechanism exists; sessions end only on token expiry (risk... | yes | pending |
-| AUTHZ-002 | Medium | AUTHORIZATION | auth-layer | Dead guard conditions for export-reports and review-data — isAllowe... | yes | pending |
-| CONFIG-005 | Medium | CONFIGURATION | cloudfront-cdn | Security Scan Gate (Trivy) Has All Automatic CI/CD Triggers Disabled | yes | pending |
-| CONFIG-006 | Medium | CONFIGURATION | shared-infrastructure | logLevel = 0 (LogLevel.All) Hardcoded in All Deployment Pipelines I... | yes | pending |
-| CRYPTO-001 | Medium | CRYPTOGRAPHY | cloudfront-cdn | CloudFront viewer TLS minimum version permits deprecated TLS 1.0 an... | yes | pending |
-| LOG-004 | Medium | SECURITY_LOGGING | shared-infrastructure | LoggerService defaults to LogLevel.Off — all logging silenced if lo... | yes | pending |
-| LOG-005 | Medium | SECURITY_LOGGING | shared-infrastructure | Raw error objects logged directly to console — potential stack trac... | yes | pending |
-| LOG-006 | Medium | SECURITY_LOGGING | shared-infrastructure | No structured log format — all output is unstructured plain text | yes | pending |
-| LOG-007 | Medium | SECURITY_LOGGING | shared-infrastructure | All application logging is browser-console only — no server-side pe... | yes | pending |
-| SECRET-002 | Medium | SECRETS | cloudfront-cdn | Non-Production AWS Account IDs Hardcoded Across CI/CD Workflows, Sc... | yes | pending |
-| SECRET-003 | Medium | SECRETS | cloudfront-cdn | Route53 Hosted Zone ID Hardcoded in Pre-Migration Script | yes | pending |
-| TEST-003 | Medium | TESTING | angular-spa-shell | No end-to-end or security-focused integration tests exist | yes | pending |
-| VULN-001 | Medium | INJECTION | enter-data-module | Stored XSS via [innerHtml] binding with unsanitized HTML constructi... | yes | pending |
-| AUTH-004 | Low | AUTHENTICATION | auth-layer | Silent token-refresh failure only logs; no forced redirect to `/log... | yes | pending |
-| AUTH-005 | Low | AUTHENTICATION | auth-layer | Hardcoded fallback OAuth client ID `'nrpti-admin'` when `KEYCLOAK_C... | yes | pending |
-| AUTH-006 | Low | AUTHENTICATION | shared-infrastructure | `TokenInterceptor` triggers token refresh on HTTP 403 (should be 401) | yes | pending |
-| AUTH-007 | Low | AUTHENTICATION | shared-infrastructure | Bearer token injected into every outbound request with no host allo... | yes | pending |
-| AUTHZ-003 | Low | AUTHORIZATION | angular-spa-shell | manage-subareas navigation link visible in header for non-admin users | yes | pending |
-| AUTHZ-004 | Low | AUTHORIZATION | auth-layer | isAdmin() uses hardcoded role string instead of centralized constant | yes | pending |
-| AUTHZ-005 | Low | AUTHORIZATION | auth-layer | Incomplete optional chaining in isAdmin() can throw TypeError on at... | yes | pending |
-| BW-001 | Low | CODE_VULNERABILITY | lock-records-module | Lock Records component has no unlock workflow — lock parameter hard... | yes | pending |
-| BW-002 | Low | CODE_VULNERABILITY | export-reports-module | Export service has typo 'expor-variance' — variance job status chec... | yes | pending |
-| DEP-001 | Low | DEPENDENCIES | angular-spa-shell | `chart.js@4.4.1` declared as runtime dependency but never imported ... | yes | pending |
-| DEP-002 | Low | DEPENDENCIES | angular-spa-shell | `jquery@3.7.1` loaded globally but unused by Bootstrap 5 (unused, ~... | yes | pending |
-| DEP-003 | Low | DEPENDENCIES | api-client-services | `moment@2.30.1` maintenance-mode legacy library used alongside `luxon` | yes | pending |
-| LOG-008 | Low | SECURITY_LOGGING | angular-spa-shell | No global Angular ErrorHandler registered — unhandled errors go onl... | yes | pending |
-| LOG-009 | Low | SECURITY_LOGGING | api-client-services | Internal system identifiers included in debug log messages | yes | pending |
-| SECRET-004 | Low | SECRETS | aws-api-gateway | API Gateway Instance ID Hardcoded in SAM Template Default and Deplo... | yes | pending |
-| SECRET-005 | Low | SECRETS | keycloak-idp | Keycloak Client ID and Development Server URLs Committed in Tracked... | yes | pending |
-| TEST-004 | Low | TESTING | shared-infrastructure | Core services data.service, event.service, auto-fetch.service, side... | yes | pending |
-| TEST-005 | Low | TESTING | angular-spa-shell | Deployment pipelines execute build and deploy without running tests | yes | pending |
-| TEST-006 | Low | TESTING | angular-spa-shell | No code coverage threshold configured — coverage can degrade withou... | yes | pending |
-| VULN-002 | Low | INJECTION | api-client-services | URL query string constructed without encodeURIComponent() in ApiSer... | yes | pending |
-| VULN-003 | Low | INJECTION | export-reports-module | window.open() called with backend-supplied signedURL without URL sc... | yes | pending |
+| SECRET-001 | High | SECRETS | cloudfront-cdn | Production AWS Account ID Embedded in ACM Certificate ARN in Prod C... | yes | #67 |
+| TEST-001 | High | TESTING | auth-layer | HTTP token interceptor has zero test coverage | yes | #68 |
+| AUTH-002 | Medium | AUTHENTICATION | auth-layer | Client-side `JwtUtil.decodeToken()` performs no signature verificat... | yes | #69 |
+| AUTH-003 | Medium | AUTHENTICATION | auth-layer | No logout mechanism exists; sessions end only on token expiry (risk... | yes | #70 |
+| AUTHZ-002 | Medium | AUTHORIZATION | auth-layer | Dead guard conditions for export-reports and review-data — isAllowe... | yes | #71 |
+| CONFIG-005 | Medium | CONFIGURATION | cloudfront-cdn | Security Scan Gate (Trivy) Has All Automatic CI/CD Triggers Disabled | yes | #72 |
+| CONFIG-006 | Medium | CONFIGURATION | shared-infrastructure | logLevel = 0 (LogLevel.All) Hardcoded in All Deployment Pipelines I... | yes | #73 |
+| CRYPTO-001 | Medium | CRYPTOGRAPHY | cloudfront-cdn | CloudFront viewer TLS minimum version permits deprecated TLS 1.0 an... | yes | #74 |
+| LOG-004 | Medium | SECURITY_LOGGING | shared-infrastructure | LoggerService defaults to LogLevel.Off — all logging silenced if lo... | yes | #75 |
+| LOG-005 | Medium | SECURITY_LOGGING | shared-infrastructure | Raw error objects logged directly to console — potential stack trac... | yes | #76 |
+| LOG-006 | Medium | SECURITY_LOGGING | shared-infrastructure | No structured log format — all output is unstructured plain text | yes | #77 |
+| LOG-007 | Medium | SECURITY_LOGGING | shared-infrastructure | All application logging is browser-console only — no server-side pe... | yes | #78 |
+| SECRET-002 | Medium | SECRETS | cloudfront-cdn | Non-Production AWS Account IDs Hardcoded Across CI/CD Workflows, Sc... | yes | #79 |
+| SECRET-003 | Medium | SECRETS | cloudfront-cdn | Route53 Hosted Zone ID Hardcoded in Pre-Migration Script | yes | #80 |
+| TEST-003 | Medium | TESTING | angular-spa-shell | No end-to-end or security-focused integration tests exist | yes | #81 |
+| VULN-001 | Medium | INJECTION | enter-data-module | Stored XSS via [innerHtml] binding with unsanitized HTML constructi... | yes | #82 |
+| AUTH-004 | Low | AUTHENTICATION | auth-layer | Silent token-refresh failure only logs; no forced redirect to `/log... | yes | #83 |
+| AUTH-005 | Low | AUTHENTICATION | auth-layer | Hardcoded fallback OAuth client ID `'nrpti-admin'` when `KEYCLOAK_C... | yes | #84 |
+| AUTH-006 | Low | AUTHENTICATION | shared-infrastructure | `TokenInterceptor` triggers token refresh on HTTP 403 (should be 401) | yes | #85 |
+| AUTH-007 | Low | AUTHENTICATION | shared-infrastructure | Bearer token injected into every outbound request with no host allo... | yes | #86 |
+| AUTHZ-003 | Low | AUTHORIZATION | angular-spa-shell | manage-subareas navigation link visible in header for non-admin users | yes | #87 |
+| AUTHZ-004 | Low | AUTHORIZATION | auth-layer | isAdmin() uses hardcoded role string instead of centralized constant | yes | #88 |
+| AUTHZ-005 | Low | AUTHORIZATION | auth-layer | Incomplete optional chaining in isAdmin() can throw TypeError on at... | yes | #89 |
+| BW-001 | Low | CODE_VULNERABILITY | lock-records-module | Lock Records component has no unlock workflow — lock parameter hard... | yes | #90 |
+| BW-002 | Low | CODE_VULNERABILITY | export-reports-module | Export service has typo 'expor-variance' — variance job status chec... | yes | #91 |
+| DEP-001 | Low | DEPENDENCIES | angular-spa-shell | `chart.js@4.4.1` declared as runtime dependency but never imported ... | yes | #92 |
+| DEP-002 | Low | DEPENDENCIES | angular-spa-shell | `jquery@3.7.1` loaded globally but unused by Bootstrap 5 (unused, ~... | yes | #93 |
+| DEP-003 | Low | DEPENDENCIES | api-client-services | `moment@2.30.1` maintenance-mode legacy library used alongside `luxon` | yes | #94 |
+| LOG-008 | Low | SECURITY_LOGGING | angular-spa-shell | No global Angular ErrorHandler registered — unhandled errors go onl... | yes | #95 |
+| LOG-009 | Low | SECURITY_LOGGING | api-client-services | Internal system identifiers included in debug log messages | yes | #96 |
+| SECRET-004 | Low | SECRETS | aws-api-gateway | API Gateway Instance ID Hardcoded in SAM Template Default and Deplo... | yes | #97 |
+| SECRET-005 | Low | SECRETS | keycloak-idp | Keycloak Client ID and Development Server URLs Committed in Tracked... | yes | #98 |
+| TEST-004 | Low | TESTING | shared-infrastructure | Core services data.service, event.service, auto-fetch.service, side... | yes | #99 |
+| TEST-005 | Low | TESTING | angular-spa-shell | Deployment pipelines execute build and deploy without running tests | yes | #100 |
+| TEST-006 | Low | TESTING | angular-spa-shell | No code coverage threshold configured — coverage can degrade withou... | yes | #101 |
+| VULN-002 | Low | INJECTION | api-client-services | URL query string constructed without encodeURIComponent() in ApiSer... | yes | #102 |
+| VULN-003 | Low | INJECTION | export-reports-module | window.open() called with backend-supplied signedURL without URL sc... | yes | #103 |
 | BW-004 | Informational | AUTHORIZATION | enter-data-module | Activity form loads park/sub-area data from URL query params withou... | optional | pending |
 | BW-005 | Informational | CONFIGURATION | shared-infrastructure | AutoFetch background polling interval hardcoded — not drawn from Co... | optional | pending |
 | DEP-004 | Informational | DEPENDENCIES | angular-spa-shell | `@babel/traverse@7.23.2` (build tool) misclassified in runtime depe... | optional | pending |
