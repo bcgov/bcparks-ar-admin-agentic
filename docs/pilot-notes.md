@@ -29,6 +29,7 @@ Run the **same 45 recommended** rapid-assessment findings as `agentic-b`, end-to
 | 2026-09-02 | 1–2 | Spec/plan via orchestrator; impl via Copilot | Prefer cloud for code |
 | 2026-09-02 | 2 | Closed conflicted #105 backlog-links PR | Re-link later from main |
 | 2026-09-02 | 5 | Plan #116 merged before `tasks.md` commit; follow-up #118 + merge conflict on #117 vs main | Orchestrator raced CI; document: land tasks in same commit as plan |
+| 2026-09-02 | 7 | Closed conflicting human PR [#125](https://github.com/bcgov/bcparks-ar-admin-agentic/pull/125) (full security headers) | Out of CONFIG-003 rematch scope; prefer Copilot [#124](https://github.com/bcgov/bcparks-ar-admin-agentic/pull/124) |
 | _(more during run)_ | | | |
 
 ## Metrics reviews

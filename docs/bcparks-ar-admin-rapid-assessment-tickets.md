@@ -20,7 +20,7 @@ Generated: 2026-08-12 · Reset for agentic-b: 2026-08-31 · Raw findings: **55**
 | AUTH-001 | High | AUTHENTICATION | auth-layer | Keycloak OIDC client initialised with `{}` — PKCE (S256) not config... | yes | #62 |
 | AUTHZ-001 | High | AUTHORIZATION | auth-layer | Authorization bypass via URL query parameter injection on admin-onl... | yes | shipped #55 |
 | CONFIG-002 | High | CONFIGURATION | cloudfront-cdn | Missing Content-Security-Policy Header on All CloudFront Cache Beha... | yes | #63 |
-| CONFIG-003 | High | CONFIGURATION | cloudfront-cdn | Missing Strict-Transport-Security (HSTS) Header on All CloudFront C... | yes | #64 |
+| CONFIG-003 | High | CONFIGURATION | cloudfront-cdn | Missing Strict-Transport-Security (HSTS) Header on All CloudFront C... | yes | shipped #64 |
 | CONFIG-004 | High | CONFIGURATION | cloudfront-cdn | Missing X-Frame-Options, X-Content-Type-Options, Referrer-Policy, a... | yes | #104 |
 | LOG-001 | High | SECURITY_LOGGING | shared-infrastructure | Full configuration object written to browser console | yes | shipped #56 |
 | LOG-002 | High | SECURITY_LOGGING | auth-layer | Keycloak authentication lifecycle events logged at debug level only | yes | shipped #66 |
