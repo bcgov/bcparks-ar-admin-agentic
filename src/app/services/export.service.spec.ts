@@ -68,6 +68,22 @@ describe('ExportService', () => {
     expect(dataServiceSpy).toHaveBeenCalledTimes(1);
   });
 
+  it('should call export-variance endpoint (not expor-variance) for variance dataType', async () => {
+    TestBed.overrideProvider(ApiService, { useValue: mockApiService });
+    service = TestBed.inject(ExportService);
+    let apiServiceSpy = spyOn(service['apiService'], 'get').and.callThrough();
+    dataServiceSpy = spyOn(service['dataService'], 'setItemValue');
+
+    await service.checkForReports(Constants.dataIds.EXPORT_ALL_POLLING_DATA, 'variance', {
+      fiscalYearEnd: '2024-03-31'
+    });
+
+    expect(apiServiceSpy).toHaveBeenCalledWith('export-variance', {
+      getJob: true,
+      fiscalYearEnd: '2024-03-31'
+    });
+  });
+
   it('should generateReport', async () => {
     TestBed.overrideProvider(ApiService, { useValue: mockApiService });
     service = TestBed.inject(ExportService);

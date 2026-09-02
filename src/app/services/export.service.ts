@@ -25,7 +25,7 @@ export class ExportService {
       this.loggerService.debug(`Export GET job`);
       if (dataType === 'variance') {
         res = await firstValueFrom(
-          this.apiService.get('expor-variance', {
+          this.apiService.get('export-variance', {
             getJob: true,
             fiscalYearEnd: params.fiscalYearEnd,
           }),
