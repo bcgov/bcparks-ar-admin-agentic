@@ -1206,3 +1206,64 @@ N/A — no UI change.
 **Residual risk:** None identified beyond the accepted, explicitly out-of-scope follow-ups noted above (LOG-007, LOG-008, wiring real identity/correlation values).
 
 - Reviewer: _______________ Date: _______________
+
+---
+
+# PR evidence — [RA LOG-007] Document browser-console logging limitation
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-log-007-add-server-side-logging |
+| Spec refs | spec/features/log-007-browser-console-logging.feature |
+| Constitution articles touched | P3, P5, P7, J3, J5 |
+| Tasks | LOG-007 entries in spec/tasks.md |
+| Authoring agent | GitHub Copilot Coding Agent |
+| Generated | 2026-09-02T21:07:51.407Z |
+
+## Intent
+
+The logging architecture now explicitly documents that LoggerService emits structured entries only to the browser console and has no server-side persistence or SIEM integration. It also documents the inactive, optional `LOG_SHIPPING_ENDPOINT` configuration name as the approved forward path without introducing log shipping.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| `log-007-browser-console-logging.feature` `@R-20.1` | Yes | `docs/logging-architecture.md` records console-only output and the absence of server-side persistence and SIEM integration. |
+| `log-007-browser-console-logging.feature` `@R-20.2` | Yes | Documents the optional inactive `LOG_SHIPPING_ENDPOINT` hook without requiring an endpoint. |
+
+
+## Design system & accessibility
+
+| Check | Result |
+| --- | --- |
+| DS components used (list) | Not applicable — no UI changes. |
+| Tokens used (not hard-coded colour) | Not applicable — no UI changes. |
+| BC Sans imported | Not applicable — unchanged. |
+| Manual a11y notes | Not applicable — no user-facing changes. |
+
+## Public-service minimums
+
+Checklist IDs addressed this PR: Not applicable — no user interface changes.
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Unit | `yarn test-ci --include src/app/services/logger.service.spec.ts` | Passed: 6 SUCCESS |
+| Lint | `yarn lint` | Passed: 0 errors; 59 existing unrelated standalone-component warnings. |
+| Acceptance / feature | `spec/features/log-007-browser-console-logging.feature` | Satisfied by documentation inspection for `@R-20.1`–`@R-20.2`. |
+| A11y automation | Not run | Not applicable — no UI changes. |
+
+## Risks & follow-ups
+
+- Server-side shipping remains intentionally out of scope. A future implementation requires API, retention, access-control, and privacy approval before the reserved configuration name can become active.
+
+## Review receipt (checkpoint 3)
+
+**Checked:** LOG-007 `@R-20.1`–`@R-20.2`; `spec/spec.md`; `spec/tasks.md`; `docs/logging-architecture.md`; LoggerService constant; focused Karma/Jasmine tests and lint.
+
+**Could not check:** A backend shipping endpoint or SIEM integration, because the signed LOG-007 scope explicitly excludes implementation.
+
+**Residual risk:** Browser-console logs remain ephemeral until a separately approved backend log-shipping implementation is delivered.
+
+- Reviewer: _______________ Date: _______________
