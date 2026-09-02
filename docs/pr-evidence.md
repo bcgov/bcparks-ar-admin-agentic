@@ -390,3 +390,75 @@ Same shape as `REVIEW.md` — required before merge. Do not replace with a free-
 **Residual risk:** Post-deploy live smoke test of the viewer TLS policy is deferred; no code path exists in this repo's CI to exercise a live CloudFront handshake.
 
 - Reviewer: _______________ Date: _______________
+
+---
+
+# PR evidence — [RA CONFIG-003] CloudFront HSTS on all cache behaviours
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-config-003-fix-hsts-header |
+| Spec refs | spec/features/authz-001-admin-route-guard.feature, spec/features/config-003-cloudfront-hsts.feature, spec/features/crypto-001-cloudfront-tls-minimum.feature, spec/features/example-happy-path.feature, spec/features/log-001-no-config-console-dump.feature, spec/features/log-002-keycloak-lifecycle-log-levels.feature, spec/features/log-003-authz-failure-logging.feature, spec/features/test-001-token-interceptor.feature |
+| Constitution articles touched | P1–P8 (confirm) |
+| Tasks | see spec/tasks.md |
+| Authoring agent | GitHub Copilot Coding Agent |
+| Generated | 2026-09-02T18:36:31.007Z |
+
+## Intent
+
+`template.yaml` now declares a custom `AWS::CloudFront::ResponseHeadersPolicy` (`CloudFrontResponseHeadersPolicy`) that emits `Strict-Transport-Security: max-age=31536000; includeSubDomains; preload` and preserves CORS behaviour equivalent to the managed SimpleCORS policy. All three cache behaviours (default, `/${ApiStage}/*`, `${BaseHref}*`) reference the custom policy instead of the managed SimpleCORS id, so every response carries HSTS. No other security headers (CSP, X-Frame-Options, Referrer-Policy, Permissions-Policy) are added — those remain with CONFIG-002 / CONFIG-004.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| `authz-001-admin-route-guard.feature` | Not applicable | Out of scope for CONFIG-003; retained from the feature index. |
+| `config-003-cloudfront-hsts.feature` | Yes | `@R-07.1` covered by static inspection of `template.yaml`: custom response headers policy with `AccessControlMaxAgeSec: 31536000`, `IncludeSubdomains: true`, `Preload: true`, `Override: true`; all three cache behaviours use `!Ref CloudFrontResponseHeadersPolicy`; `CorsConfig` mirrors SimpleCORS (`*` origins, `*` headers, `GET/HEAD/OPTIONS`, credentials false, origin override true). |
+| `crypto-001-cloudfront-tls-minimum.feature` | Not applicable | Delivered in a previous slice; unchanged here. |
+| `example-happy-path.feature` | Not applicable | Out of scope for CONFIG-003; retained from the feature index. |
+| `log-001-no-config-console-dump.feature` | Not applicable | Out of scope for CONFIG-003; retained from the feature index. |
+| `log-002-keycloak-lifecycle-log-levels.feature` | Not applicable | Out of scope for CONFIG-003; retained from the feature index. |
+| `log-003-authz-failure-logging.feature` | Not applicable | Out of scope for CONFIG-003; retained from the feature index. |
+| `test-001-token-interceptor.feature` | Not applicable | Out of scope for CONFIG-003; retained from the feature index. |
+
+
+## Design system & accessibility
+
+| Check | Result |
+| --- | --- |
+| DS components used (list) | Not applicable — no UI changes. |
+| Tokens used (not hard-coded colour) | Not applicable — no style changes. |
+| BC Sans imported | Not applicable — unchanged. |
+| Manual a11y notes | Not applicable — infrastructure template change only, no rendered UI change. |
+
+## Public-service minimums
+
+Checklist IDs addressed this PR: Not applicable — no user interface changes.
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Static | `sam validate --lint --region ca-central-1` | Passed — `template.yaml is a valid SAM Template` with the new `AWS::CloudFront::ResponseHeadersPolicy` resource. |
+| Static | `grep -n "ResponseHeadersPolicyId" template.yaml` | All three cache behaviours resolve to `!Ref CloudFrontResponseHeadersPolicy`; the managed SimpleCORS id is no longer referenced. |
+| Acceptance / feature | `spec/features/config-003-cloudfront-hsts.feature` | `@R-07.1` satisfied by the static template checks above. |
+| A11y automation | Not run | Not applicable — no UI changes. |
+
+## Risks & follow-ups
+
+- Live header smoke (`curl -sI https://dev-ar.bcparks.ca`) against the deployed distribution is residual; this PR only changes the SAM template and no CI job exercises a live CloudFront response.
+- `Preload: true` signals preload readiness only; actually submitting the domain to the HSTS preload list is an operator action outside this repo and requires the parent domain owner's agreement (`includeSubDomains` applies to the aliased domain).
+- CSP, X-Frame-Options, Referrer-Policy and Permissions-Policy are intentionally not added here; they remain tracked as CONFIG-002 / CONFIG-004.
+- The custom policy name is `${AWS::StackName}-${Env}-security-headers`; response headers policy names must be unique per AWS account, so a name collision with a pre-existing policy would fail the stack update.
+
+## Review receipt (checkpoint 3)
+
+Same shape as `REVIEW.md` — required before merge. Do not replace with a free-form sign-off.
+
+**Checked:** CONFIG-003 `@R-07.1`; `spec/spec.md` active CONFIG-003 slice; `spec/plan.md`; `spec/tasks.md`; `template.yaml` diff adding `CloudFrontResponseHeadersPolicy` and wiring all three cache behaviours; `sam validate --lint` passing.
+
+**Could not check:** Live `Strict-Transport-Security` response header from the deployed CloudFront distribution, and live CORS parity after the managed-policy swap; both need a post-deploy smoke test.
+
+**Residual risk:** Post-deploy header/CORS smoke is deferred; HSTS preload list submission remains an operator action; remaining security headers stay with CONFIG-002 / CONFIG-004.
+
+- Reviewer: _______________ Date: _______________
