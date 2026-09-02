@@ -7,19 +7,19 @@
 
 ## Active slice
 
-### DEP-001 — remove unused chart.js
+### DEP-002 — remove unused jquery
 
-- **Issue:** [#92](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/92)
-- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `DEP-001`
-- **Feature:** `features/dep-001-remove-chartjs.feature`
+- **Issue:** [#93](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/93)
+- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `DEP-002`
+- **Feature:** `features/dep-002-remove-jquery.feature`
 
 #### Problem
 
-chart.js is declared but never imported in source.
+jquery is loaded globally but unused by Bootstrap 5.
 
 #### Outcome
 
-chart.js removed from runtime dependencies; lockfile updated.
+jquery removed from package.json and angular.json scripts.
 
 #### Users & personas
 
