@@ -121,3 +121,70 @@ Same shape as `REVIEW.md` — required before merge. Do not replace with a free-
 **Residual risk:** Other console logging findings remain tracked separately; this slice only removes the full configuration dump from `ConfigService.init()`.
 
 - Reviewer: _______________ Date: _______________
+
+---
+
+# PR evidence — [RA LOG-003] Log authorization failures in AuthGuard
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-log-003-log-authorization-failures |
+| Spec refs | spec/features/authz-001-admin-route-guard.feature, spec/features/example-happy-path.feature, spec/features/log-001-no-config-console-dump.feature, spec/features/log-003-authz-failure-logging.feature |
+| Constitution articles touched | P3, P5, P7, J3, J5 |
+| Tasks | LOG-003 entries in spec/tasks.md |
+| Authoring agent | GitHub Copilot Coding Agent |
+| Generated | 2026-09-02T17:37:45.099Z |
+
+## Intent
+
+`AuthGuard` now emits a warn-level, structured security audit log entry (`{ eventType, userId, email, requestedUrl, outcome, timestamp }`) immediately before every authorization-failure redirect: the app-level "not authorized" redirect and all four route-specific capability-denial redirects. `KeycloakService.getUserIdentity()` extracts only the non-secret `sub`/`email` claims from the current token so the guard never logs the raw access token or other credential material. Allowed activations are unaffected and continue to emit no log entry.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| `authz-001-admin-route-guard.feature` | Not applicable | Out of scope for LOG-003; retained from the feature index. |
+| `example-happy-path.feature` | Not applicable | Out of scope for LOG-003; retained from the feature index. |
+| `log-001-no-config-console-dump.feature` | Not applicable | Out of scope for LOG-003; retained from the feature index. |
+| `log-003-authz-failure-logging.feature` | Yes | `@R-03.1`–`@R-03.4` covered by focused Karma/Jasmine tests in `src/app/guards/auth.guard.spec.ts` and `src/app/services/keycloak.service.spec.ts`. |
+
+
+## Design system & accessibility
+
+| Check | Result |
+| --- | --- |
+| DS components used (list) | Not applicable — no UI changes. |
+| Tokens used (not hard-coded colour) | Not applicable — no style changes. |
+| BC Sans imported | Not applicable — unchanged. |
+| Manual a11y notes | Not applicable — guard/logging logic only, no rendered UI change. |
+
+## Public-service minimums
+
+Checklist IDs addressed this PR: Not applicable — no user interface changes.
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Unit | `yarn test-ci --include src/app/guards/auth.guard.spec.ts --include src/app/services/keycloak.service.spec.ts` | Passed: 21 SUCCESS |
+| Lint | `yarn lint` | Passed with existing warnings: 0 errors, 59 pre-existing `@angular-eslint/prefer-standalone` warnings in unrelated files. |
+| Acceptance / feature | `spec/features/log-003-authz-failure-logging.feature` | Implemented by unit coverage for `@R-03.1`–`@R-03.4`, including an assertion that no raw token substring appears in the emitted log entry. |
+| A11y automation | Not run | Not applicable — no UI changes. |
+
+## Risks & follow-ups
+
+- This is client-side, browser-console logging only (via the existing `LoggerService`); centralized/server-side shipping of these audit events is tracked separately under LOG-007 and is out of scope here.
+- `LoggerService` currently defaults to `LogLevel.Off` (tracked separately as LOG-004), which could silence these warn-level entries depending on runtime configuration; no scope change was made to address that here.
+
+## Review receipt (checkpoint 3)
+
+Same shape as `REVIEW.md` — required before merge. Do not replace with a free-form sign-off.
+
+**Checked:** LOG-003 `@R-03.1`–`@R-03.4`; `spec/tasks.md`; targeted `AuthGuard`/`KeycloakService` unit tests; manual review confirming no raw token/secret appears in logged fields.
+
+**Could not check:** Full interactive Keycloak/browser flow; local environment lacks live Keycloak/API dependencies.
+
+**Residual risk:** Logging is browser-console only via `LoggerService`; no server-side/SIEM shipping (LOG-007) and `LogLevel.Off` default (LOG-004) remain tracked as separate findings.
+
+- Reviewer: _______________ Date: _______________
+- Reviewer: _______________ Date: _______________
