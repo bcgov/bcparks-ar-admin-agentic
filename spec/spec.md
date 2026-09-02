@@ -7,46 +7,45 @@
 
 ## Active slice
 
-### AUTH-001 — PKCE (S256) on Keycloak OIDC init
+### SECRET-001 — Production certificate ARN not hardcoded in CI
 
-- **Issue:** [#62](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/62)
-- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `AUTH-001`
-- **Feature:** `features/auth-001-pkce.feature`
+- **Issue:** [#67](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/67)
+- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `SECRET-001`
+- **Feature:** `features/secret-001-prod-certificate-arn.feature`
 
 #### Problem
 
-Keycloak client is initialised with an empty options object — no PKCE method. For a public browser OIDC client, OAuth 2.0 Security BCP requires PKCE so a stolen authorization code cannot be exchanged for tokens independently.
+The production deploy workflow embeds a full ACM certificate ARN (including the production AWS account ID) in the repository. That enables infrastructure enumeration and related attacks. The ARN must not be a committed literal.
 
 #### Outcome
 
-When Keycloak is enabled and the adapter is initialised for a real session, init options include **PKCE method S256**. Staff login success path is otherwise unchanged. Unit/service tests prove the init options without a live IdP.
+The LZA production deploy workflow supplies **DomainCertificateArn** from a GitHub Actions environment variable (`vars.DOMAIN_CERTIFICATE_ARN`), not a literal ACM ARN in the workflow file. Evidence must not reprint the secret ARN value.
 
 #### Users & personas
 
 | Persona | Goal |
 | --- | --- |
-| Parks staff | Login still works |
-| Security reviewer | Confirm S256 PKCE on real init |
-| Developer (local) | Unit tests cover init options |
+| Security reviewer | Confirm no literal ACM ARN / account id in workflow |
+| Platform operator | Set `DOMAIN_CERTIFICATE_ARN` on the prod GitHub Environment before next deploy |
+| Implementer | Workflow-only change + evidence |
 
 #### Scope
 
 **In scope**
 
-- Pass `pkceMethod: 'S256'` (or equivalent) on Keycloak adapter init for real auth
-- Unit/service test(s) asserting init options
-- Evidence append; must change `src/` (refuse evidence-only)
+- Replace hardcoded `DomainCertificateArn=...` in `.github/workflows/lza-deploy-admin-prod.yaml` with `${{ vars.DOMAIN_CERTIFICATE_ARN }}`
+- Evidence append; must change `.github/workflows/` (refuse evidence-only)
+- Document that the GitHub Environment variable must exist before the next prod deploy (ops residual, not a scope narrowing of the code fix)
 
 **Out of scope**
 
-- Implementing a full `?localMockAuth=1` feature if not already present (constitution J7 documents intent; this finding is PKCE only — do not silently expand)
-- IdP / loginproxy client configuration changes (residual smoke after merge)
-- Logout, refresh, or interceptor changes
+- Non-prod workflows / other hardcoded account identifiers (separate SECRET-* findings)
+- Actually setting the GitHub Environment variable in this PR (human/ops; call out residual)
+- Printing the ARN in evidence
 
 #### Open questions
 
-- **IdP client support:** Assume loginproxy clients already allow PKCE (standard for public clients). Post-merge IDIR smoke is residual human check.
-- **keycloak-js API:** Prefer documented `pkceMethod: 'S256'` on `init()` for the version in package.json.
+- **Environment name:** Confirm the workflow’s GitHub Environment (e.g. `lza-prod`) is where `DOMAIN_CERTIFICATE_ARN` will be set — note in evidence if the workflow already uses an environment block.
 
 #### Sign-off (checkpoint 1)
 
@@ -60,11 +59,11 @@ When Keycloak is enabled and the adapter is initialised for a real session, init
 
 ## Completed slices (recent)
 
-### CONFIG-002 — Content-Security-Policy on CloudFront responses
+### AUTH-001 — PKCE (S256) on Keycloak OIDC init
 
-- **Issue:** [#63](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/63) (shipped)
-- **Feature:** `features/config-002-cloudfront-csp.feature`
+- **Issue:** [#62](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/62) (shipped)
+- **Feature:** `features/auth-001-pkce.feature`
 
-### CONFIG-004 / CONFIG-003 / CRYPTO-001 / LOG-002 / TEST-001 / LOG-003 / LOG-001 / AUTHZ-001
+### CONFIG-002 / CONFIG-004 / CONFIG-003 / CRYPTO-001 / LOG-* / TEST-001 / AUTHZ-001
 
 - Shipped — see rematch wiki
