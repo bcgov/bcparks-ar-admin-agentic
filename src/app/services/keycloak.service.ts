@@ -71,13 +71,17 @@ export class KeycloakService {
 
         // Try to get refresh tokens in the background
         this.keycloakAuth.onTokenExpired = () => {
-          this.keycloakAuth
+          return this.keycloakAuth
             .updateToken()
             .then((refreshed) => {
               this.loggerService.log(`KC refreshed token?: ${refreshed}`);
             })
             .catch((err) => {
-              this.loggerService.log(`KC refresh error: ${err}`);
+              this.loggerService.error(`KC refresh error: ${err}`);
+              // The session can no longer be refreshed: force a clean
+              // re-authentication instead of leaving the user in an
+              // authenticated-looking state with an unusable token.
+              this.redirectToLogin();
             });
         };
 
@@ -231,6 +235,43 @@ export class KeycloakService {
 
       return { unsubscribe() {} };
     });
+  }
+
+  /**
+   * Builds the absolute login URL for the current deployment, or returns null
+   * when the browser is already on the login page (so repeated token-expiry
+   * events cannot cause a redirect loop).
+   *
+   * @param {string} currentPath the current window pathname.
+   * @returns {string} the login URL, or null when no navigation is needed.
+   * @memberof KeycloakService
+   */
+  private getLoginUrl(currentPath: string): string | null {
+    const baseHref = document.querySelector('base')?.getAttribute('href') || '/';
+    const loginUrl = new URL('login', new URL(baseHref, window.location.origin));
+
+    if (currentPath === loginUrl.pathname) {
+      return null;
+    }
+
+    return loginUrl.toString();
+  }
+
+  /**
+   * Sends the browser to the login page after the Keycloak session can no
+   * longer be refreshed. A full navigation (rather than a router navigation)
+   * is used so all in-memory state tied to the expired session is discarded.
+   *
+   * @memberof KeycloakService
+   */
+  private redirectToLogin() {
+    const loginUrl = this.getLoginUrl(window.location.pathname);
+
+    if (!loginUrl) {
+      return;
+    }
+
+    window.location.assign(loginUrl);
   }
 
   private logAuthLifecycleEvent(eventType: string, level: 'warn' | 'error') {
