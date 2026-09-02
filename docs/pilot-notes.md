@@ -35,6 +35,7 @@ Run the **same 45 recommended** rapid-assessment findings as `agentic-b`, end-to
 | 2026-09-02 | 10 | AUTH-001 shipped via Copilot [#134](https://github.com/bcgov/bcparks-ar-admin-agentic/pull/134) | PKCE S256 on Keycloak init; unit coverage |
 | 2026-09-02 | 11 | SECRET-001 shipped via Copilot [#137](https://github.com/bcgov/bcparks-ar-admin-agentic/pull/137) | DomainCertificateArn from vars; ops must set lza-prod var |
 | 2026-09-02 | 12 | AUTH-002 shipped via Copilot [#140](https://github.com/bcgov/bcparks-ar-admin-agentic/pull/140) | tokenParsed via getTokenClaims; JwtUtil unused on real-auth path |
+| 2026-09-02 | 13 | AUTH-003 shipped via Copilot [#143](https://github.com/bcgov/bcparks-ar-admin-agentic/pull/143) | Keycloak logout + header Log out |
 | _(more during run)_ | | | |
 
 ## Metrics reviews

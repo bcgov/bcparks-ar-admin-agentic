@@ -28,7 +28,7 @@ Generated: 2026-08-12 · Reset for agentic-b: 2026-08-31 · Raw findings: **55**
 | SECRET-001 | High | SECRETS | cloudfront-cdn | Production AWS Account ID Embedded in ACM Certificate ARN in Prod C... | yes | shipped #67 |
 | TEST-001 | High | TESTING | auth-layer | HTTP token interceptor has zero test coverage | yes | shipped #68 |
 | AUTH-002 | Medium | AUTHENTICATION | auth-layer | Client-side `JwtUtil.decodeToken()` performs no signature verificat... | yes | shipped #69 |
-| AUTH-003 | Medium | AUTHENTICATION | auth-layer | No logout mechanism exists; sessions end only on token expiry (risk... | yes | #70 |
+| AUTH-003 | Medium | AUTHENTICATION | auth-layer | No logout mechanism exists; sessions end only on token expiry (risk... | yes | shipped #70 |
 | AUTHZ-002 | Medium | AUTHORIZATION | auth-layer | Dead guard conditions for export-reports and review-data — isAllowe... | yes | #71 |
 | CONFIG-005 | Medium | CONFIGURATION | cloudfront-cdn | Security Scan Gate (Trivy) Has All Automatic CI/CD Triggers Disabled | yes | #72 |
 | CONFIG-006 | Medium | CONFIGURATION | shared-infrastructure | logLevel = 0 (LogLevel.All) Hardcoded in All Deployment Pipelines I... | yes | #73 |
