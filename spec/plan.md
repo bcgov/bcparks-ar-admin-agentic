@@ -1,16 +1,15 @@
-# Plan — Admin-only export/review routes (AUTHZ-002)
+# Plan — Enable Trivy automatic triggers (CONFIG-005)
 
-> Issue [#71](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/71) / RA AUTHZ-002. Checkpoint 2.
+> Issue [#72](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/72) / RA CONFIG-005. Checkpoint 2.
 
 ## Summary
 
-Add `export-reports` and `review-data` to `KeycloakService.isAllowed()` admin-only list. Unit-test isAllowed denials/grants and AuthGuard redirects. Must change `src/`.
+Uncomment push (main), pull_request, and weekly schedule triggers in `.github/workflows/analysis.yaml`. Keep workflow_dispatch and existing Trivy scanners. Must change `.github/workflows/`.
 
 ## Tasks
 
-1. Extend adminOnlyRoutes; tests for isAllowed
-2. Ensure AuthGuard redirect coverage for both paths
-3. Append evidence; CP3 merge
+1. Enable automatic triggers in analysis.yaml
+2. Append evidence; CP3 merge
 
 ## Approval (checkpoint 2)
 
