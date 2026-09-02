@@ -1,7 +1,3 @@
-# Plan — AUTH-004 token refresh failure redirect
+# Plan — AUTH-005 require KEYCLOAK_CLIENT_ID
 
-> Checkpoint 2 for issue [#83](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/83).
-
-## Approach
-
-On onTokenExpired, if updateToken rejects: log error and window.location.assign('/login'). Unit test with mocked updateToken failure. Append evidence.
+Remove 'nrpti-admin' fallback. Validate KEYCLOAK_CLIENT_ID before Keycloak adapter construct; reject with toast/logger error. Unit tests @R-26.x. Append evidence.

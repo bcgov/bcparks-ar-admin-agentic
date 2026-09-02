@@ -1,10 +1,7 @@
-# Tasks — TEST-003 E2E scaffold
+# Tasks — AUTH-005
 
-> Issue [#81](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/81)
+> Issue [#84](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/84)
 
-## Active slice — TEST-003
-
-- [x] **TASK-001** — Playwright dep + e2e script (@R-23.1)
-- [x] **TASK-002** — Smoke test app shell (@R-23.2)
-- [x] **TASK-003** — Document auth-boundary follow-ups (@R-23.3)
-- [x] **TASK-004** — Append docs/pr-evidence.md
+- [ ] **TASK-001** — Reject missing KEYCLOAK_CLIENT_ID
+- [ ] **TASK-002** — Remove nrpti-admin fallback
+- [ ] **TASK-003** — Unit tests + append evidence
