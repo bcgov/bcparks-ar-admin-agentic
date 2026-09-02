@@ -55,7 +55,7 @@ export class KeycloakService {
         };
 
         this.keycloakAuth.onAuthError = () => {
-          this.loggerService.debug('onAuthError');
+          this.logAuthLifecycleEvent('onAuthError', 'error');
         };
 
         this.keycloakAuth.onAuthRefreshSuccess = () => {
@@ -63,11 +63,11 @@ export class KeycloakService {
         };
 
         this.keycloakAuth.onAuthRefreshError = () => {
-          this.loggerService.debug('onAuthRefreshError');
+          this.logAuthLifecycleEvent('onAuthRefreshError', 'error');
         };
 
         this.keycloakAuth.onAuthLogout = () => {
-          this.loggerService.debug('onAuthLogout');
+          this.logAuthLifecycleEvent('onAuthLogout', 'warn');
         };
 
         // Try to get refresh tokens in the background
@@ -216,6 +216,12 @@ export class KeycloakService {
 
       return { unsubscribe() {} };
     });
+  }
+
+  private logAuthLifecycleEvent(eventType: string, level: 'warn' | 'error') {
+    const { userId, email } = this.getUserIdentity();
+    const message = `${eventType} userId=${userId || 'unavailable'} email=${email || 'unavailable'}`;
+    this.loggerService[level](message);
   }
 
   public getWelcomeMessage(): string {
