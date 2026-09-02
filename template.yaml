@@ -72,13 +72,26 @@ Resources:
     Properties:
       ResponseHeadersPolicyConfig:
         Name: !Sub ${AWS::StackName}-${Env}-security-headers
-        Comment: "Adds Strict-Transport-Security and keeps CORS equivalent to the managed SimpleCORS policy."
+        Comment: "Adds baseline browser security headers and keeps CORS equivalent to the managed SimpleCORS policy."
         SecurityHeadersConfig:
+          ContentTypeOptions:
+            Override: true
+          FrameOptions:
+            FrameOption: DENY
+            Override: true
+          ReferrerPolicy:
+            ReferrerPolicy: strict-origin-when-cross-origin
+            Override: true
           StrictTransportSecurity:
             AccessControlMaxAgeSec: 31536000
             IncludeSubdomains: true
             Preload: true
             Override: true
+        CustomHeadersConfig:
+          Items:
+            - Header: Permissions-Policy
+              Value: "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
+              Override: true
         # Equivalent to the managed SimpleCORS policy (60669652-455b-4ae9-85a4-c4c02393f86c)
         CorsConfig:
           AccessControlAllowCredentials: false
