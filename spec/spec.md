@@ -7,19 +7,19 @@
 
 ## Active slice
 
-### AUTH-006 — interceptor refresh on 401
+### AUTH-007 — Bearer host allowlist
 
-- **Issue:** [#85](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/85)
-- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `AUTH-006`
-- **Feature:** `features/auth-006-interceptor-401.feature`
+- **Issue:** [#86](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/86)
+- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `AUTH-007`
+- **Feature:** `features/auth-007-interceptor-allowlist.feature`
 
 #### Problem
 
-TokenInterceptor triggers token refresh on HTTP 403 (should be 401).
+Bearer token injected into every outbound request with no host allowlist.
 
 #### Outcome
 
-Interceptor refreshes/retries on 401 only; 403 passes through without refresh.
+Authorization header is added only when request host matches API_LOCATION origin.
 
 #### Users & personas
 
