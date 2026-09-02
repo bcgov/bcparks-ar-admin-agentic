@@ -1,5 +1,6 @@
-# Tasks — TEST-001 (active)
+# Tasks — LOG-002 (active)
 
-- [x] Add `src/app/shared/utils/token-interceptor.spec.ts` covering `@R-04.1`–`@R-04.6` (mock `KeycloakService`; do not change production interceptor unless required to compile)
-- [x] Append `docs/pr-evidence.md` for TEST-001 (note AUTH-006 / AUTH-007 / AUTH-003–004 residuals vs assessment Expected)
-- [ ] Checkpoint 3 + merge (must change `src/`; draft PR; do not self-merge)
+- [ ] Elevate `onAuthError` / `onAuthRefreshError` / `onAuthLogout` to warn or error; include non-secret identity when available; success callbacks may stay debug
+- [ ] Unit tests `@R-05.1`–`@R-05.4` (no token leakage)
+- [ ] Append `docs/pr-evidence.md` for LOG-002 (LOG-007 residual for server audit)
+- [ ] Checkpoint 3 + merge (must change `src/`; refuse evidence-only)
