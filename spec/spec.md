@@ -7,45 +7,46 @@
 
 ## Active slice
 
-### AUTH-002 — Role/IDP claims from library-verified Keycloak session
+### AUTH-003 — User-initiated logout
 
-- **Issue:** [#69](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/69)
-- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `AUTH-002`
-- **Feature:** `features/auth-002-token-claims.feature`
+- **Issue:** [#70](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/70)
+- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `AUTH-003`
+- **Feature:** `features/auth-003-logout.feature`
 
 #### Problem
 
-`JwtUtil.decodeToken()` only Base64-decodes the JWT payload — no signature verification. `isAuthorized()`, `isAdmin()`, `getWelcomeMessage()`, and `getIdpFromToken()` (and similar helpers) use that unverified decode, while `isAuthenticated()` trusts the Keycloak adapter. Library auth state and custom claim reads can diverge.
+There is no logout: Keycloak login exists, but no `logout()` API and no header control. AuthGuard comments acknowledge the gap. On shared terminals, sessions only end when tokens expire.
 
 #### Outcome
 
-For a real Keycloak session, role / IDP / welcome / identity helpers read claims from the **Keycloak adapter’s verified parsed token** (`tokenParsed` or equivalent), not via `JwtUtil.decodeToken` on that path. Unit tests prove the helpers use library claims. Client-side controls remain defence-in-depth (API still enforces authz).
+Authenticated staff can **proactively end their session**: `KeycloakService` exposes logout that calls the Keycloak adapter logout with a redirect URI, and the application header shows a **Log out** control when authenticated. AuthGuard comments that claimed “we don’t have a logout” are updated so they don’t contradict behaviour. Unit tests cover service logout (and header wiring as practical).
 
 #### Users & personas
 
 | Persona | Goal |
 | --- | --- |
-| Parks staff | Roles/welcome message still work after login |
-| Security reviewer | Claim reads aligned with Keycloak session |
+| Parks staff on shared workstation | End session before leaving |
+| Security reviewer | Confirm adapter logout + visible control |
 | Developer | Unit tests without live IdP |
 
 #### Scope
 
 **In scope**
 
-- Route Keycloak-path claim consumers (`isAuthorized`, `isAdmin`, `getWelcomeMessage`, `getIdpFromToken`, and any other `JwtUtil.decodeToken` callers in `KeycloakService` used for authz/identity) through adapter `tokenParsed`
-- Unit tests covering claim source
-- Evidence append; must change `src/`
+- `KeycloakService.logout()` → `keycloakAuth.logout({ redirectUri })` (or equivalent)
+- Header “Log out” control when authenticated
+- Update obsolete AuthGuard comment(s)
+- Unit tests; evidence; must change `src/`
 
 **Out of scope**
 
-- Implementing cryptographic JWT verification inside `JwtUtil` itself (prefer Keycloak library verification)
-- Inventing full `localMockAuth` (constitution residual; if added later, mock path may decode a fake token)
-- Server-side authorization changes (companion API)
+- Inventing full `localMockAuth` logout path (not present)
+- IdP realm logout configuration changes beyond client redirectUri
+- Changing IDP selection UX beyond what’s needed once logout exists
 
 #### Open questions
 
-- **Helper consolidation:** Prefer a single `getTokenClaims()` (or equivalent) used by all KeycloakService claim readers to avoid missing a call site.
+- **Redirect URI:** Prefer current origin / app base URL after logout (document exact choice in evidence).
 
 #### Sign-off (checkpoint 1)
 
@@ -59,11 +60,11 @@ For a real Keycloak session, role / IDP / welcome / identity helpers read claims
 
 ## Completed slices (recent)
 
-### SECRET-001 — Production certificate ARN not hardcoded in CI
+### AUTH-002 — Role/IDP claims from library-verified Keycloak session
 
-- **Issue:** [#67](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/67) (shipped)
-- **Feature:** `features/secret-001-prod-certificate-arn.feature`
+- **Issue:** [#69](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/69) (shipped)
+- **Feature:** `features/auth-002-token-claims.feature`
 
-### AUTH-001 / CONFIG-* / CRYPTO-001 / LOG-* / TEST-001 / AUTHZ-001
+### SECRET-001 / AUTH-001 / CONFIG-* / …
 
 - Shipped — see rematch wiki
