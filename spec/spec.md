@@ -7,45 +7,45 @@
 
 ## Active slice
 
-### CRYPTO-001 — CloudFront viewer TLS minimum (TLS 1.2+)
+### CONFIG-003 — CloudFront HSTS on all cache behaviours
 
-- **Issue:** [#74](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/74)
-- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `CRYPTO-001` (merged severity with duplicate `CONFIG-001` — treat as High priority)
-- **Feature:** `features/crypto-001-cloudfront-tls-minimum.feature`
+- **Issue:** [#64](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/64)
+- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `CONFIG-003`
+- **Feature:** `features/config-003-cloudfront-hsts.feature`
 
 #### Problem
 
-The CDN viewer certificate allows TLS 1.0 / 1.1 (`MinimumProtocolVersion: TLSv1`). Those protocols are deprecated and unsafe for a public-sector admin UI edge.
+None of the CloudFront cache behaviours emit `Strict-Transport-Security`. HTTPS redirects alone do not give browsers a durable HTTPS requirement, leaving first-contact / cache-expiry SSL-stripping risk and blocking HSTS preload readiness.
 
 #### Outcome
 
-Viewer TLS minimum is raised to **TLSv1.2_2021** (preferred) or at least **TLSv1.2_2019**, so TLS 1.0/1.1 are not permitted. Assessment Expected is met by the template change; live handshake smoke may be residual after deploy.
+A custom CloudFront response headers policy sets **HSTS** (`max-age` ≥ 31536000, `includeSubDomains`) and is attached to **all three** cache behaviours. CORS behaviour equivalent to the previous managed SimpleCORS policy is preserved. Other security headers (CSP, XFO, Referrer-Policy, Permissions-Policy) remain for CONFIG-002 / CONFIG-004.
 
 #### Users & personas
 
 | Persona | Goal |
 | --- | --- |
-| Security reviewer | Confirm edge refuses deprecated TLS |
-| Parks staff | Modern browsers unaffected |
-| Implementer | One-line (or small) template change + evidence |
+| Security reviewer | Confirm HSTS on every behaviour |
+| Parks staff | Modern browsers remember HTTPS |
+| Implementer | Template-only change + evidence |
 
 #### Scope
 
 **In scope**
 
-- Update CloudFront `ViewerCertificate.MinimumProtocolVersion` in `template.yaml` to `TLSv1.2_2021` (or `TLSv1.2_2019` minimum)
-- Document in evidence; must change infra template (not evidence-only)
-- Static verification of the template value (`@R-06.1`)
+- Custom `AWS::CloudFront::ResponseHeadersPolicy` with HSTS (+ CORS parity with SimpleCORS)
+- Wire all three cache behaviours to that policy (replace managed SimpleCORS id)
+- Evidence append; must change `template.yaml`
 
 **Out of scope**
 
-- Origin SSL protocol changes (already TLS 1.2)
-- Other security headers (CONFIG-002/003/004)
-- Live production deploy smoke (residual note OK)
+- CSP (CONFIG-002), XFO / nosniff / Referrer / Permissions-Policy (CONFIG-004)
+- HSTS preload list submission (ops residual)
+- Live header smoke (residual after deploy)
 
 #### Open questions
 
-- None blocking. Prefer `TLSv1.2_2021` to match assessment recommendation.
+- **Preload directive:** Assessment mentions preload list readiness. CloudFront `StrictTransportSecurity` may support `Preload`. Prefer enabling preload when the property exists; if not available in the resource schema used here, document residual and still ship max-age + includeSubDomains.
 
 #### Sign-off (checkpoint 1)
 
@@ -59,6 +59,11 @@ Viewer TLS minimum is raised to **TLSv1.2_2021** (preferred) or at least **TLSv1
 
 ## Completed slices (recent)
 
+### CRYPTO-001 — CloudFront viewer TLS minimum (TLS 1.2+)
+
+- **Issue:** [#74](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/74) (shipped)
+- **Feature:** `features/crypto-001-cloudfront-tls-minimum.feature`
+
 ### LOG-002 — Keycloak authentication lifecycle log levels
 
 - **Issue:** [#66](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/66) (shipped)
@@ -69,15 +74,9 @@ Viewer TLS minimum is raised to **TLSv1.2_2021** (preferred) or at least **TLSv1
 - **Issue:** [#68](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/68) (shipped)
 - **Feature:** `features/test-001-token-interceptor.feature`
 
-### LOG-003 — Log authorization failures in the route guard
+### LOG-003 / LOG-001 / AUTHZ-001
 
-- **Issue:** [#57](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/57) (shipped)
-- **Feature:** `features/log-003-authz-failure-logging.feature`
-
-### LOG-001 — Do not dump full configuration to the browser console
-
-- **Issue:** [#56](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/56) (shipped)
-- **Feature:** `features/log-001-no-config-console-dump.feature`
+- Shipped — see prior rematch rows
 
 ---
 
