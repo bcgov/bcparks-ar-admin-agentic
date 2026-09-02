@@ -7,19 +7,19 @@
 
 ## Active slice
 
-### AUTH-005 — require KEYCLOAK_CLIENT_ID
+### AUTH-006 — interceptor refresh on 401
 
-- **Issue:** [#84](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/84)
-- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `AUTH-005`
-- **Feature:** `features/auth-005-keycloak-client-id.feature`
+- **Issue:** [#85](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/85)
+- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `AUTH-006`
+- **Feature:** `features/auth-006-interceptor-401.feature`
 
 #### Problem
 
-Hardcoded fallback OAuth client ID 'nrpti-admin' when KEYCLOAK_CLIENT_ID absent.
+TokenInterceptor triggers token refresh on HTTP 403 (should be 401).
 
 #### Outcome
 
-Init fails clearly when KEYCLOAK_CLIENT_ID is missing; no nrpti-admin fallback.
+Interceptor refreshes/retries on 401 only; 403 passes through without refresh.
 
 #### Users & personas
 
