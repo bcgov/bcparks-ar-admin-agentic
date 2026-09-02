@@ -92,4 +92,30 @@ describe('ActivityService', () => {
     expect(dataServiceSetSpy).toHaveBeenCalledWith(Constants.dataIds.ACCORDION_ALL_AVAILABLE_RECORDS_LIST , [1111, 2222]);
 
   })
+
+  it('formats lastUpdatedAccordion as YYYY-MM-DD using luxon', async () => {
+    spyOn(activityService['dataService'], 'getItemValue').and.returnValue(null);
+    let dataServiceSetSpy = spyOn(activityService['dataService'], 'setItemValue');
+    spyOn(activityService['apiService'], 'get').and.returnValue(
+      new BehaviorSubject({ pk: 'valid_pk', lastUpdated: '2024-03-15T12:00:00.000Z' })
+    );
+
+    await activityService.fetchActivityDetails(1, 11, 111, 1111, null);
+
+    const savedRecord = dataServiceSetSpy.calls.mostRecent().args[1];
+    expect(savedRecord.lastUpdatedAccordion).toBe('2024-03-15');
+  });
+
+  it('sets lastUpdatedAccordion to Never when lastUpdated is missing', async () => {
+    spyOn(activityService['dataService'], 'getItemValue').and.returnValue(null);
+    let dataServiceSetSpy = spyOn(activityService['dataService'], 'setItemValue');
+    spyOn(activityService['apiService'], 'get').and.returnValue(
+      new BehaviorSubject({ pk: 'valid_pk' })
+    );
+
+    await activityService.fetchActivityDetails(1, 11, 111, 1111, null);
+
+    const savedRecord = dataServiceSetSpy.calls.mostRecent().args[1];
+    expect(savedRecord.lastUpdatedAccordion).toBe('Never');
+  });
 });

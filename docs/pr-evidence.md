@@ -2223,3 +2223,62 @@ Checklist IDs addressed this PR: Not applicable — no user interface changes.
 **Residual risk:** jquery remains transitively resolved for the BC Parks theme but is not browser-loaded. No other gap accepted.
 
 - Reviewer: _______________ Date: _______________
+
+---
+
+# PR evidence — [RA DEP-003] Migrate moment to luxon
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-dep-003-moment-to-luxon |
+| Spec refs | spec/features/dep-003-moment-to-luxon.feature |
+| Constitution articles touched | P5 (spec traceability), P7 (test integrity) |
+| Tasks | DEP-003 entries in `spec/tasks.md` |
+| Authoring agent | GitHub Copilot Coding Agent |
+| Generated | 2026-09-02T23:49:24.689Z |
+
+## Intent
+
+Replaced the two remaining `moment` call sites (`src/app/services/activity.service.ts`, `src/app/shared/utils/utils.ts`) with the already-adopted `luxon` library, and removed `moment` from runtime dependencies (`package.json`, `yarn.lock`). No other files imported `moment`.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| `dep-003-moment-to-luxon.feature` `@R-36.1` | Yes | `moment` is absent from `package.json` dependencies and `yarn.lock`; no source file imports from `moment`. |
+| `dep-003-moment-to-luxon.feature` `@R-36.2` | Yes | `activity.service.ts` and `utils.ts` now use `luxon`'s `DateTime.fromJSDate(...).toFormat(...)` in place of the equivalent `moment(...).format(...)` calls, preserving output format (`yyyy-MM-dd`, `yyyyMM`, `MMMM yyyy`). |
+
+## Design system & accessibility
+
+| Check | Result |
+| --- | --- |
+| DS components used (list) | Not applicable — no UI changes. |
+| Tokens used (not hard-coded colour) | Not applicable — no style changes. |
+| BC Sans imported | Unchanged. |
+| Manual a11y notes | Not applicable — dependency/date-library substitution only, no template or DOM changes. |
+
+## Public-service minimums
+
+Checklist IDs addressed this PR: Not applicable — no user interface changes.
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Static infrastructure proof | `grep -rn "moment" --include=*.ts src/` and `package.json`/`yarn.lock` inspection | Passed — no source file imports `moment`; dependency and lockfile entry removed. |
+| Unit | `yarn test` (Karma/Jasmine), including new/updated specs in `activity.service.spec.ts` and existing `utils.spec.ts` date-format assertions | Passed — 257/257 Karma specs (255 pre-existing + 2 new). |
+| Acceptance / feature | `spec/features/dep-003-moment-to-luxon.feature` | Satisfied by the static infrastructure proof for `@R-36.1` and the unit tests for `@R-36.2`. |
+
+## Risks & follow-ups
+
+- None noted — output formats (`yyyy-MM-dd`, `yyyyMM`, `MMMM yyyy`) were chosen to be equivalent to the previous moment format strings (`YYYY-MM-DD`, `YYYYMM`, `MMMM YYYY`), verified by existing and new unit tests.
+
+## Review receipt (checkpoint 3)
+
+**Checked:** DEP-003 `@R-36.1`, `@R-36.2`; `spec/spec.md`; `spec/tasks.md`; `src/app/services/activity.service.ts`; `src/app/shared/utils/utils.ts`; `package.json`; `yarn.lock`; full Karma unit test run.
+
+**Could not check:** None.
+
+**Residual risk:** None — moment has no remaining runtime usages or dependency declarations.
+
+- Reviewer: _______________ Date: _______________

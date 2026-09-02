@@ -1,4 +1,4 @@
-import moment from 'moment';
+import { DateTime } from 'luxon';
 import { Constants } from './constants';
 
 export class Utils {
@@ -66,7 +66,7 @@ export class Utils {
   }
 
   public convertJSDateToYYYYMM(date: Date) {
-    return moment(date).format('YYYYMM');
+    return DateTime.fromJSDate(date).toFormat('yyyyMM');
   }
 
   public convertYYYYMMToJSDate(date) {
@@ -74,9 +74,9 @@ export class Utils {
   }
 
   public convertYYYYMMToMMMMYYYY(date) {
-    return moment(new Date(date.substring(0, 4), date.slice(-2) - 1)).format(
-      'MMMM YYYY'
-    );
+    return DateTime.fromJSDate(
+      new Date(date.substring(0, 4), date.slice(-2) - 1)
+    ).toFormat('MMMM yyyy');
   }
 
   public formatVarianceList(fields) {
