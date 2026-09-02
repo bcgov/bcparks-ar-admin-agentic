@@ -1416,3 +1416,90 @@ Same shape as `REVIEW.md` — required before merge. Do not replace with a free-
 **Residual risk:** The fallback lookup fails if the configured AWS profile lacks Route53 list permission or the hosted zone is unavailable.
 
 - Reviewer: _______________ Date: _______________
+
+---
+
+# PR evidence — [RA VULN-001] Render historical pill highlights as plain text
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-vuln-001-fix-stored-xss |
+| Spec refs | spec/features/auth-001-pkce.feature, spec/features/auth-002-token-claims.feature, spec/features/auth-003-logout.feature, spec/features/authz-001-admin-route-guard.feature, spec/features/authz-002-admin-only-routes.feature, spec/features/config-002-cloudfront-csp.feature, spec/features/config-003-cloudfront-hsts.feature, spec/features/config-004-cloudfront-security-headers.feature, spec/features/config-005-trivy-triggers.feature, spec/features/config-006-deploy-log-level.feature, spec/features/crypto-001-cloudfront-tls-minimum.feature, spec/features/example-happy-path.feature, spec/features/log-001-no-config-console-dump.feature, spec/features/log-002-keycloak-lifecycle-log-levels.feature, spec/features/log-003-authz-failure-logging.feature, spec/features/log-004-logger-default-level.feature, spec/features/log-005-sanitize-error-logging.feature, spec/features/log-006-structured-log-format.feature, spec/features/log-007-browser-console-logging.feature, spec/features/secret-001-prod-certificate-arn.feature, spec/features/secret-002-nonprod-account-ids.feature, spec/features/secret-003-route53-zone-id.feature, spec/features/test-001-token-interceptor.feature, spec/features/test-003-e2e-scaffold.feature, spec/features/vuln-001-historical-pill-xss.feature |
+| Constitution articles touched | P1–P8 (confirm) |
+| Tasks | see spec/tasks.md |
+| Authoring agent | unspecified |
+| Generated | 2026-09-02T21:42:55.566Z |
+
+## Intent
+
+Historical sub-area name highlighting now binds plain-text match segments rather
+than generated HTML. Malicious markup is displayed literally and cannot create
+elements in the typeahead.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| `auth-001-pkce.feature` | TODO | |
+| `auth-002-token-claims.feature` | TODO | |
+| `auth-003-logout.feature` | TODO | |
+| `authz-001-admin-route-guard.feature` | TODO | |
+| `authz-002-admin-only-routes.feature` | TODO | |
+| `config-002-cloudfront-csp.feature` | TODO | |
+| `config-003-cloudfront-hsts.feature` | TODO | |
+| `config-004-cloudfront-security-headers.feature` | TODO | |
+| `config-005-trivy-triggers.feature` | TODO | |
+| `config-006-deploy-log-level.feature` | TODO | |
+| `crypto-001-cloudfront-tls-minimum.feature` | TODO | |
+| `example-happy-path.feature` | TODO | |
+| `log-001-no-config-console-dump.feature` | TODO | |
+| `log-002-keycloak-lifecycle-log-levels.feature` | TODO | |
+| `log-003-authz-failure-logging.feature` | TODO | |
+| `log-004-logger-default-level.feature` | TODO | |
+| `log-005-sanitize-error-logging.feature` | TODO | |
+| `log-006-structured-log-format.feature` | TODO | |
+| `log-007-browser-console-logging.feature` | TODO | |
+| `secret-001-prod-certificate-arn.feature` | TODO | |
+| `secret-002-nonprod-account-ids.feature` | TODO | |
+| `secret-003-route53-zone-id.feature` | TODO | |
+| `test-001-token-interceptor.feature` | TODO | |
+| `test-003-e2e-scaffold.feature` | TODO | |
+| `vuln-001-historical-pill-xss.feature` | Yes | `@R-24.1`–`@R-24.2`: text interpolation and literal malicious-markup rendering test |
+
+
+## Design system & accessibility
+
+| Check | Result |
+| --- | --- |
+| DS components used (list) | Existing historical-pill component |
+| Tokens used (not hard-coded colour) | No visual-token changes |
+| BC Sans imported | Existing application styling unchanged |
+| Manual a11y notes | Preserves the existing semantic spans and highlight class; the content remains readable as text |
+
+## Public-service minimums
+
+Checklist IDs addressed this PR: R-24.1, R-24.2
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Unit | `yarn test-ci --include='src/app/shared/components/historical-pill/historical-pill.component.spec.ts'` | Passed: 3/3 |
+| Acceptance / feature | `spec/features/vuln-001-historical-pill-xss.feature` | Covered by focused unit test |
+| A11y automation | Not applicable; no new interactive UI |
+
+## Risks & follow-ups
+
+- Server-side validation of sub-area names is explicitly out of scope for VULN-001.
+
+## Review receipt (checkpoint 3)
+
+Same shape as `REVIEW.md` — required before merge. Do not replace with a free-form sign-off.
+
+**Checked:** VULN-001 `@R-24.1`–`@R-24.2`; `spec/features/vuln-001-historical-pill-xss.feature`; component TypeScript/template; focused malicious-markup rendering test.
+
+**Could not check:** Live authenticated typeahead against the API; it requires Keycloak and the companion API.
+
+**Residual risk:** Server-side validation is out of scope; this UI now renders all sub-area name content as text.
+
+- Reviewer: _______________ Date: _______________

@@ -26,12 +26,12 @@ export class HistoricalPillComponent {
       const highlight_str = display.substring(display.toLocaleLowerCase().indexOf(query), display.toLocaleLowerCase().indexOf(query) + query.length);
       const right_str = display.substring(display.toLocaleLowerCase().indexOf(query) + query.length);
       return {
-        left: '<span>' + left_str + '</span>',
-        highlight: '<span>' + highlight_str + '</span>',
-        right: '<span>' + right_str + '</span>'
+        left: left_str,
+        highlight: highlight_str,
+        right: right_str
       };
     } else {
-      result.left = '<span>' + display + '</span>'
+      result.left = display
     }
 
     return result;

@@ -16,11 +16,31 @@ describe('HistoricalPillComponent', () => {
 
   it('should highlight typeahead properly', async() => {
     expect(component.getHighlightedMatch({value:'string'}, ['str'])).toEqual({
-      left: '<span></span>',
-      highlight: '<span>str</span>',
-      right: '<span>ing</span>'}
+      left: '',
+      highlight: 'str',
+      right: 'ing'}
     )
   })
+
+  it('renders malicious sub-area names as text', () => {
+    const maliciousName = '<img src=x onerror=alert(1)>';
+    component.matches = [{
+      value: maliciousName,
+      item: { value: { isLegacy: false } }
+    }];
+    component.query = ['img'];
+    component.typeaheadTemplateMethods = {
+      isActive: () => false,
+      selectMatch: () => {},
+      selectActive: () => {}
+    };
+
+    fixture.detectChanges();
+
+    const pill = fixture.nativeElement.querySelector('li');
+    expect(pill.textContent).toContain(maliciousName);
+    expect(pill.querySelector('img')).toBeNull();
+  });
 
   it('should create', () => {
     expect(component).toBeTruthy();
