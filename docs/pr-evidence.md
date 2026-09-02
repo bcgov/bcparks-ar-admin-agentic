@@ -60,6 +60,49 @@ Same shape as `REVIEW.md` — required before merge. Do not replace with a free-
 
 ---
 
+# PR evidence — [RA CONFIG-004] CloudFront browser security headers
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-config-004-security-headers |
+| Spec refs | spec/features/config-004-cloudfront-security-headers.feature |
+| Tasks | CONFIG-004 entries in `spec/tasks.md` |
+| Authoring agent | GitHub Copilot Coding Agent |
+
+## Intent
+
+The shared CloudFront response headers policy now adds `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, and a restrictive `Permissions-Policy` disabling camera, microphone, geolocation, payment, USB, and interest-cohort capabilities. HSTS and SimpleCORS-equivalent CORS remain unchanged, and CSP is intentionally out of scope for CONFIG-002.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| `config-004-cloudfront-security-headers.feature` | Yes | `@R-08.1` is covered by static inspection of the shared policy and all three cache-behaviour references in `template.yaml`. |
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Static | `sam validate --lint --region ca-central-1` | Passed — valid SAM template with native security headers and custom Permissions-Policy header. |
+| Static | `grep -n "ResponseHeadersPolicyId" template.yaml` | Confirmed all three cache behaviours reference `!Ref CloudFrontResponseHeadersPolicy`. |
+| Acceptance / feature | `spec/features/config-004-cloudfront-security-headers.feature` | Satisfied by the static template checks above. |
+
+## Risks & follow-ups
+
+- Live response-header smoke testing against the deployed CloudFront distribution remains residual and requires deployment; this repository has no live CloudFront test job.
+
+## Review receipt (checkpoint 3)
+
+**Checked:** CONFIG-004 `@R-08.1`; `spec/spec.md`; `spec/tasks.md`; `template.yaml` security-header configuration and three behaviour references; SAM validation.
+
+**Could not check:** Live headers from the deployed CloudFront distribution.
+
+**Residual risk:** Post-deploy verification is deferred; CSP remains separately tracked under CONFIG-002.
+
+- Reviewer: _______________ Date: _______________
+
+---
+
 # PR evidence — [RA LOG-001] Do not dump full configuration to console
 
 | Field | Value |
