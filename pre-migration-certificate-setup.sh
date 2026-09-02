@@ -17,6 +17,9 @@
 # - Route53 hosted zone for bcparks.ca
 # - Access to old environment CloudFront distribution
 #
+# Optional environment variables:
+# - ROUTE53_ZONE_ID: Route53 hosted zone ID; looked up dynamically when unset
+#
 # Usage:
 #   ./pre-migration-certificate-setup.sh <environment> <domain-name>
 #
@@ -75,7 +78,15 @@ esac
 
 LZA_PROFILE="${AWS_PROFILE_LZA}"
 PARKSWEB_PROFILE="parksweb"
-ROUTE53_ZONE_ID="Z016985813W44F7VV5I65"  # bcparks.ca zone
+
+if [ -z "${ROUTE53_ZONE_ID:-}" ]; then
+    ROUTE53_ZONE_ID=$(aws route53 list-hosted-zones-by-name \
+        --dns-name bcparks.ca \
+        --profile "${PARKSWEB_PROFILE}" \
+        --no-cli-pager \
+        --query 'HostedZones[0].Id' \
+        --output text | sed 's|/hostedzone/||')
+fi
 
 echo -e "${BLUE}======================================================================${NC}"
 echo -e "${BLUE}BC Parks A&R - Pre-Migration Certificate Setup${NC}"

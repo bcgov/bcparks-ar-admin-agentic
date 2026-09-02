@@ -419,7 +419,7 @@ Same shape as `REVIEW.md` — required before merge. Do not replace with a free-
 | --- | --- |
 | PR / branch | copilot/ra-crypto-001-update-tls-minimum-version |
 | Spec refs | spec/features/authz-001-admin-route-guard.feature, spec/features/crypto-001-cloudfront-tls-minimum.feature, spec/features/example-happy-path.feature, spec/features/log-001-no-config-console-dump.feature, spec/features/log-002-keycloak-lifecycle-log-levels.feature, spec/features/log-003-authz-failure-logging.feature, spec/features/test-001-token-interceptor.feature |
-| Constitution articles touched | P1–P8 (confirm) |
+| Constitution articles touched | P3, P5, P7 |
 | Tasks | see spec/tasks.md |
 | Authoring agent | GitHub Copilot Coding Agent |
 | Generated | 2026-09-02T18:24:21.523Z |
@@ -881,7 +881,7 @@ Same shape as `REVIEW.md` — required before merge. Do not replace with a free-
 | Spec refs | spec/features/auth-001-pkce.feature, spec/features/auth-002-token-claims.feature, spec/features/auth-003-logout.feature, spec/features/authz-001-admin-route-guard.feature, spec/features/config-002-cloudfront-csp.feature, spec/features/config-003-cloudfront-hsts.feature, spec/features/config-004-cloudfront-security-headers.feature, spec/features/crypto-001-cloudfront-tls-minimum.feature, spec/features/example-happy-path.feature, spec/features/log-001-no-config-console-dump.feature, spec/features/log-002-keycloak-lifecycle-log-levels.feature, spec/features/log-003-authz-failure-logging.feature, spec/features/secret-001-prod-certificate-arn.feature, spec/features/test-001-token-interceptor.feature |
 | Constitution articles touched | P1–P8 (confirm) |
 | Tasks | see spec/tasks.md |
-| Authoring agent | unspecified |
+| Authoring agent | GitHub Copilot Coding Agent |
 | Generated | 2026-09-02T20:06:01.993Z |
 
 ## Intent
@@ -1329,5 +1329,90 @@ Same shape as `REVIEW.md` — required before merge. Do not replace with a free-
 **Could not check:** A live deployment or GitHub environment variable configuration; those require the remote AWS/GitHub environments.
 
 **Residual risk:** Deployments fail if required environment variables are missing, which is preferable to silently using an account-specific default.
+
+- Reviewer: _______________ Date: _______________
+
+---
+
+# PR evidence — [RA SECRET-003] Resolve Route53 hosted zone ID dynamically
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-secret-003-replace-hardcoded-zone-id |
+| Spec refs | spec/features/auth-001-pkce.feature, spec/features/auth-002-token-claims.feature, spec/features/auth-003-logout.feature, spec/features/authz-001-admin-route-guard.feature, spec/features/authz-002-admin-only-routes.feature, spec/features/config-002-cloudfront-csp.feature, spec/features/config-003-cloudfront-hsts.feature, spec/features/config-004-cloudfront-security-headers.feature, spec/features/config-005-trivy-triggers.feature, spec/features/config-006-deploy-log-level.feature, spec/features/crypto-001-cloudfront-tls-minimum.feature, spec/features/example-happy-path.feature, spec/features/log-001-no-config-console-dump.feature, spec/features/log-002-keycloak-lifecycle-log-levels.feature, spec/features/log-003-authz-failure-logging.feature, spec/features/log-004-logger-default-level.feature, spec/features/log-005-sanitize-error-logging.feature, spec/features/log-006-structured-log-format.feature, spec/features/log-007-browser-console-logging.feature, spec/features/secret-001-prod-certificate-arn.feature, spec/features/secret-002-nonprod-account-ids.feature, spec/features/secret-003-route53-zone-id.feature, spec/features/test-001-token-interceptor.feature |
+| Constitution articles touched | P1–P8 (confirm) |
+| Tasks | see spec/tasks.md |
+| Authoring agent | unspecified |
+| Generated | 2026-09-02T21:17:33.535Z |
+
+## Intent
+
+The pre-migration certificate setup script no longer commits a Route53 hosted zone ID.
+It uses `ROUTE53_ZONE_ID` when supplied, or dynamically looks up the `bcparks.ca`
+zone and removes the `/hostedzone/` prefix when the variable is unset.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| `auth-001-pkce.feature` | TODO | |
+| `auth-002-token-claims.feature` | TODO | |
+| `auth-003-logout.feature` | TODO | |
+| `authz-001-admin-route-guard.feature` | TODO | |
+| `authz-002-admin-only-routes.feature` | TODO | |
+| `config-002-cloudfront-csp.feature` | TODO | |
+| `config-003-cloudfront-hsts.feature` | TODO | |
+| `config-004-cloudfront-security-headers.feature` | TODO | |
+| `config-005-trivy-triggers.feature` | TODO | |
+| `config-006-deploy-log-level.feature` | TODO | |
+| `crypto-001-cloudfront-tls-minimum.feature` | TODO | |
+| `example-happy-path.feature` | TODO | |
+| `log-001-no-config-console-dump.feature` | TODO | |
+| `log-002-keycloak-lifecycle-log-levels.feature` | TODO | |
+| `log-003-authz-failure-logging.feature` | TODO | |
+| `log-004-logger-default-level.feature` | TODO | |
+| `log-005-sanitize-error-logging.feature` | TODO | |
+| `log-006-structured-log-format.feature` | TODO | |
+| `log-007-browser-console-logging.feature` | TODO | |
+| `secret-001-prod-certificate-arn.feature` | TODO | |
+| `secret-002-nonprod-account-ids.feature` | TODO | |
+| `secret-003-route53-zone-id.feature` `@R-22.1`–`@R-22.2` | Yes | The script has no literal hosted zone ID and resolves the zone from the environment or AWS lookup. |
+| `test-001-token-interceptor.feature` | TODO | |
+
+
+## Design system & accessibility
+
+| Check | Result |
+| --- | --- |
+| DS components used (list) | Not applicable — no UI changes. |
+| Tokens used (not hard-coded colour) | Not applicable — no UI changes. |
+| BC Sans imported | Not applicable — unchanged. |
+| Manual a11y notes | Not applicable — no UI changes. |
+
+## Public-service minimums
+
+Checklist IDs addressed this PR: Not applicable — no UI changes.
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Static | `bash -n pre-migration-certificate-setup.sh`; focused SECRET-003 assertions | Passed |
+| Acceptance / feature | `spec/features/secret-003-route53-zone-id.feature` `@R-22.1`–`@R-22.2` | Satisfied by script inspection and focused static assertions. |
+| A11y automation | Not run | Not applicable — no UI changes. |
+
+## Risks & follow-ups
+
+- AWS CLI access and Route53 permissions are required for the fallback lookup at runtime.
+
+## Review receipt (checkpoint 3)
+
+Same shape as `REVIEW.md` — required before merge. Do not replace with a free-form sign-off.
+
+**Checked:** SECRET-003 `@R-22.1`–`@R-22.2`; `spec/spec.md`; `spec/tasks.md`; `pre-migration-certificate-setup.sh`; focused static assertions and `bash -n`.
+
+**Could not check:** A live AWS Route53 lookup or certificate migration; those require the deployment environment.
+
+**Residual risk:** The fallback lookup fails if the configured AWS profile lacks Route53 list permission or the hosted zone is unavailable.
 
 - Reviewer: _______________ Date: _______________
