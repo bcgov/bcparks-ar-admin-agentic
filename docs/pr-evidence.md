@@ -1020,3 +1020,62 @@ execution environment); relied on static YAML inspection and value verification 
 **Residual risk:** None identified beyond the accepted, explicitly out-of-scope gaps noted above.
 
 - Reviewer: _______________ Date: _______________
+
+---
+
+# PR evidence — [RA LOG-004] LoggerService default when logLevel missing
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-log-004-update-logger-default-level |
+| Spec refs | spec/features/log-004-logger-default-level.feature, spec/spec.md (LOG-004), spec/plan.md, spec/tasks.md |
+| Constitution articles touched | N/A — logging behaviour only, no UI/DS component changes |
+| Tasks | TASK-001, TASK-002, TASK-003, TASK-004 (spec/tasks.md) |
+| Authoring agent | GitHub Copilot coding agent |
+| Generated | 2026-09-02T20:38:28.215Z |
+
+## Intent
+
+`LoggerService` previously defaulted its effective log level to `LogLevel.Off` whenever
+`ConfigService.logLevel` was `undefined` (i.e. `env.js` omitted `logLevel`), silencing every
+log statement including security-relevant warnings and errors. `LoggerService` now falls back
+to `LogLevel.Warn` in that case, and emits a one-time `console.warn` telling operators to set
+`logLevel` explicitly in `env.js` if they want debug-level logging.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| `log-004-logger-default-level.feature` `@R-17.1` | Yes | `LoggerService.shouldLog()` now substitutes `LogLevel.Warn` when `ConfigService.logLevel` is `undefined`, instead of leaving every level below `LogLevel.Off` (6) failing the comparison. `level` field default changed from `LogLevel.Off` to `LogLevel.Warn` to match. |
+| `log-004-logger-default-level.feature` `@R-17.2` | Yes | `LoggerService` constructor and `shouldLog()` call a new private `warnMissingLogLevel()` helper that emits `console.warn(...)` exactly once (guarded by `hasWarnedMissingLogLevel`) referencing `logLevel` and instructing operators to set it explicitly for debug logging. |
+
+## Design system & accessibility
+
+N/A — this change is limited to `src/app/services/logger.service.ts` (a non-UI service); no templates, styles, or DS components are touched.
+
+## Public-service minimums
+
+N/A — no UI change.
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Unit | `npx ng test --watch=false --browsers=ChromeHeadlessNoSandbox --include='**/logger.service.spec.ts'` | PASS — 3/3 (added 2 new specs covering `@R-17.1` default-to-Warn and `@R-17.2` one-time console.warn; existing "should be created" spec still passes) |
+| Unit (regression) | `npx ng test --watch=false --browsers=ChromeHeadlessNoSandbox --include='**/config.service.spec.ts'` | PASS — 5/5 unaffected |
+| Acceptance / feature | spec/features/log-004-logger-default-level.feature | Mapped 1:1 to the two new unit test cases above (Karma/Jasmine is the project's existing test runner; no separate Gherkin executor is wired up in this repo) |
+
+## Risks & follow-ups
+
+- Misconfigured deployments that omit `logLevel` will now surface more console output (Warn/Error/Fatal) than before, where they were previously silent. This is the intended fix.
+- Deploy pipeline `logLevel` values themselves are out of scope (already addressed by CONFIG-006 / #73).
+
+## Review receipt (checkpoint 3)
+
+**Checked:** `src/app/services/logger.service.ts` diff; `src/app/services/logger.service.spec.ts` new specs pass locally against Karma/ChromeHeadless; `config.service.spec.ts` regression pass; manual read-through of `shouldLog()`/constructor logic against both feature scenarios (`@R-17.1`, `@R-17.2`).
+
+**Could not check:** End-to-end verification against a real deployed `env.js` (no CI/deploy environment available in this sandbox); did not run the full test suite (`npm run test-ci`) due to sandbox time constraints — ran targeted specs only.
+
+**Residual risk:** None identified beyond the accepted, explicitly out-of-scope gaps noted above.
+
+- Reviewer: _______________ Date: _______________

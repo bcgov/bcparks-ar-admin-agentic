@@ -15,12 +15,19 @@ export enum LogLevel {
   providedIn: 'root',
 })
 export class LoggerService {
-  level: LogLevel = LogLevel.Off;
+  // Safe default: if env.js omits logLevel, fall back to Warn (not Off) so
+  // security-relevant warnings/errors are never silently dropped.
+  level: LogLevel = LogLevel.Warn;
   logWithDate = true;
+  private hasWarnedMissingLogLevel = false;
 
   // For future enhancement, constructor could be updated to take a config struct
   // and move providedIn to a forRoot call.
-  constructor(private configService: ConfigService) {}
+  constructor(private configService: ConfigService) {
+    if (this.configService.logLevel === undefined) {
+      this.warnMissingLogLevel();
+    }
+  }
 
   debug(msg: any) {
     this.log(msg, LogLevel.Debug);
@@ -59,11 +66,27 @@ export class LoggerService {
   }
 
   private shouldLog(level: LogLevel): boolean {
-    const configLevel = this.configService.logLevel;
+    let configLevel = this.configService.logLevel;
+    if (configLevel === undefined) {
+      this.warnMissingLogLevel();
+      configLevel = LogLevel.Warn;
+    }
+
     if ((level >= configLevel && level !== LogLevel.Off) || configLevel === LogLevel.All) {
       return true;
     }
 
     return false;
+  }
+
+  private warnMissingLogLevel() {
+    if (!this.hasWarnedMissingLogLevel) {
+      this.hasWarnedMissingLogLevel = true;
+      // eslint-disable-next-line no-console
+      console.warn(
+        'LoggerService: logLevel is not configured in env.js; defaulting to LogLevel.Warn. ' +
+        'Set logLevel explicitly (see env.js.template) to enable debug logging.'
+      );
+    }
   }
 }
