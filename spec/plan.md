@@ -1,3 +1,3 @@
-# Plan — BW-002 export-variance typo
+# Plan — DEP-001 remove chart.js
 
-Fix typo in export.service.ts. Add/adjust unit test. Append evidence.
+Remove chart.js from package.json dependencies. Run yarn install. Append evidence.

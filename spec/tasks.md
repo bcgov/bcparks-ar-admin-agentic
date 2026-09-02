@@ -1,7 +1,7 @@
-# Tasks — BW-002
+# Tasks — DEP-001
 
-> Issue [#91](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/91)
+> Issue [#92](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/92)
 
-- [x] **TASK-001** — Correct endpoint key
-- [x] **TASK-002** — Unit test
-- [x] **TASK-003** — Append evidence
+- [ ] **TASK-001** — Remove chart.js from package.json
+- [ ] **TASK-002** — Update yarn.lock
+- [ ] **TASK-003** — Append evidence
