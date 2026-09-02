@@ -7,19 +7,19 @@
 
 ## Active slice
 
-### SECRET-002 — Non-production AWS account IDs not hardcoded
+### SECRET-003 — Route53 hosted zone ID not hardcoded
 
-- **Issue:** [#79](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/79)
-- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `SECRET-002`
-- **Feature:** `features/secret-002-nonprod-account-ids.feature`
+- **Issue:** [#80](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/80)
+- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `SECRET-003`
+- **Feature:** `features/secret-003-route53-zone-id.feature`
 
 #### Problem
 
-Non-production AWS account IDs and certificate ARNs are hardcoded across CI/CD workflows, scripts, and templates.
+Route53 hosted zone ID is hardcoded in the pre-migration certificate setup script.
 
 #### Outcome
 
-Dev/test deploys read DomainCertificateArn from vars; SAM template has no committed ARN default; setup scripts require account/profile via env vars.
+Zone ID comes from ROUTE53_ZONE_ID env var or dynamic AWS lookup for bcparks.ca — no literal zone ID in source.
 
 #### Users & personas
 
@@ -32,15 +32,12 @@ Dev/test deploys read DomainCertificateArn from vars; SAM template has no commit
 
 **In scope**
 
-- lza-deploy-admin-dev/test workflows
-- template.yaml DomainCertificateArn Default removal
-- Setup/migration scripts env-var requirements
-- Append evidence; must change `.github/workflows/` and/or scripts
+- pre-migration-certificate-setup.sh resolution helper
+- Append evidence; must change scripts under repo
 
 **Out of scope**
 
-- Provisioning GitHub environment vars (operator)
-- SECRET-004 ApiGatewayId
+- Changing post-deploy scripts already using dynamic lookup
 
 #### Open questions
 
@@ -58,4 +55,4 @@ Dev/test deploys read DomainCertificateArn from vars; SAM template has no commit
 
 ## Completed slices (recent)
 
-### LOG-007 … prior rematch slices shipped
+### SECRET-002 shipped — see rematch wiki
