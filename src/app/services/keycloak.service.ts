@@ -213,8 +213,8 @@ export class KeycloakService {
     }
 
     const jwt = this.getTokenClaims();
-    return jwt?.resource_access?.['attendance-and-revenue']?.roles.includes(
-      'sysadmin'
+    return !!jwt?.resource_access?.['attendance-and-revenue']?.roles.includes(
+      Constants.ApplicationRoles.ADMIN
     );
   }
 

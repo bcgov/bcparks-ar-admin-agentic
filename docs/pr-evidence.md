@@ -1867,3 +1867,64 @@ Same shape as `REVIEW.md` — required before merge. Do not replace with a free-
 **Residual risk:** None identified for AUTHZ-003. The broader design gap (permissive default for routes without an explicit `isAllowed()` branch) is noted above as a follow-up but not fixed in this narrow slice, consistent with keeping the change surgical.
 
 - Reviewer: _______________ Date: _______________
+
+---
+
+# PR evidence — [RA AUTHZ-004] isAdmin uses centralized role constant
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-authz-004-isadmin-role-constant |
+| Spec refs | `spec/features/authz-004-isadmin-role-constant.feature` |
+| Constitution articles touched | P3, P5, P7 |
+| Tasks | AUTHZ-004 TASK-001–TASK-003 in `spec/tasks.md` |
+| Authoring agent | GitHub Copilot Coding Agent |
+| Generated | 2026-09-02T22:56:43.828Z |
+
+## Intent
+
+`KeycloakService.isAdmin()` compared the token's roles against the hardcoded string literal `'sysadmin'` instead of the shared `Constants.ApplicationRoles.ADMIN` constant already defined in `constants.ts` (also `'sysadmin'`). If the Keycloak role name were ever renamed and `constants.ts` updated to match, `isAdmin()` would silently keep comparing against the stale literal and return `false` for every user, bypassing all admin-route enforcement with no compile-time error, test failure, or runtime warning. `isAdmin()` now reads `Constants.ApplicationRoles.ADMIN`, matching the pattern already used elsewhere in the codebase, with no behaviour change while the constant remains `'sysadmin'`.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| `authz-004-isadmin-role-constant.feature` `@R-30.1` | Yes | `isAdmin()` returns `true` when the token's `attendance-and-revenue` roles include `Constants.ApplicationRoles.ADMIN`. |
+| `authz-004-isadmin-role-constant.feature` `@R-30.2` | Yes | `isAdmin()` no longer contains a duplicated `'sysadmin'` string literal; it references `Constants.ApplicationRoles.ADMIN`. |
+
+## Design system & accessibility
+
+| Check | Result |
+| --- | --- |
+| DS components used (list) | Not applicable — no UI changes. |
+| Tokens used (not hard-coded colour) | Not applicable — no style changes. |
+| BC Sans imported | Not applicable — no UI changes. |
+| Manual a11y notes | Not applicable — service-layer logic change only. |
+
+## Public-service minimums
+
+Checklist IDs addressed this PR: Not applicable — no UI changes.
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Unit | `ng test --watch=false --browsers=ChromeHeadlessNoSandbox --include='**/keycloak.service.spec.ts'` | Passed: 33 SUCCESS (includes 2 new tests: role-matches-constant true case, and non-matching-role false case). |
+| Acceptance / feature | `spec/features/authz-004-isadmin-role-constant.feature` | Covered by the new/updated `isAdmin()` unit tests for `@R-30.1` and `@R-30.2`. |
+| A11y automation | Not run | Not applicable — no UI changes. |
+
+## Risks & follow-ups
+
+- None identified for AUTHZ-004. The fix is a like-for-like replacement of a string literal with the existing shared constant; behaviour is unchanged while `Constants.ApplicationRoles.ADMIN === 'sysadmin'`.
+
+## Review receipt (checkpoint 3)
+
+Same shape as `REVIEW.md` — required before merge. Do not replace with a free-form sign-off.
+
+**Checked:** AUTHZ-004 `@R-30.1`–`@R-30.2`; `spec/spec.md`; `spec/tasks.md`; targeted `keycloak.service.spec.ts` Karma/Jasmine suite (33/33 passing); manual review confirming no remaining hardcoded `'sysadmin'` literal in `isAdmin()`.
+
+**Could not check:** A live Keycloak realm exchanging real admin/non-admin tokens through the deployed UI; verification is via unit tests with a mocked token claims object.
+
+**Residual risk:** None identified for AUTHZ-004. No gap accepted.
+
+- Reviewer: _______________ Date: _______________
