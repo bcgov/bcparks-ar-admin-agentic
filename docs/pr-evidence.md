@@ -188,3 +188,70 @@ Same shape as `REVIEW.md` — required before merge. Do not replace with a free-
 
 - Reviewer: _______________ Date: _______________
 - Reviewer: _______________ Date: _______________
+
+---
+
+# PR evidence — [RA TEST-001] HTTP token interceptor coverage
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-test-001-add-token-interceptor-spec |
+| Spec refs | spec/features/authz-001-admin-route-guard.feature, spec/features/example-happy-path.feature, spec/features/log-001-no-config-console-dump.feature, spec/features/log-003-authz-failure-logging.feature, spec/features/test-001-token-interceptor.feature |
+| Constitution articles touched | P3, P5, P7, J3, J5 |
+| Tasks | TEST-001 entries in `spec/tasks.md` |
+| Authoring agent | GitHub Copilot Coding Agent |
+| Generated | 2026-09-02T17:54:30.039Z |
+
+## Intent
+
+`TokenInterceptor` now has focused HttpClient testing coverage for token injection, 403 refresh/retry behavior, refresh failures, non-403 failures, and concurrent 403 handling. Production interceptor behavior is unchanged.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| `authz-001-admin-route-guard.feature` | Not applicable | Out of scope for TEST-001; retained from the feature index. |
+| `example-happy-path.feature` | Not applicable | Out of scope for TEST-001; retained from the feature index. |
+| `log-001-no-config-console-dump.feature` | Not applicable | Out of scope for TEST-001; retained from the feature index. |
+| `log-003-authz-failure-logging.feature` | Not applicable | Out of scope for TEST-001; retained from the feature index. |
+| `test-001-token-interceptor.feature` | Yes | `@R-04.1`–`@R-04.6` covered by `src/app/shared/utils/token-interceptor.spec.ts`. |
+
+
+## Design system & accessibility
+
+| Check | Result |
+| --- | --- |
+| DS components used (list) | Not applicable — no UI changes. |
+| Tokens used (not hard-coded colour) | Not applicable — no style changes. |
+| BC Sans imported | Not applicable — unchanged. |
+| Manual a11y notes | Not applicable — interceptor test coverage only. |
+
+## Public-service minimums
+
+Checklist IDs addressed this PR: Not applicable — no user interface changes.
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Unit | `yarn test-ci --include src/app/shared/utils/token-interceptor.spec.ts` | Passed: 6 SUCCESS; 100% coverage for `token-interceptor.ts`. |
+| Acceptance / feature | `spec/features/test-001-token-interceptor.feature` | Implemented by unit coverage for `@R-04.1`–`@R-04.6`. |
+| A11y automation | Not run | Not applicable — no UI changes. |
+
+## Risks & follow-ups
+
+- AUTH-003/AUTH-004: refresh failure is surfaced; logout is not present in the production service and remains deferred as required by this slice.
+- AUTH-006: only 403 starts a token refresh; 401 behavior remains unchanged.
+- AUTH-007: requests are not host-allowlisted; this coverage slice intentionally preserves current behavior.
+
+## Review receipt (checkpoint 3)
+
+Same shape as `REVIEW.md` — required before merge. Do not replace with a free-form sign-off.
+
+**Checked:** TEST-001 `@R-04.1`–`@R-04.6`; `spec/tasks.md`; targeted interceptor unit tests.
+
+**Could not check:** Full interactive Keycloak/browser flow; local environment uses a mocked `KeycloakService`.
+
+**Residual risk:** AUTH-003/AUTH-004 logout, AUTH-006 401 handling, and AUTH-007 request host allowlisting remain explicitly out of scope.
+
+- Reviewer: _______________ Date: _______________
