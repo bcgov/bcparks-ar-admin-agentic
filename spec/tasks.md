@@ -1,9 +1,10 @@
-# Tasks — DEP-003
+# Tasks — LOG-008
 
-> Issue [#94](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/94)
+> Issue [#95](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/95)
 
-- [x] **TASK-001** — Migrate activity.service.ts
-- [x] **TASK-002** — Migrate utils.ts
-- [x] **TASK-003** — Remove moment dependency
-- [x] **TASK-004** — Unit tests
-- [x] **TASK-005** — Append evidence
+- [ ] **TASK-001** — Implement AppErrorHandler
+- [ ] **TASK-002** — Register in AppModule
+- [ ] **TASK-003** — Unit tests
+- [ ] **TASK-004** — Append evidence
+
+Assessment gap accepted: no server-side monitoring endpoint in this brownfield slice.

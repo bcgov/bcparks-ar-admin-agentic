@@ -1,3 +1,3 @@
-# Plan — DEP-003 moment→luxon
+# Plan — LOG-008 global ErrorHandler
 
-Replace moment in activity.service.ts and utils.ts with luxon equivalents. Remove moment from package.json. Tests + evidence.
+Create AppErrorHandler forwarding to LoggerService (no remote endpoint in this slice — assessment gap: console/structured log only). Register in app.module providers. Tests + evidence.
