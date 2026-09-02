@@ -1,3 +1,3 @@
-# Plan — AUTHZ-005 isAdmin optional chaining
+# Plan — BW-001 lock records unlock
 
-Add `?.` before `.includes()` (or equivalent guard). Extend unit tests for missing roles. Append evidence.
+Add Unlock action (button or toggle) calling lockUnlockFiscalYear(year, false). Update template + tests. Append evidence.

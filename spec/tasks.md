@@ -1,7 +1,8 @@
-# Tasks — AUTHZ-005
+# Tasks — BW-001
 
-> Issue [#89](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/89)
+> Issue [#90](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/90)
 
-- [x] **TASK-001** — Fix optional chaining in isAdmin()
-- [x] **TASK-002** — Unit tests for missing roles
-- [x] **TASK-003** — Append evidence
+- [ ] **TASK-001** — Add unlock UI path
+- [ ] **TASK-002** — Wire lock=false to service
+- [ ] **TASK-003** — Component tests
+- [ ] **TASK-004** — Append evidence
