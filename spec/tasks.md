@@ -1,7 +1,7 @@
-# Tasks — AUTH-007
+# Tasks — AUTHZ-003
 
-> Issue [#86](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/86)
+> Issue [#87](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/87)
 
-- [x] **TASK-001** — Allowlist by API_LOCATION origin
-- [x] **TASK-002** — Unit tests matching/external hosts
-- [x] **TASK-003** — Append evidence
+- [ ] **TASK-001** — Hide manage-subareas for non-admin
+- [ ] **TASK-002** — Unit tests
+- [ ] **TASK-003** — Append evidence
