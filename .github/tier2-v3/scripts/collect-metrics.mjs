@@ -196,6 +196,8 @@ function applyTaxonomyExcludes(taxonomy, root) {
   }
   return out;
 }
+
+function collectPrStats(planAt) {
   const stats = {
     planToFirstPrDays: null,
     firstPassMergeRate: null,
