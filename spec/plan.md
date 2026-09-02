@@ -1,60 +1,51 @@
-# Plan — AuthGuard path matching (AUTHZ-001)
+# Plan — No config console dump (LOG-001)
 
-> Architecture and delivery approach for issue #55 / RA AUTHZ-001.
+> Architecture and delivery approach for issue #56 / RA LOG-001.
 
 ## Summary
 
-Harden `AuthGuard` so admin-route permission checks use the **path** portion of the requested URL (ignore query string and fragment). Extend existing Karma/Jasmine tests. No dependency or hosting changes. No Design System / OpenShift migration.
+Remove the `console.log` of the full configuration object from `ConfigService` initialization. Add/adjust unit coverage so the dump cannot regress unnoticed. No hosting or Design System changes.
 
 ## Architecture
 
 ```text
-Browser → AuthGuard.canActivate(route, state)
-        → KeycloakService.isAllowed(capability)
-        → allow component | redirect to "/" or "/unauthorized" | login flow
-
-API authorization remains in bcparks-ar-api (out of scope).
+App init → ConfigService.init()
+         → load env / optional remote config
+         → (was) console.log(configuration)  → remove
+         → consumers read config via service API
 ```
 
 ## Key decisions
 
 | Decision | Choice | Rationale |
 | --- | --- | --- |
-| Match strategy | Compare path only (strip `?` / `#` from `state.url`), or equivalent Router URL-tree path | Fixes exact-string bypass; minimal diff |
-| Scope of routes | Same four admin checks already in the guard | Matches finding; avoids unrelated AUTHZ-002 redesign |
-| UI stack | Existing Angular + Parks theme | Constitution J6 |
-| Hosting | Unchanged AWS | Constitution J6 |
-| Verification | Unit tests in `auth.guard.spec.ts` | No Keycloak/API required for CI proof |
+| Fix location | `src/app/services/config.service.ts` | Assessment points here |
+| Replacement logging | None for this slice (or LoggerService only if already used without dumping full object) | Avoid gold-plating; other LOG findings cover structured logging |
+| Verification | Unit test asserting `console.log` not called with configuration (spy) | Matches `@R-02.1` |
+| Evidence | Append AUTHZ-safe: use `--append --finding LOG-001` on `docs/pr-evidence.md` | Pack requires append-only |
 
 ## Security & privacy
 
 - Classification: Internal staff UI
-- PIA: No new data flows
-- Secrets: None
-- Residual risk: Client-side guards are bypassable by a determined user who calls the API directly — API must continue to enforce roles
+- Reduces casual exposure of endpoints/config in DevTools
+- No new data flows
 
 ## Test approach
 
-- Extend `src/app/guards/auth.guard.spec.ts`
-- Scenarios from `spec/features/authz-001-admin-route-guard.feature` (`@R-01.1`–`@R-01.5`)
-- CI: existing **PR Checks** (`yarn lint` / `yarn test-ci`)
-- Append finding block to `docs/pr-evidence.md` on the implementation PR (do not overwrite prior findings)
-
-## Rollout
-
-- Environments: ship with next admin UI deploy (no special cutover)
-- Migration: n/a
+- Extend `config.service.spec.ts` (or equivalent)
+- CI: PR Checks lint/test
+- Append `docs/pr-evidence.md` for LOG-001
 
 ## Tasks
 
-1. Add path helper (or inline strip) used by all admin `isAllowed` URL checks in `auth.guard.ts`
-2. Add/extend unit tests covering query-string bypass and admin allow-with-query
-3. Generate/append `docs/pr-evidence.md` for AUTHZ-001 with Review receipt
-4. Confirm PR touches `src/` (not evidence-only)
+1. Remove configuration console dump from config init
+2. Unit test for `@R-02.1`
+3. Append evidence for LOG-001 (do not overwrite AUTHZ-001)
+4. Confirm `src/` changed (not evidence-only)
 
 ## Approval (checkpoint 2)
 
 | Role | Name | Date |
 | --- | --- | --- |
 | Architect / tech lead | | |
-| Security (if required) | Finding is High; fix is local path match — proceed when TL signs | |
+| Security (if required) | Low-risk removal of console dump — proceed when TL signs | |
