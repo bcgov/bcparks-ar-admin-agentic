@@ -64,29 +64,31 @@ export class AuthGuard {
       return this.router.parseUrl('/unauthorized');
     }
 
+    const requestedPath = state.url.split(/[?#]/)[0];
+
     if (
       !this.keycloakService.isAllowed('export-reports') &&
-      state.url === '/export-reports'
+      requestedPath === '/export-reports'
     ) {
       return this.router.parseUrl('/');
     }
 
     if (
       !this.keycloakService.isAllowed('lock-records') &&
-      state.url === '/lock-records'
+      requestedPath === '/lock-records'
     ) {
       return this.router.parseUrl('/');
     }
 
     if (
       !this.keycloakService.isAllowed('review-data') &&
-      state.url === '/review-data'
+      requestedPath === '/review-data'
     ) {
       return this.router.parseUrl('/');
     }
 
     if (!this.keycloakService.isAllowed('manage-subareas') &&
-      state.url === '/manage-subareas'
+      requestedPath === '/manage-subareas'
     ) {
       return this.router.parseUrl('/');
     }
