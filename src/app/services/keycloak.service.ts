@@ -39,10 +39,26 @@ export class KeycloakService {
         this.configService.config['KEYCLOAK_CLIENT_ID'];
 
       return new Promise<void>((resolve, reject) => {
+        if (!keycloak_client_id) {
+          // Do not silently fall back to another application's OAuth
+          // client ID: fail fast so a misconfigured KEYCLOAK_CLIENT_ID
+          // is caught instead of authenticating against the wrong client.
+          this.loggerService.error(
+            'KC Auth init failed: KEYCLOAK_CLIENT_ID is not configured.'
+          );
+          this.toastService.addMessage(
+            'Failed to initialize Keycloak.',
+            'Keycloak Service',
+            Constants.ToastTypes.ERROR
+          );
+          reject();
+          return;
+        }
+
         const config = {
           url: this.keycloakUrl,
           realm: this.keycloakRealm,
-          clientId: !keycloak_client_id ? 'nrpti-admin' : keycloak_client_id,
+          clientId: keycloak_client_id,
         };
 
         this.loggerService.debug('KC Auth init.');

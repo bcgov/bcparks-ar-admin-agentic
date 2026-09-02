@@ -1611,3 +1611,68 @@ Same shape as `REVIEW.md` — required before merge. Do not replace with a free-
 **Residual risk:** Keycloak authentication and role enforcement remain dependent on existing unit coverage until dedicated integration-test identities are available.
 
 - Reviewer: _______________ Date: _______________
+
+---
+
+# PR evidence — [RA AUTH-005] Remove hardcoded nrpti-admin Keycloak client ID fallback
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-auth-005-fix-hardcoded-oauth-client-id |
+| Spec refs | spec/features/auth-005-keycloak-client-id.feature |
+| Constitution articles touched | P3, P5, P7, J3, J5 |
+| Tasks | AUTH-005 TASK-001–TASK-003 in `spec/tasks.md` |
+| Authoring agent | GitHub Copilot Coding Agent |
+| Generated | 2026-09-02T22:19:20.174Z |
+
+## Intent
+
+`KeycloakService.init()` silently fell back to the hardcoded OAuth client ID `'nrpti-admin'` (belonging to a different BC Gov application) whenever `KEYCLOAK_CLIENT_ID` was absent from runtime configuration. This PR removes that fallback: when `KEYCLOAK_CLIENT_ID` is missing, Keycloak init now logs a clear configuration error, surfaces a toast error, and rejects its init promise instead of constructing a Keycloak adapter with the wrong client ID. When `KEYCLOAK_CLIENT_ID` is configured, it is passed through unchanged.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| `auth-005-keycloak-client-id.feature` `@R-26.1` | Yes | Covered by `src/app/services/keycloak.service.spec.ts` ("fails init and does not fall back to a hardcoded client ID when KEYCLOAK_CLIENT_ID is missing"): init rejects, logs a configuration error (not containing `nrpti-admin`), shows a toast, and never constructs the `Keycloak` adapter. |
+| `auth-005-keycloak-client-id.feature` `@R-26.2` | Yes | Covered by `src/app/services/keycloak.service.spec.ts` ("creates the Keycloak adapter with the configured KEYCLOAK_CLIENT_ID"): asserts the adapter is constructed with the exact configured client id. |
+| All other `spec/features/*.feature` | Not applicable | Out of scope for AUTH-005; retained from the feature index. |
+
+## Design system & accessibility
+
+| Check | Result |
+| --- | --- |
+| DS components used (list) | Not applicable — no UI markup changes. |
+| Tokens used (not hard-coded colour) | Not applicable — no style changes. |
+| BC Sans imported | Not applicable — unchanged. |
+| Manual a11y notes | Not applicable — the existing toast error message flow is reused for the new failure path. |
+
+## Public-service minimums
+
+Checklist IDs addressed this PR: Not applicable — no new user interface elements.
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Unit | `ng test --watch=false --browsers=ChromeHeadlessNoSandbox --include='**/keycloak.service.spec.ts'` | Passed: 31 SUCCESS |
+| Unit (full suite) | `ng test --watch=false --browsers=ChromeHeadlessNoSandbox` | Passed: 244 SUCCESS |
+| Lint | `ng lint --format=stylish` | Passed: 0 errors, 59 pre-existing `@angular-eslint/prefer-standalone` warnings in unrelated files. |
+| Acceptance / feature | `spec/features/auth-005-keycloak-client-id.feature` | Implemented by unit coverage for `@R-26.1` and `@R-26.2`. |
+| A11y automation | Not run | Not applicable — no UI changes. |
+
+## Risks & follow-ups
+
+- No live Keycloak deployment was exercised; the fail-fast behaviour is verified only through unit tests with a mocked adapter and mocked `ConfigService`.
+- Other AUTH-series findings (AUTH-006, AUTH-007) remain out of scope and unaddressed by this slice.
+
+## Review receipt (checkpoint 3)
+
+Same shape as `REVIEW.md` — required before merge. Do not replace with a free-form sign-off.
+
+**Checked:** AUTH-005 `@R-26.1`–`@R-26.2`; `spec/tasks.md` TASK-001–TASK-003; targeted and full Karma/Jasmine suites; `ng lint`.
+
+**Could not check:** A live Keycloak realm or deployment where `KEYCLOAK_CLIENT_ID` is genuinely missing; the fail-fast path is verified only through unit tests with a mocked adapter.
+
+**Residual risk:** None identified beyond existing AUTH-series gaps (AUTH-006 401 handling, AUTH-007 request host allowlisting), which remain out of scope for this PR.
+
+- Reviewer: _______________ Date: _______________
