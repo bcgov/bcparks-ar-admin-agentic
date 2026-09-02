@@ -1,18 +1,17 @@
-# Plan — LOG-005 sanitized error logging
+# Plan — LOG-006 structured JSON log format
 
-> Checkpoint 2 for issue [#76](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/76).
+> Checkpoint 2 for issue [#77](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/77).
 
 ## Approach
 
-1. `ConfigService`: inject `Injector`; on remote config failure call `LoggerService.error()` with message string only (lazy resolve to avoid circular DI).
-2. `main.ts`: replace `console.error(err)` with message-only `console.error(err?.message ?? String(err))`.
-3. Update `config.service.spec.ts` for LoggerService.error spy on failure path.
-4. Append `docs/pr-evidence.md`.
+Replace `entryToString()` plain-text formatter with JSON serialization containing:
+`level`, `timestamp` (ISO-8601), `message`, `userId`, `sessionId`, `correlationId`, `context`, `securityEvent`.
 
-## Out of scope
-
-- Structured JSON (LOG-006), global ErrorHandler (LOG-008), SIEM (LOG-007)
+- `warn()` and `error()` set `securityEvent: true` by default (@R-19.2)
+- Identity/correlation fields null until wired to Keycloak (extensible)
+- SIEM shipping out of scope
 
 ## Verification
 
-- Unit tests @R-18.1; static review main.ts @R-18.2; must touch `src/`
+- Unit tests parse JSON output and assert fields (@R-19.1, @R-19.2)
+- Append evidence; must touch `src/`

@@ -1,10 +1,10 @@
-# Tasks — LOG-005 sanitized error logging
+# Tasks — LOG-006 structured JSON log format
 
-> Issue [#76](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/76)
+> Issue [#77](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/77)
 
-## Active slice — LOG-005
+## Active slice — LOG-006
 
-- [x] **TASK-001** — ConfigService logs message-only via LoggerService (@R-18.1)
-- [x] **TASK-002** — Bootstrap catch logs message only (@R-18.2)
-- [x] **TASK-003** — Update config.service.spec.ts
-- [x] **TASK-004** — Append docs/pr-evidence.md
+- [ ] **TASK-001** — Emit JSON log objects with required fields (@R-19.1)
+- [ ] **TASK-002** — warn/error set securityEvent true (@R-19.2)
+- [ ] **TASK-003** — Unit tests in logger.service.spec.ts
+- [ ] **TASK-004** — Append docs/pr-evidence.md
