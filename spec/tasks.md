@@ -1,8 +1,9 @@
-# Tasks — LOG-007 browser-console logging limitation
+# Tasks — SECRET-002
 
-> Issue [#78](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/78)
+> Issue [#79](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/79)
 
-- [x] **TASK-001** — docs/logging-architecture.md console-only (@R-20.1)
-- [x] **TASK-002** — Document optional LOG_SHIPPING_ENDPOINT forward path (@R-20.2)
-- [x] **TASK-003** — LoggerService constants/JSDoc in src/
-- [x] **TASK-004** — Append docs/pr-evidence.md
+- [ ] **TASK-001** — Dev workflow DomainCertificateArn from vars (@R-21.1)
+- [ ] **TASK-002** — Test workflow DomainCertificateArn from vars (@R-21.2)
+- [ ] **TASK-003** — Remove SAM template Default ARN (@R-21.3)
+- [ ] **TASK-004** — Setup scripts require env account/profile (@R-21.4)
+- [ ] **TASK-005** — Append docs/pr-evidence.md
