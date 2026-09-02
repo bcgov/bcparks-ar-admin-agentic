@@ -1,9 +1,14 @@
-# Plan — SECRET-003 Route53 zone ID
+# Plan — TEST-003 E2E scaffold
 
-> Checkpoint 2 for issue [#80](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/80).
+> Checkpoint 2 for issue [#81](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/81).
 
 ## Approach
 
-1. Remove hardcoded ROUTE53_ZONE_ID from pre-migration-certificate-setup.sh.
-2. Resolve via env var or `aws route53 list-hosted-zones-by-name --dns-name bcparks.ca`.
-3. Document env vars in script header; append evidence.
+1. Add @playwright/test + playwright.config.ts
+2. e2e/smoke/app-shell.spec.ts (title + app-root)
+3. docs/e2e-testing.md for planned auth-boundary tests
+4. yarn e2e script; append evidence
+
+## Out of scope
+
+Full Keycloak automation; CI required status for e2e.
