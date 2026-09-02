@@ -402,34 +402,14 @@ describe('KeycloakService', () => {
       expect(redirectToLoginSpy).not.toHaveBeenCalled();
     });
 
-    it('navigates to the login page relative to the app base href', () => {
-      redirectToLoginSpy.and.callThrough();
-      const assignSpy = jasmine.createSpy('assign');
-      spyOnProperty(window, 'location', 'get').and.returnValue({
-        origin: window.location.origin,
-        pathname: '/dayuse',
-        assign: assignSpy,
-      } as any);
-
-      (keycloak as any).redirectToLogin();
-
-      expect(assignSpy).toHaveBeenCalledOnceWith(
+    it('builds an absolute login URL relative to the app base href', () => {
+      expect((keycloak as any).getLoginUrl('/dayuse')).toEqual(
         new URL('/login', window.location.origin).toString(),
       );
     });
 
     it('does not redirect when the user is already on the login page', () => {
-      redirectToLoginSpy.and.callThrough();
-      const assignSpy = jasmine.createSpy('assign');
-      spyOnProperty(window, 'location', 'get').and.returnValue({
-        origin: window.location.origin,
-        pathname: '/login',
-        assign: assignSpy,
-      } as any);
-
-      (keycloak as any).redirectToLogin();
-
-      expect(assignSpy).not.toHaveBeenCalled();
+      expect((keycloak as any).getLoginUrl('/login')).toBeNull();
     });
   });
 });

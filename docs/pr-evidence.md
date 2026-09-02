@@ -1503,3 +1503,68 @@ Same shape as `REVIEW.md` — required before merge. Do not replace with a free-
 **Residual risk:** Server-side validation is out of scope; this UI now renders all sub-area name content as text.
 
 - Reviewer: _______________ Date: _______________
+
+---
+
+# PR evidence — [RA AUTH-004] Token refresh failure redirects to login
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-auth-004-fix-token-refresh-redirect |
+| Spec refs | spec/features/auth-004-token-refresh-redirect.feature |
+| Constitution articles touched | P3, P5, P7, J3, J5 |
+| Tasks | AUTH-004 TASK-001–TASK-003 in `spec/tasks.md` |
+| Authoring agent | GitHub Copilot Coding Agent |
+| Generated | 2026-09-02T21:52:30.183Z |
+
+## Intent
+
+When a background Keycloak token refresh fails after `onTokenExpired` (session expired or refresh token revoked), `KeycloakService` now logs the failure above debug and forces a full-page navigation to the login page instead of leaving the user in an authenticated-looking state with an unusable token. Successful refreshes are unchanged.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| `auth-004-token-refresh-redirect.feature` | Yes | `@R-25.1` covered by `src/app/services/keycloak.service.spec.ts` ("redirects to login when the background token refresh fails"). The handler is only registered when Keycloak is enabled, so local mock auth is unaffected. |
+| All other `spec/features/*.feature` | Not applicable | Out of scope for AUTH-004; retained from the feature index. |
+
+## Design system & accessibility
+
+| Check | Result |
+| --- | --- |
+| DS components used (list) | Not applicable — no UI markup changes; the existing `/login` page is reused. |
+| Tokens used (not hard-coded colour) | Not applicable — no style changes. |
+| BC Sans imported | Not applicable — unchanged. |
+| Manual a11y notes | Redirect lands on the existing login page, giving a clean re-authentication flow rather than a silent failure state; no new components rendered. |
+
+## Public-service minimums
+
+Checklist IDs addressed this PR: Not applicable — no new user interface elements.
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Unit | `yarn test-ci --include src/app/services/keycloak.service.spec.ts` | Passed: 29 SUCCESS |
+| Unit (full suite) | `yarn test-ci` | Passed: 242 SUCCESS |
+| Lint | `yarn lint` | Passed: 0 errors, 59 pre-existing `@angular-eslint/prefer-standalone` warnings in unrelated files. |
+| Acceptance / feature | `spec/features/auth-004-token-refresh-redirect.feature` | Implemented by unit coverage for `@R-25.1`, plus tests that a successful refresh does not redirect and that the login URL respects the app base href without looping when already on `/login`. |
+| A11y automation | Not run | Not applicable — no UI changes. |
+
+## Risks & follow-ups
+
+- The refresh failure log level was raised from `log` to `error` so the forced redirect is diagnosable; no token material is logged.
+- `refreshToken()` (the interceptor-driven refresh path) still surfaces failures to its caller and is unchanged; interceptor 401/403 semantics remain deferred to AUTH-006.
+- AUTH-003 logout behaviour is unchanged by this slice.
+
+## Review receipt (checkpoint 3)
+
+Same shape as `REVIEW.md` — required before merge. Do not replace with a free-form sign-off.
+
+**Checked:** AUTH-004 `@R-25.1`; `spec/tasks.md` TASK-001–TASK-003; targeted and full Karma/Jasmine suites; `yarn lint`.
+
+**Could not check:** A live Keycloak session expiring in a deployed environment; the redirect is verified only through unit tests with a mocked adapter.
+
+**Residual risk:** AUTH-006 (401 handling) and AUTH-007 (request host allowlisting) remain out of scope and unaddressed.
+
+- Reviewer: _______________ Date: _______________

@@ -71,7 +71,7 @@ export class KeycloakService {
 
         // Try to get refresh tokens in the background
         this.keycloakAuth.onTokenExpired = () => {
-          this.keycloakAuth
+          return this.keycloakAuth
             .updateToken()
             .then((refreshed) => {
               this.loggerService.log(`KC refreshed token?: ${refreshed}`);
@@ -238,6 +238,26 @@ export class KeycloakService {
   }
 
   /**
+   * Builds the absolute login URL for the current deployment, or returns null
+   * when the browser is already on the login page (so repeated token-expiry
+   * events cannot cause a redirect loop).
+   *
+   * @param {string} currentPath the current window pathname.
+   * @returns {string} the login URL, or null when no navigation is needed.
+   * @memberof KeycloakService
+   */
+  private getLoginUrl(currentPath: string): string | null {
+    const baseHref = document.querySelector('base')?.getAttribute('href') || '/';
+    const loginUrl = new URL('login', new URL(baseHref, window.location.origin));
+
+    if (currentPath === loginUrl.pathname) {
+      return null;
+    }
+
+    return loginUrl.toString();
+  }
+
+  /**
    * Sends the browser to the login page after the Keycloak session can no
    * longer be refreshed. A full navigation (rather than a router navigation)
    * is used so all in-memory state tied to the expired session is discarded.
@@ -245,15 +265,13 @@ export class KeycloakService {
    * @memberof KeycloakService
    */
   private redirectToLogin() {
-    const baseHref = document.querySelector('base')?.getAttribute('href') || '/';
-    const loginUrl = new URL('login', new URL(baseHref, window.location.origin));
+    const loginUrl = this.getLoginUrl(window.location.pathname);
 
-    // Avoid a redirect loop if the user is already on the login page.
-    if (window.location.pathname === loginUrl.pathname) {
+    if (!loginUrl) {
       return;
     }
 
-    window.location.assign(loginUrl.toString());
+    window.location.assign(loginUrl);
   }
 
   private logAuthLifecycleEvent(eventType: string, level: 'warn' | 'error') {
