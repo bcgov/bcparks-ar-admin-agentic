@@ -7,44 +7,45 @@
 
 ## Active slice
 
-### CONFIG-005 — Enable automatic Trivy security scan triggers
+### CONFIG-006 — Deployment pipeline log levels
 
-- **Issue:** [#72](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/72)
-- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `CONFIG-005`
-- **Feature:** `features/config-005-trivy-triggers.feature`
+- **Issue:** [#73](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/73)
+- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `CONFIG-006`
+- **Feature:** `features/config-006-deploy-log-level.feature`
 
 #### Problem
 
-The Analysis workflow’s Trivy scan has push, pull_request, and schedule triggers commented out — only manual `workflow_dispatch` remains. PR checks run lint/unit tests without a security scan gate, so code can reach main and production without automated Trivy coverage.
+All three LZA deployment pipelines hardcode `logLevel = 0` (LogLevel.All) in the generated `env.js` artifact. That enables every debug log—and historically the full configuration dump when logLevel is All—in every deployed environment including production.
 
 #### Outcome
 
-The Analysis workflow runs Trivy automatically on **push to main**, on **pull_request** events, and on a **weekly schedule**, in addition to manual dispatch. The Trivy job still scans vulnerabilities, secrets, and config. Verification is by inspecting workflow YAML (and observing the job on PRs).
+Each deploy pipeline writes an environment-appropriate log level into generated `env.js`: production is restrictive (Warn or stricter), test is intermediate, and dev may be more verbose than production. No pipeline leaves logLevel at All (0).
 
 #### Users & personas
 
 | Persona | Goal |
 | --- | --- |
-| Security reviewer | Automatic Trivy gate exists |
-| Developers | See scan results on PRs |
-| Operators | Weekly scheduled coverage |
+| Operators | Prod consoles are not flooded with debug output |
+| Security reviewers | Deployed log levels match environment risk |
+| Developers | Dev retains useful verbosity |
 
 #### Scope
 
 **In scope**
 
-- Enable push / pull_request / schedule triggers in `.github/workflows/analysis.yaml`
-- Evidence append; must change `.github/workflows/`
+- Change `logLevel` in `.github/workflows/lza-deploy-admin-{prod,test,dev}.yaml` generated env.js blocks
+- Document LogLevel enum mapping in workflow comments
+- Append evidence; must change `.github/workflows/`
 
 **Out of scope**
 
-- Changing Trivy severity thresholds or scanners (unless required to enable triggers)
-- Adding Trivy into `on-pr.yaml` as a duplicate if Analysis already runs on pull_request
-- Making Trivy a required status check in branch protection (org residual)
+- Runtime log-level switching without redeploy
+- Removing browser-console logging entirely (LOG-007)
+- Changing local `src/env.js` beyond optional alignment (local residual OK if documented)
 
 #### Open questions
 
-- **Timeout:** Existing 1-minute timeout may be tight once triggers fire more often — document residual if scans time out; do not disable the job.
+- None blocking — enum mapping follows LoggerService (Error=4, Warn=3, Info=2).
 
 #### Sign-off (checkpoint 1)
 
@@ -57,6 +58,11 @@ The Analysis workflow runs Trivy automatically on **push to main**, on **pull_re
 ---
 
 ## Completed slices (recent)
+
+### CONFIG-005 — Enable automatic Trivy security scan triggers
+
+- **Issue:** [#72](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/72) (shipped)
+- **Feature:** `features/config-005-trivy-triggers.feature`
 
 ### AUTHZ-002 — Enforce admin-only export-reports and review-data
 
