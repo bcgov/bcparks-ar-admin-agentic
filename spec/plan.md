@@ -1,51 +1,46 @@
-# Plan — No config console dump (LOG-001)
+# Plan — AuthGuard authorization failure logging (LOG-003)
 
-> Architecture and delivery approach for issue #56 / RA LOG-001.
+> Architecture and delivery for issue #57 / RA LOG-003.
 
 ## Summary
 
-Remove the `console.log` of the full configuration object from `ConfigService` initialization. Add/adjust unit coverage so the dump cannot regress unnoticed. No hosting or Design System changes.
+Emit **warn**-level authorization-failure logs from `AuthGuard` when an authenticated user is denied (not authorized for the app, or missing a capability for an admin route). Do **not** log tokens, full config, or secrets. Extend unit tests for `@R-03.1`–`@R-03.4`. Append evidence for LOG-003.
 
 ## Architecture
 
 ```text
-App init → ConfigService.init()
-         → load env / optional remote config
-         → (was) console.log(configuration)  → remove
-         → consumers read config via service API
+AuthGuard.canActivate
+  → denial path (unauthorized / capability)
+  → LoggerService.warn (or equivalent) with route path + reason code
+  → redirect as today
 ```
+
+Prefer existing `LoggerService` if present; otherwise a minimal structured warn that does not dump Keycloak objects.
 
 ## Key decisions
 
 | Decision | Choice | Rationale |
 | --- | --- | --- |
-| Fix location | `src/app/services/config.service.ts` | Assessment points here |
-| Replacement logging | None for this slice (or LoggerService only if already used without dumping full object) | Avoid gold-plating; other LOG findings cover structured logging |
-| Verification | Unit test asserting `console.log` not called with configuration (spy) | Matches `@R-02.1` |
-| Evidence | Append AUTHZ-safe: use `--append --finding LOG-001` on `docs/pr-evidence.md` | Pack requires append-only |
-
-## Security & privacy
-
-- Classification: Internal staff UI
-- Reduces casual exposure of endpoints/config in DevTools
-- No new data flows
+| Log level | warn | Assessment / security-relevant without error noise for expected denials |
+| Payload | path + denial reason (e.g. `not-authorized`, `capability:lock-records`) | Auditable; no tokens |
+| Scope | AuthGuard only | Matches finding; header/nav logging out of scope |
+| Evidence | `--append --finding LOG-003` | Preserve prior receipts |
 
 ## Test approach
 
-- Extend `config.service.spec.ts` (or equivalent)
-- CI: PR Checks lint/test
-- Append `docs/pr-evidence.md` for LOG-001
+- Spies on logger in `auth.guard.spec.ts`
+- CI lint/test
+- Must change `src/`
 
 ## Tasks
 
-1. Remove configuration console dump from config init
-2. Unit test for `@R-02.1`
-3. Append evidence for LOG-001 (do not overwrite AUTHZ-001)
-4. Confirm `src/` changed (not evidence-only)
+1. Inject/use logger on AuthGuard denial paths
+2. Unit tests `@R-03.1`–`@R-03.4`
+3. Append `docs/pr-evidence.md` for LOG-003
+4. Checkpoint 3 + merge
 
 ## Approval (checkpoint 2)
 
 | Role | Name | Date |
 | --- | --- | --- |
 | Architect / tech lead | | |
-| Security (if required) | Low-risk removal of console dump — proceed when TL signs | |

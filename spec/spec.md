@@ -61,7 +61,7 @@ Every authorization denial in the route guard emits a warn-level (or equivalent 
 
 ---
 
-## In flight
+## Completed slices (recent)
 
 ### LOG-001 — Do not dump full configuration to the browser console
 
