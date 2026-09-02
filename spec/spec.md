@@ -7,49 +7,54 @@
 
 ## Active slice
 
-### LOG-003 — Log authorization failures in the route guard
+### TEST-001 — HTTP token interceptor unit coverage
 
-- **Issue:** [#57](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/57)
-- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `LOG-003`
-- **Feature:** `features/log-003-authz-failure-logging.feature`
+- **Issue:** [#68](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/68)
+- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `TEST-001`
+- **Feature:** `features/test-001-token-interceptor.feature`
 
 #### Problem
 
-When the admin UI denies access (user lacks required roles, or lacks a route-specific capability), the guard redirects without recording any security-relevant log. Probing of authorization boundaries leaves no client-side audit trail.
+The HTTP token interceptor injects Bearer Authorization on outbound requests and handles 403 token-refresh/retry. It has **no** dedicated automated tests. Regressions in header injection, refresh, or retry can ship undetected.
 
 #### Outcome
 
-Every authorization denial in the route guard emits a warn-level (or equivalent security-appropriate) log entry that includes enough context to investigate the attempt (requested path/URL, denial reason, and a non-secret user identifier when available) and **never** includes access tokens, refresh tokens, passwords, or full credential material.
+A dedicated unit-test suite for the token interceptor covers the assessment Expected behaviours:
+
+1. Bearer header is injected on authenticated requests (non-empty token).
+2. When unauthenticated, the request does **not** carry a usable Bearer token value (assessment preferred: header absent; see Open questions for current empty-`Bearer ` behaviour).
+3. HTTP 403 triggers token refresh and request retry with an Authorization header.
+4. Refresh failure is observable to the caller; assessment also Expected logout on refresh failure — **residual** until a logout mechanism exists (AUTH-003 / AUTH-004); this slice must not invent logout.
+
+Tests run in CI with Angular HTTP testing utilities (no live IdP). Production interceptor logic is unchanged except if a tiny fix is required for tests to compile against the public API.
 
 #### Users & personas
 
 | Persona | Goal |
 | --- | --- |
-| Security / ops reviewer | See authorization denials in logs when investigating abuse or misconfiguration |
-| Parks staff (denied) | Still redirected as today; experience unchanged aside from logging |
-| Implementer | Clear acceptance criteria and tests for log level and redaction |
+| Developer / reviewer | Catch interceptor regressions in CI |
+| Security reviewer | Evidence that auth-header and 403 refresh paths are covered |
+| Parks staff | No user-visible change from this slice |
 
 #### Scope
 
 **In scope**
 
-- Log before each authorization-failure redirect in the route guard:
-  - authenticated but not authorized for the application (redirect to unauthorized)
-  - authenticated and authorized, but not allowed a protected route capability (redirect away from that route)
-- Structured, security-relevant fields suitable for audit (e.g. event type, outcome, requested URL/path, denial reason, user id and/or email when present, timestamp)
-- Automated tests that document warn-level (or chosen equivalent) behaviour and assert secrets/tokens are not logged
-- Preserve existing redirect destinations and allow/deny decisions (logging only; no authz rule changes)
+- New `token-interceptor` unit tests covering `@R-04.1`–`@R-04.6`
+- Document residual gaps vs assessment Expected (2) header-absent ideal and (4) logout-on-refresh-failure
+- Append `docs/pr-evidence.md` for TEST-001
 
 **Out of scope**
 
-- Server-side / centralized SIEM shipping (other LOG-* findings)
-- Changing authentication flows, login, or logout
-- Changing which roles or capabilities are required
-- Broader logging framework redesign (LOG-004+)
+- Changing 403 → 401 refresh trigger (AUTH-006)
+- Host allowlist for Bearer injection (AUTH-007)
+- Implementing logout or login redirect on refresh failure (AUTH-003 / AUTH-004)
+- Broader HTTP client / API service test suites (other TEST-* findings)
 
 #### Open questions
 
-- None blocking. Prefer warn-level via the existing application logger; if log level config would silence warnings in some environments, note that in implementation PR evidence (related: LOG-004) but do not expand scope.
+- **Expected (2) — header absent vs empty Bearer:** Current interceptor always sets `Authorization: Bearer ` + token-or-empty. Assessment Expected prefers the header absent when unauthenticated. **Decision for this slice:** tests assert there is no *usable* non-empty Bearer token; do not change production header omission here (may revisit with AUTH-007).
+- **Expected (4) — logout on refresh failure:** No logout API exists yet (AUTH-003). **Decision for this slice:** tests assert the refresh error is surfaced and that this PR does not add logout; document assessment Expected (4) as residual in evidence.
 
 #### Sign-off (checkpoint 1)
 
@@ -63,12 +68,17 @@ Every authorization denial in the route guard emits a warn-level (or equivalent 
 
 ## Completed slices (recent)
 
+### LOG-003 — Log authorization failures in the route guard
+
+- **Issue:** [#57](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/57) (shipped)
+- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `LOG-003`
+- **Feature:** `features/log-003-authz-failure-logging.feature`
+
 ### LOG-001 — Do not dump full configuration to the browser console
 
-- **Issue:** [#56](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/56) (open; Copilot implementation PR in flight — not yet merged/shipped)
+- **Issue:** [#56](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/56) (shipped)
 - **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `LOG-001`
 - **Feature:** `features/log-001-no-config-console-dump.feature`
-- **Note:** Spec/plan for LOG-001 are on `main`; treat as pending ship until #56 is closed. LOG-003 proceeds as the next active rematch slice.
 
 ---
 
