@@ -158,6 +158,47 @@ describe('KeycloakService', () => {
     expect(decodeTokenSpy).not.toHaveBeenCalled();
   });
 
+  describe('isAllowed', () => {
+    // @AUTHZ-002 export-reports and review-data must be enforced as admin-only,
+    // matching the guard blocks in AuthGuard.canActivate().
+    ['lock-records', 'manage-subareas', 'export-reports', 'review-data'].forEach(
+      (route) => {
+        it(`returns false for '${route}' when the user is not an admin`, () => {
+          const keycloak = TestBed.get(KeycloakService);
+          spyOn(keycloak, 'getToken').and.returnValue('not-empty');
+          spyOn(keycloak, 'getTokenClaims').and.returnValue({
+            resource_access: {
+              'attendance-and-revenue': { roles: ['user'] },
+            },
+          });
+          expect(keycloak.isAllowed(route)).toEqual(false);
+        });
+
+        it(`returns true for '${route}' when the user is an admin`, () => {
+          const keycloak = TestBed.get(KeycloakService);
+          spyOn(keycloak, 'getToken').and.returnValue('not-empty');
+          spyOn(keycloak, 'getTokenClaims').and.returnValue({
+            resource_access: {
+              'attendance-and-revenue': { roles: ['sysadmin'] },
+            },
+          });
+          expect(keycloak.isAllowed(route)).toEqual(true);
+        });
+      }
+    );
+
+    it("returns true for routes that are not admin-only, regardless of role", () => {
+      const keycloak = TestBed.get(KeycloakService);
+      spyOn(keycloak, 'getToken').and.returnValue('not-empty');
+      spyOn(keycloak, 'getTokenClaims').and.returnValue({
+        resource_access: {
+          'attendance-and-revenue': { roles: ['user'] },
+        },
+      });
+      expect(keycloak.isAllowed('some-other-route')).toEqual(true);
+    });
+  });
+
   it('logout delegates to the Keycloak adapter with an app base redirect URI', () => {
     const keycloak = TestBed.get(KeycloakService);
     const keycloakAuth = {

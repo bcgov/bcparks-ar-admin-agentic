@@ -826,3 +826,95 @@ Same shape as `REVIEW.md` — required before merge. Do not replace with a free-
 **Residual risk:** Logout depends on Keycloak realm/client redirect configuration accepting the app base URL. Post-deploy smoke testing should confirm the configured environment redirects correctly.
 
 - Reviewer: _______________ Date: _______________
+
+---
+
+# PR evidence — [RA AUTHZ-002] Enforce admin-only access for export-reports and review-data routes
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-authz-002-fix-dead-guard-conditions |
+| Spec refs | spec/features/auth-001-pkce.feature, spec/features/auth-002-token-claims.feature, spec/features/auth-003-logout.feature, spec/features/authz-001-admin-route-guard.feature, spec/features/config-002-cloudfront-csp.feature, spec/features/config-003-cloudfront-hsts.feature, spec/features/config-004-cloudfront-security-headers.feature, spec/features/crypto-001-cloudfront-tls-minimum.feature, spec/features/example-happy-path.feature, spec/features/log-001-no-config-console-dump.feature, spec/features/log-002-keycloak-lifecycle-log-levels.feature, spec/features/log-003-authz-failure-logging.feature, spec/features/secret-001-prod-certificate-arn.feature, spec/features/test-001-token-interceptor.feature |
+| Constitution articles touched | P1–P8 (confirm) |
+| Tasks | see spec/tasks.md |
+| Authoring agent | unspecified |
+| Generated | 2026-09-02T20:06:01.993Z |
+
+## Intent
+
+`KeycloakService.isAllowed()` hardcoded an `adminOnlyRoutes` array containing only
+`lock-records` and `manage-subareas`, so the `AuthGuard.canActivate()` blocks that
+guard `/export-reports` and `/review-data` for non-admin users were permanently
+dead code — `isAllowed()` returned `true` unconditionally for any route not in
+that list. Added `export-reports` and `review-data` to `adminOnlyRoutes` so the
+existing guard/sidebar/home-page checks that already call
+`isAllowed('export-reports')` / `isAllowed('review-data')` actually enforce the
+admin-only restriction, matching the behaviour already asserted by
+`auth.guard.spec.ts`.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| `auth-001-pkce.feature` | N/A | Not touched by this change |
+| `auth-002-token-claims.feature` | N/A | Not touched by this change |
+| `auth-003-logout.feature` | N/A | Not touched by this change |
+| `authz-001-admin-route-guard.feature` | Yes | `export-reports` and `review-data` now enforced as admin-only, extending existing admin-route-guard coverage |
+| `config-002-cloudfront-csp.feature` | N/A | Not touched by this change |
+| `config-003-cloudfront-hsts.feature` | N/A | Not touched by this change |
+| `config-004-cloudfront-security-headers.feature` | N/A | Not touched by this change |
+| `crypto-001-cloudfront-tls-minimum.feature` | N/A | Not touched by this change |
+| `example-happy-path.feature` | N/A | Not touched by this change |
+| `log-001-no-config-console-dump.feature` | N/A | Not touched by this change |
+| `log-002-keycloak-lifecycle-log-levels.feature` | N/A | Not touched by this change |
+| `log-003-authz-failure-logging.feature` | Yes | Existing `AuthGuard` audit logging (`not_allowed:export-reports` / `not_allowed:review-data`) now actually fires for non-admins, per `auth.guard.spec.ts` |
+| `secret-001-prod-certificate-arn.feature` | N/A | Not touched by this change |
+| `test-001-token-interceptor.feature` | N/A | Not touched by this change |
+
+
+## Design system & accessibility
+
+| Check | Result |
+| --- | --- |
+| DS components used (list) | N/A — no UI/template changes, service-layer authorization fix only |
+| Tokens used (not hard-coded colour) | N/A |
+| BC Sans imported | N/A |
+| Manual a11y notes | N/A |
+
+## Public-service minimums
+
+Checklist IDs addressed this PR: N/A (authorization bug fix, no UI change)
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Unit | `ng test --include='**/keycloak.service.spec.ts'` | PASS — added `isAllowed()` coverage for `lock-records`, `manage-subareas`, `export-reports`, `review-data` (admin vs. non-admin) plus a non-admin-only route control case |
+| Unit | `ng test --include='**/auth.guard.spec.ts'` | PASS (40/40) — pre-existing spec assertions for `export-reports`/`review-data` blocking now exercise real enforcement instead of a permanently-true stub |
+| Unit | `ng test --include='**/home.component.spec.ts' --include='**/header.component.spec.ts' --include='**/sidebar.component.spec.ts' --include='**/export-reports.component.spec.ts'` | PASS (11/11) — these specs mock `isAllowed()` directly and are unaffected |
+| A11y automation | N/A | No UI change |
+
+## Risks & follow-ups
+
+- Accepted gap: `isAllowed()` remains a hardcoded route-name allowlist rather than
+  a data-driven/config-driven permission model. This matches the existing design
+  used for `lock-records`/`manage-subareas` and is out of scope for this fix,
+  which only closes the AUTHZ-002 gap (dead guard conditions for
+  `export-reports`/`review-data`).
+
+## Review receipt (checkpoint 3)
+
+Same shape as `REVIEW.md` — required before merge. Do not replace with a free-form sign-off.
+
+**Checked:** `KeycloakService.isAllowed()` now enforces `sysadmin` role for
+`export-reports` and `review-data`, consistent with `lock-records` /
+`manage-subareas`; `AuthGuard` unit tests (`auth.guard.spec.ts`) pass unchanged;
+new `KeycloakService` unit tests (`keycloak.service.spec.ts`) cover admin/non-admin
+outcomes for all four admin-only routes plus a non-admin-only control route.
+
+**Could not check:** End-to-end verification against a live Keycloak realm/token
+(sandbox has no Keycloak instance); relied on unit tests with mocked token claims.
+
+**Residual risk:** None identified beyond the accepted gap noted above.
+
+- Reviewer: _______________ Date: _______________
