@@ -1,7 +1,10 @@
-# Tasks — AUTH-004
+# Tasks — TEST-003 E2E scaffold
 
-> Issue [#83](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/83)
+> Issue [#81](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/81)
 
-- [x] **TASK-001** — Redirect to /login on refresh failure (@R-25.1)
-- [x] **TASK-002** — Unit test keycloak.service.spec.ts
-- [x] **TASK-003** — Append docs/pr-evidence.md
+## Active slice — TEST-003
+
+- [x] **TASK-001** — Playwright dep + e2e script (@R-23.1)
+- [x] **TASK-002** — Smoke test app shell (@R-23.2)
+- [x] **TASK-003** — Document auth-boundary follow-ups (@R-23.3)
+- [x] **TASK-004** — Append docs/pr-evidence.md
