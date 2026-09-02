@@ -9,7 +9,8 @@
     "test": "ng test",
     "test-ci": "ng test --watch=false --browsers=ChromeHeadlessNoSandbox",
     "e2e": "playwright test",
-    "lint": "ng lint --format=stylish"
+    "lint": "ng lint --format=stylish",
+    "e2e:smoke": "playwright test"
   },
   "pre-push": [
     "lint"
