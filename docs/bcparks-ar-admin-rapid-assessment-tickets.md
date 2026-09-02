@@ -40,7 +40,7 @@ Generated: 2026-08-12 · Reset for agentic-b: 2026-08-31 · Raw findings: **55**
 | SECRET-002 | Medium | SECRETS | cloudfront-cdn | Non-Production AWS Account IDs Hardcoded Across CI/CD Workflows, Sc... | yes | shipped #79 |
 | SECRET-003 | Medium | SECRETS | cloudfront-cdn | Route53 Hosted Zone ID Hardcoded in Pre-Migration Script | yes | shipped #80 |
 | TEST-003 | Medium | TESTING | angular-spa-shell | No end-to-end or security-focused integration tests exist | yes | #81 |
-| VULN-001 | Medium | INJECTION | enter-data-module | Stored XSS via [innerHtml] binding with unsanitized HTML constructi... | yes | #82 |
+| VULN-001 | Medium | INJECTION | enter-data-module | Stored XSS via [innerHtml] binding with unsanitized HTML constructi... | yes | shipped #82 |
 | AUTH-004 | Low | AUTHENTICATION | auth-layer | Silent token-refresh failure only logs; no forced redirect to `/log... | yes | #83 |
 | AUTH-005 | Low | AUTHENTICATION | auth-layer | Hardcoded fallback OAuth client ID `'nrpti-admin'` when `KEYCLOAK_C... | yes | #84 |
 | AUTH-006 | Low | AUTHENTICATION | shared-infrastructure | `TokenInterceptor` triggers token refresh on HTTP 403 (should be 401) | yes | #85 |
