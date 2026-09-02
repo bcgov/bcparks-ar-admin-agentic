@@ -1501,3 +1501,4 @@ Same shape as `REVIEW.md` — required before merge. Do not replace with a free-
 **Residual risk:** Keycloak authentication and role enforcement remain dependent on existing unit coverage until dedicated integration-test identities are available.
 
 - Reviewer: _______________ Date: _______________
+
