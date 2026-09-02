@@ -7,54 +7,53 @@
 
 ## Active slice
 
-### TEST-001 — HTTP token interceptor unit coverage
+### LOG-002 — Keycloak authentication lifecycle log levels
 
-- **Issue:** [#68](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/68)
-- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `TEST-001`
-- **Feature:** `features/test-001-token-interceptor.feature`
+- **Issue:** [#66](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/66)
+- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `LOG-002`
+- **Feature:** `features/log-002-keycloak-lifecycle-log-levels.feature`
 
 #### Problem
 
-The HTTP token interceptor injects Bearer Authorization on outbound requests and handles 403 token-refresh/retry. It has **no** dedicated automated tests. Regressions in header injection, refresh, or retry can ship undetected.
+Keycloak authentication lifecycle callbacks (`onAuthSuccess`, `onAuthError`, `onAuthRefreshSuccess`, `onAuthRefreshError`, `onAuthLogout`) are logged only at **debug**. In realistic deployments (logger default off / above debug), failed authentication, refresh failures, and logout leave no client-side trail. Messages also omit any non-secret identity context.
 
 #### Outcome
 
-A dedicated unit-test suite for the token interceptor covers the assessment Expected behaviours:
+1. `onAuthError`, `onAuthRefreshError`, and `onAuthLogout` emit **warn- or error-level** logs (not debug).
+2. Those logs include a **non-secret identity hint** when available (e.g. user id and/or email from token claims — never access/refresh tokens or passwords).
+3. Automated tests document the chosen levels and redaction.
+4. Assessment also Expected a **persistent server-side audit endpoint** to receive these events — that remains **residual** (tracked under LOG-007); this slice does not invent a new backend.
 
-1. Bearer header is injected on authenticated requests (non-empty token).
-2. When unauthenticated, the request does **not** carry a usable Bearer token value (assessment preferred: header absent; see Open questions for current empty-`Bearer ` behaviour).
-3. HTTP 403 triggers token refresh and request retry with an Authorization header.
-4. Refresh failure is observable to the caller; assessment also Expected logout on refresh failure — **residual** until a logout mechanism exists (AUTH-003 / AUTH-004); this slice must not invent logout.
-
-Tests run in CI with Angular HTTP testing utilities (no live IdP). Production interceptor logic is unchanged except if a tiny fix is required for tests to compile against the public API.
+Success callbacks (`onAuthSuccess` / `onAuthRefreshSuccess`) may remain at debug.
 
 #### Users & personas
 
 | Persona | Goal |
 | --- | --- |
-| Developer / reviewer | Catch interceptor regressions in CI |
-| Security reviewer | Evidence that auth-header and 403 refresh paths are covered |
-| Parks staff | No user-visible change from this slice |
+| Security / ops reviewer | See auth failures and logout in client logs when debug is off |
+| Parks staff | No user-visible change |
+| Implementer | Clear levels + identity rules; no token leakage |
 
 #### Scope
 
 **In scope**
 
-- New `token-interceptor` unit tests covering `@R-04.1`–`@R-04.6`
-- Document residual gaps vs assessment Expected (2) header-absent ideal and (4) logout-on-refresh-failure
-- Append `docs/pr-evidence.md` for TEST-001
+- Raise log level for `onAuthError`, `onAuthRefreshError`, `onAuthLogout` in the Keycloak service
+- Include non-secret identity when available (reuse existing identity helper if present)
+- Unit tests for `@R-05.1`–`@R-05.4`
+- Append `docs/pr-evidence.md` for LOG-002; must change `src/`
 
 **Out of scope**
 
-- Changing 403 → 401 refresh trigger (AUTH-006)
-- Host allowlist for Bearer injection (AUTH-007)
-- Implementing logout or login redirect on refresh failure (AUTH-003 / AUTH-004)
-- Broader HTTP client / API service test suites (other TEST-* findings)
+- Server-side / SIEM shipping or new audit HTTP endpoint (LOG-007)
+- Changing LoggerService default level (LOG-004)
+- AuthGuard denial logging (LOG-003 — shipped)
+- Implementing logout UX (AUTH-003)
 
 #### Open questions
 
-- **Expected (2) — header absent vs empty Bearer:** Current interceptor always sets `Authorization: Bearer ` + token-or-empty. Assessment Expected prefers the header absent when unauthenticated. **Decision for this slice:** tests assert there is no *usable* non-empty Bearer token; do not change production header omission here (may revisit with AUTH-007).
-- **Expected (4) — logout on refresh failure:** No logout API exists yet (AUTH-003). **Decision for this slice:** tests assert the refresh error is surfaced and that this PR does not add logout; document assessment Expected (4) as residual in evidence.
+- **Server-side audit endpoint:** Assessment Expected includes persistent server-side shipping. **Decision for this slice:** client-side warn/error + identity only; document LOG-007 residual in evidence (do not silently drop — call it residual).
+- **Warn vs error:** Prefer `warn` for expected logout and `error`/`warn` for auth/refresh failures; implementer may use warn for all three if simpler — tests accept warn or error.
 
 #### Sign-off (checkpoint 1)
 
@@ -68,16 +67,19 @@ Tests run in CI with Angular HTTP testing utilities (no live IdP). Production in
 
 ## Completed slices (recent)
 
+### TEST-001 — HTTP token interceptor unit coverage
+
+- **Issue:** [#68](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/68) (shipped)
+- **Feature:** `features/test-001-token-interceptor.feature`
+
 ### LOG-003 — Log authorization failures in the route guard
 
 - **Issue:** [#57](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/57) (shipped)
-- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `LOG-003`
 - **Feature:** `features/log-003-authz-failure-logging.feature`
 
 ### LOG-001 — Do not dump full configuration to the browser console
 
 - **Issue:** [#56](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/56) (shipped)
-- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `LOG-001`
 - **Feature:** `features/log-001-no-config-console-dump.feature`
 
 ---
