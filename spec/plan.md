@@ -1,3 +1,3 @@
-# Plan — BW-001 lock records unlock
+# Plan — BW-002 export-variance typo
 
-Add Unlock action (button or toggle) calling lockUnlockFiscalYear(year, false). Update template + tests. Append evidence.
+Fix typo in export.service.ts. Add/adjust unit test. Append evidence.
