@@ -1,3 +1,3 @@
-# Plan — AUTH-007 Bearer host allowlist
+# Plan — AUTHZ-003 hide manage-subareas header nav
 
-Inject ConfigService into TokenInterceptor; compare request URL origin to API_LOCATION; skip Authorization when hosts differ. Unit tests. Append evidence.
+Filter manage-subareas in HeaderComponent via isAllowed('manage-subareas'), matching other admin links. Unit tests admin vs non-admin. Append evidence.
