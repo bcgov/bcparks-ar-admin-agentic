@@ -7,19 +7,19 @@
 
 ## Active slice
 
-### DEP-002 — remove unused jquery
+### DEP-003 — migrate moment to luxon
 
-- **Issue:** [#93](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/93)
-- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `DEP-002`
-- **Feature:** `features/dep-002-remove-jquery.feature`
+- **Issue:** [#94](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/94)
+- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `DEP-003`
+- **Feature:** `features/dep-003-moment-to-luxon.feature`
 
 #### Problem
 
-jquery is loaded globally but unused by Bootstrap 5.
+moment maintenance-mode library used alongside luxon in two files.
 
 #### Outcome
 
-jquery removed from package.json and angular.json scripts.
+moment usages replaced with luxon; moment removed from dependencies.
 
 #### Users & personas
 
