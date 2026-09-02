@@ -505,3 +505,67 @@ Same shape as `REVIEW.md` — required before merge. Do not replace with a free-
 **Residual risk:** Post-deploy header/CORS smoke is deferred; HSTS preload list submission remains an operator action; remaining security headers stay with CONFIG-002 / CONFIG-004.
 
 - Reviewer: _______________ Date: _______________
+
+---
+
+# PR evidence — [RA CONFIG-002] Content-Security-Policy on CloudFront responses
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-config-002-add-csp-header |
+| Spec refs | spec/features/config-002-cloudfront-csp.feature |
+| Constitution articles touched | P5, P6, P7, J5 |
+| Tasks | CONFIG-002 entries in spec/tasks.md |
+| Authoring agent | GitHub Copilot Coding Agent |
+| Generated | 2026-09-02T19:00:07.790Z |
+
+## Intent
+
+The shared CloudFront response headers policy now emits a sourced `Content-Security-Policy` on every configured cache behaviour. The policy limits scripts to the app origin, blocks plugins and framing ancestors, and allowlists loginproxy plus attendance/API host patterns for connection, frame, and form flows while preserving HSTS, CORS, and CONFIG-004 headers.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| `config-002-cloudfront-csp.feature` | Yes | `@R-09.1` is covered by static inspection of `template.yaml`: the shared `CloudFrontResponseHeadersPolicy` sets CSP and all three behaviours reference that policy. |
+
+## Design system & accessibility
+
+| Check | Result |
+| --- | --- |
+| DS components used (list) | Not applicable — no UI changes. |
+| Tokens used (not hard-coded colour) | Not applicable — no style changes. |
+| BC Sans imported | Not applicable — unchanged. |
+| Manual a11y notes | Not applicable — infrastructure header only. |
+
+## Public-service minimums
+
+Checklist IDs addressed this PR: Not applicable — no user interface changes.
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Static | `sam validate --lint --region ca-central-1` | Passed — valid SAM template with CloudFront CSP response header configuration. |
+| Static | `grep -n "ContentSecurityPolicy\|ResponseHeadersPolicyId" template.yaml` | Confirmed CSP is configured and all three cache behaviours reference `!Ref CloudFrontResponseHeadersPolicy`. |
+| Acceptance / feature | `spec/features/config-002-cloudfront-csp.feature` | Satisfied by the static template checks above. |
+| A11y automation | Not run | Not applicable — no UI changes. |
+
+## Risks & follow-ups
+
+- Live header smoke testing against the deployed CloudFront distribution remains residual and requires deployment; this repository has no live CloudFront test job.
+- `style-src 'unsafe-inline'` is intentionally retained for the brownfield Angular/Bootstrap app as allowed by the CONFIG-002 spec; scripts remain limited to `'self'`.
+- API/connect allowlists use `*.execute-api.${AWSRegion}.amazonaws.com` and `*.bcparks.ca` to avoid silently narrowing environment-specific attendance API hosts beyond the signed spec.
+- No CSP `<meta>` fallback was added because the response header is configured on the shared policy used by all three behaviours.
+
+## Review receipt (checkpoint 3)
+
+Same shape as `REVIEW.md` — required before merge. Do not replace with a free-form sign-off.
+
+**Checked:** CONFIG-002 `@R-09.1`; `spec/spec.md`; `spec/plan.md`; `spec/tasks.md`; `template.yaml` CSP directives and three behaviour references; SAM validation.
+
+**Could not check:** Live deployed `Content-Security-Policy` response header, interactive Keycloak login, and live attendance/API calls under CSP; these require a deployed CloudFront distribution and live dependencies.
+
+**Residual risk:** Post-deploy header and authentication/API smoke testing is deferred; the brownfield `style-src 'unsafe-inline'` allowance remains documented above.
+
+- Reviewer: _______________ Date: _______________
