@@ -2100,3 +2100,65 @@ Checklist IDs addressed this PR: N/A (backend/service fix only; no UI markup mod
 **Residual risk:** None identified for BW-002. No gap accepted.
 
 - Reviewer: _______________ Date: _______________
+
+---
+
+# PR evidence — [RA DEP-001] chart.js@4.4.1 declared as runtime dependency but never imported (unused)
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-dep-001-remove-unused-chartjs |
+| Spec refs | spec/features/dep-001-remove-chartjs.feature |
+| Constitution articles touched | P1–P8 (confirm) |
+| Tasks | DEP-001 entries in `spec/tasks.md` |
+| Authoring agent | GitHub Copilot Coding Agent |
+| Generated | 2026-09-02T23:34:28.510Z |
+
+## Intent
+
+Removed unused `chart.js` dependency from `package.json` and updated `yarn.lock`. `chart.js` was declared in runtime dependencies but had zero import references in any source file.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| `dep-001-remove-chartjs.feature` `@R-34.1` | Yes | Verified `chart.js` is not present in `package.json` dependencies or `yarn.lock`. |
+
+## Design system & accessibility
+
+| Check | Result |
+| --- | --- |
+| DS components used (list) | Not applicable — no UI changes. |
+| Tokens used (not hard-coded colour) | Not applicable — no style changes. |
+| BC Sans imported | Not applicable — unchanged. |
+| Manual a11y notes | Not applicable — dependency removal only, no rendered UI change. |
+
+## Public-service minimums
+
+Checklist IDs addressed this PR: Not applicable — no user interface changes.
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Static | `grep chart.js package.json` | Passed: `chart.js` is absent from `package.json` dependencies. |
+| Unit | `yarn test-ci` | Passed: Karma unit test suite passes cleanly. |
+| Lint | `yarn lint` | Passed: 0 errors. |
+| Acceptance / feature | `spec/features/dep-001-remove-chartjs.feature` | Satisfied by static package manifest inspection for `@R-34.1`. |
+| A11y automation | Not run | Not applicable — no UI changes. |
+
+## Risks & follow-ups
+
+- None identified for DEP-001.
+
+## Review receipt (checkpoint 3)
+
+Same shape as `REVIEW.md` — required before merge. Do not replace with a free-form sign-off.
+
+**Checked:** DEP-001 `@R-34.1`; `spec/spec.md`; `spec/tasks.md`; `package.json`; `yarn.lock`.
+
+**Could not check:** None.
+
+**Residual risk:** None identified for DEP-001. No gap accepted.
+
+- Reviewer: _______________ Date: _______________
