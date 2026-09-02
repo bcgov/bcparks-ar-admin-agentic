@@ -1,5 +1,7 @@
-# Tasks — SECRET-001 (active)
+# Tasks — AUTH-002 (active)
 
-- [x] In `.github/workflows/lza-deploy-admin-prod.yaml`, set `DomainCertificateArn=${{ vars.DOMAIN_CERTIFICATE_ARN }}` (remove literal ACM ARN)
-- [x] Append `docs/pr-evidence.md` for SECRET-001 without printing the ARN value; note ops residual to set the GitHub Environment variable
-- [ ] Checkpoint 3 + merge (must change `.github/workflows/`; refuse evidence-only)
+- [ ] Add `getTokenClaims()` (or equivalent) on `KeycloakService` returning `keycloakAuth.tokenParsed` for real sessions
+- [ ] Rewire `isAuthorized`, `isAdmin`, `getWelcomeMessage`, `getIdpFromToken`, and other KeycloakService authz/identity helpers to use it (not `JwtUtil.decodeToken` on the real-auth path)
+- [ ] Add/update unit tests asserting tokenParsed is used and JwtUtil.decodeToken is not used on that path
+- [ ] Append `docs/pr-evidence.md` for AUTH-002 (do not overwrite prior slices)
+- [ ] Checkpoint 3 + merge (must change `src/`; refuse evidence-only)
