@@ -1,3 +1,3 @@
-# Plan — AUTH-006 TokenInterceptor 401 refresh
+# Plan — AUTH-007 Bearer host allowlist
 
-Change TokenInterceptor to refresh on HTTP 401 instead of 403. Update tests and JSDoc. Append evidence.
+Inject ConfigService into TokenInterceptor; compare request URL origin to API_LOCATION; skip Authorization when hosts differ. Unit tests. Append evidence.
