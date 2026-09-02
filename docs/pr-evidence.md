@@ -1143,3 +1143,66 @@ N/A — no UI change.
 **Residual risk:** None identified beyond the accepted, explicitly out-of-scope follow-ups noted above (LOG-006, LOG-007, LOG-008).
 
 - Reviewer: _______________ Date: _______________
+
+---
+
+# PR evidence — [RA LOG-006] Structured JSON log format
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-log-006-redesign-logger-service |
+| Spec refs | spec/features/log-006-structured-log-format.feature, spec/spec.md (LOG-006), spec/plan.md, spec/tasks.md |
+| Constitution articles touched | N/A — logging behaviour only, no UI/DS component changes |
+| Tasks | TASK-001, TASK-002, TASK-003, TASK-004 (spec/tasks.md) |
+| Authoring agent | GitHub Copilot coding agent |
+| Generated | 2026-09-02T20:58:20.080Z |
+
+## Intent
+
+`LoggerService.log()` previously built a plain-text string via `entryToString()`
+(`'(Level) timestamp message'`) with no way to correlate entries with a user, session, or request.
+`log()` now builds a structured object — `{ level, timestamp, userId, sessionId, correlationId,
+message, context, securityEvent }` — and serializes it with `JSON.stringify()` before passing it to
+`console.log()`. `timestamp` is ISO-8601 (`Date.toISOString()`), `userId`/`sessionId`/`correlationId`/
+`context` are `null` placeholders (extensible once wired to Keycloak/request context — out of scope
+per `spec/spec.md`), and `securityEvent` is `true` whenever the entry is logged at `Warn`/`Error`/
+`Fatal` level (i.e. `level >= LogLevel.Warn`), `false` for `Debug`/`Info`.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| `log-006-structured-log-format.feature` `@R-19.1` | Yes | `LoggerService.log()` now emits `JSON.stringify({ level, timestamp, userId, sessionId, correlationId, message, context, securityEvent })` instead of a plain-text string; `userId`/`sessionId`/`correlationId` are present as `null` placeholders. |
+| `log-006-structured-log-format.feature` `@R-19.2` | Yes | `securityEvent` is computed as `level >= LogLevel.Warn && level !== LogLevel.Off`, so `warn()`, `error()`, and `fatal()` always set it `true`; `debug()`/`info()` set it `false`. |
+
+## Design system & accessibility
+
+N/A — this change is limited to `src/app/services/logger.service.ts` (non-UI); no templates, styles, or DS components are touched.
+
+## Public-service minimums
+
+N/A — no UI change.
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Unit | `npx ng test --watch=false --browsers=ChromeHeadlessNoSandbox --include='**/logger.service.spec.ts'` | PASS — 5/5 (2 new specs added: JSON-parseable output with required fields for `@R-19.1`; `securityEvent` true for warn/error and false for debug/info for `@R-19.2`) |
+| Acceptance / feature | spec/features/log-006-structured-log-format.feature | Mapped 1:1 to the two unit test assertions above (Karma/Jasmine is the project's existing test runner; no separate Gherkin executor is wired up in this repo) |
+| Manual | Ran the updated suite and inspected the `console.log` output captured by the spy | Confirmed valid JSON with `level`, `timestamp`, `message`, `userId`, `sessionId`, `correlationId`, `context`, `securityEvent` fields |
+
+## Risks & follow-ups
+
+- SIEM / server-side log shipping (LOG-007), wiring real `userId`/`sessionId`/`correlationId` from
+  Keycloak/request context, and a global Angular `ErrorHandler` (LOG-008) remain out of scope for
+  this slice, as noted in `spec/spec.md`.
+
+## Review receipt (checkpoint 3)
+
+**Checked:** `src/app/services/logger.service.ts` diff; `logger.service.spec.ts` new/updated specs pass locally against Karma/ChromeHeadless (5/5); manual read-through confirming every `log()` call path (`debug`/`info`/`warn`/`error`/`fatal`) produces valid JSON with the required fields and correct `securityEvent` flag.
+
+**Could not check:** End-to-end verification against a real deployed environment or a genuine log-shipping/SIEM integration (explicitly out of scope for this slice; no CI/deploy environment available in this sandbox).
+
+**Residual risk:** None identified beyond the accepted, explicitly out-of-scope follow-ups noted above (LOG-007, LOG-008, wiring real identity/correlation values).
+
+- Reviewer: _______________ Date: _______________

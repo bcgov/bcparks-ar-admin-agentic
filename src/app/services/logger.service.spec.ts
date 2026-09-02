@@ -70,4 +70,52 @@ describe('LoggerService', () => {
     expect(message).toContain('logLevel');
     expect(message.toLowerCase()).toContain('debug');
   });
+
+  // @R-19.1: Log entries are JSON objects with required fields
+  it('should emit log entries as JSON objects with required fields', () => {
+    const logSpy = spyOn(console, 'log');
+
+    const loggerService = TestBed.inject(LoggerService);
+    loggerService.warn('Some Warn Message');
+
+    expect(logSpy).toHaveBeenCalled();
+    const output = logSpy.calls.mostRecent().args[0];
+    let parsed: any;
+    expect(() => (parsed = JSON.parse(output))).not.toThrow();
+
+    expect(parsed.level).toEqual('Warn');
+    expect(parsed.timestamp).toBeDefined();
+    expect(parsed.message).toEqual('Some Warn Message');
+    expect(parsed).toEqual(jasmine.objectContaining({
+      userId: null,
+      sessionId: null,
+      correlationId: null
+    }));
+  });
+
+  // @R-19.2: Security events include securityEvent flag
+  it('should set securityEvent true for warn and error, false for debug/info', () => {
+    const logSpy = spyOn(console, 'log');
+
+    const loggerService = TestBed.inject(LoggerService);
+
+    loggerService.warn('Some Warn Message');
+    let parsed = JSON.parse(logSpy.calls.mostRecent().args[0]);
+    expect(parsed.securityEvent).toBe(true);
+
+    loggerService.error('Some Error Message');
+    parsed = JSON.parse(logSpy.calls.mostRecent().args[0]);
+    expect(parsed.securityEvent).toBe(true);
+
+    logSpy.calls.reset();
+    window['__env'] = { ...window['__env'], logLevel: LogLevel.All };
+
+    loggerService.debug('Some Debug Message');
+    parsed = JSON.parse(logSpy.calls.mostRecent().args[0]);
+    expect(parsed.securityEvent).toBe(false);
+
+    loggerService.info('Some Info Message');
+    parsed = JSON.parse(logSpy.calls.mostRecent().args[0]);
+    expect(parsed.securityEvent).toBe(false);
+  });
 });
