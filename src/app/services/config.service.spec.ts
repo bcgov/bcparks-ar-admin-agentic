@@ -19,8 +19,7 @@ describe('ConfigService', () => {
   }
 
   let mockHttpClientLogLevelZero = {
-    get: (location) => {
-      console.log("Getting configuration:", location);
+    get: () => {
       return of({
         debug: true,
         configurationEndpoint: true,
@@ -86,9 +85,31 @@ describe('ConfigService', () => {
     TestBed.overrideProvider(HttpClient, { useValue: mockHttpClientLogLevelZero });
     service = TestBed.inject(ConfigService);
 
+    const consoleLog = spyOn(console, 'log');
+
     expect(service).toBeTruthy();
     await service.init();
     expect(service.logLevel).toEqual(0);
+    expect(consoleLog).not.toHaveBeenCalled();
+  });
+
+  it('should not log the front-end env configuration when log level is 0', async () => {
+    window['__env'] = {
+      API_LOCATION: 'https://api.example.test',
+      API_PUBLIC_PATH: '/api',
+      KEYCLOAK_URL: 'https://keycloak.example.test',
+      KEYCLOAK_REALM: 'example-realm',
+      KEYCLOAK_CLIENT_ID: 'example-client',
+      configEndpoint: false,
+      logLevel: 0
+    }
+    service = TestBed.inject(ConfigService);
+
+    const consoleLog = spyOn(console, 'log');
+
+    await service.init();
+
+    expect(consoleLog).not.toHaveBeenCalled();
   });
 
   it('should be created and throw', async () => {

@@ -38,11 +38,6 @@ export class ConfigService {
       }
     }
 
-    if (this.configuration?.logLevel !== undefined
-        && this.configuration['logLevel'] === 0) {
-      console.log('Configuration:', this.configuration);
-    }
-
     return Promise.resolve();
   }
 
