@@ -67,6 +67,49 @@ Resources:
           QueryStringsConfig:
             QueryStringBehavior: all
 
+  CloudFrontResponseHeadersPolicy:
+    Type: AWS::CloudFront::ResponseHeadersPolicy
+    Properties:
+      ResponseHeadersPolicyConfig:
+        Name: !Sub ${AWS::StackName}-${Env}-security-headers
+        Comment: "Security headers including HSTS, CSP, X-Content-Type-Options, Referrer-Policy"
+        SecurityHeadersConfig:
+          StrictTransportSecurity:
+            Value: "max-age=63072000; includeSubDomains; preload"
+            Override: true
+          ContentTypeOptions:
+            Value: nosniff
+            Override: true
+          ReferrerPolicy:
+            Value: "strict-origin-when-cross-origin"
+            Override: true
+          ContentSecurityPolicy:
+            Value: "default-src 'self'; img-src 'self' data: https:; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self' https: wss:; font-src 'self'"
+            Override: true
+          FrameOptions:
+            Value: SAMEORIGIN
+            Override: true
+          PermissionsPolicy:
+            Value: "camera=(), microphone=(), geolocation=()"
+            Override: true
+        CorsConfig:
+          AccessControlAllowOrigins:
+            - "*"
+          AccessControlAllowHeaders:
+            - "*"
+          AccessControlAllowMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+            - PUT
+            - POST
+            - PATCH
+            - DELETE
+          AccessControlAllowCredentials: false
+          AccessControlMaxAge: 0
+          AccessControlExposeHeaders:
+            - "*"
+
   CloudFrontDistribution:
     Type: AWS::CloudFront::Distribution
     Properties:
@@ -121,8 +164,7 @@ Resources:
           CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
           TargetOriginId: !Ref DistS3Bucket
           ViewerProtocolPolicy: redirect-to-https
-          # Simple CORS
-          ResponseHeadersPolicyId: 60669652-455b-4ae9-85a4-c4c02393f86c
+          ResponseHeadersPolicyId: !Ref CloudFrontResponseHeadersPolicy
         CacheBehaviors:
           - PathPattern: !Sub /${ApiStage}/*
             AllowedMethods:
@@ -137,8 +179,7 @@ Resources:
             CachePolicyId: !Ref CloudFrontAPICachePolicy
             TargetOriginId: !Sub ${ApiGatewayId}
             ViewerProtocolPolicy: redirect-to-https
-            # Simple CORS
-            ResponseHeadersPolicyId: 60669652-455b-4ae9-85a4-c4c02393f86c
+            ResponseHeadersPolicyId: !Ref CloudFrontResponseHeadersPolicy
           - PathPattern: !Sub ${BaseHref}*
             Compress: true
             AllowedMethods:
@@ -149,8 +190,7 @@ Resources:
             CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
             TargetOriginId: !Ref DistS3Bucket
             ViewerProtocolPolicy: redirect-to-https
-            # Simple CORS
-            ResponseHeadersPolicyId: 60669652-455b-4ae9-85a4-c4c02393f86c
+            ResponseHeadersPolicyId: !Ref CloudFrontResponseHeadersPolicy
         Logging:
           Bucket: !GetAtt LogsS3Bucket.DomainName
           IncludeCookies: false
