@@ -7,19 +7,19 @@
 
 ## Active slice
 
-### DEP-003 — migrate moment to luxon
+### LOG-008 — global ErrorHandler
 
-- **Issue:** [#94](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/94)
-- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `DEP-003`
-- **Feature:** `features/dep-003-moment-to-luxon.feature`
+- **Issue:** [#95](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/95)
+- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `LOG-008`
+- **Feature:** `features/log-008-global-error-handler.feature`
 
 #### Problem
 
-moment maintenance-mode library used alongside luxon in two files.
+No custom Angular ErrorHandler; unhandled errors only hit console.error.
 
 #### Outcome
 
-moment usages replaced with luxon; moment removed from dependencies.
+AppErrorHandler registered; unhandled errors logged via LoggerService with sanitized output.
 
 #### Users & personas
 
@@ -38,6 +38,7 @@ moment usages replaced with luxon; moment removed from dependencies.
 
 **Out of scope**
 
+- Remote monitoring endpoint / SIEM integration
 - Unrelated findings
 
 #### Open questions
