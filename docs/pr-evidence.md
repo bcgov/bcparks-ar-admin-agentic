@@ -1928,3 +1928,64 @@ Same shape as `REVIEW.md` — required before merge. Do not replace with a free-
 **Residual risk:** None identified for AUTHZ-004. No gap accepted.
 
 - Reviewer: _______________ Date: _______________
+
+---
+
+# PR evidence — [RA AUTHZ-005] Incomplete optional chaining in isAdmin() can throw TypeError on atypically-structured JWT
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-authz-005-fix-typeerror-in-isadmin |
+| Spec refs | `spec/features/authz-005-isadmin-optional-chaining.feature` |
+| Constitution articles touched | P3, P5, P7 |
+| Tasks | AUTHZ-005 TASK-001–TASK-003 in `spec/tasks.md` |
+| Authoring agent | GitHub Copilot Coding Agent |
+| Generated | 2026-09-02T23:10:30.213Z |
+
+## Intent
+
+In `KeycloakService.isAdmin()`, optional chaining was applied up to `['attendance-and-revenue']` but omitted before `.roles.includes()`. If a JWT contained `resource_access['attendance-and-revenue']` as an object without a `roles` property, evaluating `isAdmin()` threw `TypeError: Cannot read properties of undefined (reading 'includes')`. This uncaught exception propagated through `isAllowed()` into `AuthGuard.canActivate()`. `isAdmin()` now safely uses optional chaining on `.roles?.includes(...)`, evaluating to `false` without throwing an exception when `roles` is missing or undefined.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| `authz-005-isadmin-optional-chaining.feature` `@R-31.1` | Yes | `isAdmin()` returns `false` and does not throw a `TypeError` when the `roles` property is absent. |
+| `authz-005-isadmin-optional-chaining.feature` `@R-31.2` | Yes | `isAdmin()` still returns `true` for valid admin tokens containing the admin role. |
+
+## Design system & accessibility
+
+| Check | Result |
+| --- | --- |
+| DS components used (list) | Not applicable — no UI changes. |
+| Tokens used (not hard-coded colour) | Not applicable — no style changes. |
+| BC Sans imported | Not applicable — no UI changes. |
+| Manual a11y notes | Not applicable — service-layer logic change only. |
+
+## Public-service minimums
+
+Checklist IDs addressed this PR: Not applicable — no UI changes.
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Unit | `npx ng test --watch=false --browsers=ChromeHeadlessNoSandbox --include='**/keycloak.service.spec.ts'` | Passed: 34 SUCCESS (includes new unit test verifying missing `roles` returns `false` without throwing). |
+| Acceptance / feature | `spec/features/authz-005-isadmin-optional-chaining.feature` | Covered by `keycloak.service.spec.ts` unit tests for `@R-31.1` and `@R-31.2`. |
+| A11y automation | Not run | Not applicable — no UI changes. |
+
+## Risks & follow-ups
+
+- None identified for AUTHZ-005. Optional chaining on `.roles?.includes()` evaluates safely to `false` when `roles` is undefined or absent.
+
+## Review receipt (checkpoint 3)
+
+Same shape as `REVIEW.md` — required before merge. Do not replace with a free-form sign-off.
+
+**Checked:** AUTHZ-005 `@R-31.1`–`@R-31.2`; `spec/spec.md`; `spec/tasks.md`; targeted `keycloak.service.spec.ts` Karma/Jasmine suite (34/34 passing); manual review of `KeycloakService.isAdmin()`.
+
+**Could not check:** A live Keycloak realm exchanging real malformed JWTs through the deployed UI; verification is via unit tests with mocked token claims.
+
+**Residual risk:** None identified for AUTHZ-005. No gap accepted.
+
+- Reviewer: _______________ Date: _______________
