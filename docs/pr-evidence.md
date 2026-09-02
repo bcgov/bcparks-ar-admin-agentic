@@ -1419,6 +1419,23 @@ Same shape as `REVIEW.md` — required before merge. Do not replace with a free-
 
 ---
 
+# PR evidence — [RA VULN-001] Render historical pill highlights as plain text
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-vuln-001-fix-stored-xss |
+| Spec refs | spec/features/auth-001-pkce.feature, spec/features/auth-002-token-claims.feature, spec/features/auth-003-logout.feature, spec/features/authz-001-admin-route-guard.feature, spec/features/authz-002-admin-only-routes.feature, spec/features/config-002-cloudfront-csp.feature, spec/features/config-003-cloudfront-hsts.feature, spec/features/config-004-cloudfront-security-headers.feature, spec/features/config-005-trivy-triggers.feature, spec/features/config-006-deploy-log-level.feature, spec/features/crypto-001-cloudfront-tls-minimum.feature, spec/features/example-happy-path.feature, spec/features/log-001-no-config-console-dump.feature, spec/features/log-002-keycloak-lifecycle-log-levels.feature, spec/features/log-003-authz-failure-logging.feature, spec/features/log-004-logger-default-level.feature, spec/features/log-005-sanitize-error-logging.feature, spec/features/log-006-structured-log-format.feature, spec/features/log-007-browser-console-logging.feature, spec/features/secret-001-prod-certificate-arn.feature, spec/features/secret-002-nonprod-account-ids.feature, spec/features/secret-003-route53-zone-id.feature, spec/features/test-001-token-interceptor.feature, spec/features/test-003-e2e-scaffold.feature, spec/features/vuln-001-historical-pill-xss.feature |
+| Constitution articles touched | P1–P8 (confirm) |
+| Tasks | see spec/tasks.md |
+| Authoring agent | unspecified |
+| Generated | 2026-09-02T21:42:55.566Z |
+
+## Intent
+
+Historical sub-area name highlighting now binds plain-text match segments rather
+than generated HTML. Malicious markup is displayed literally and cannot create
+elements in the typeahead.
+
 # PR evidence — [RA TEST-003] E2E scaffold and smoke coverage
 
 | Field | Value |
@@ -1461,6 +1478,9 @@ Adds Playwright E2E scaffolding and a smoke test that verifies the application s
 | `secret-002-nonprod-account-ids.feature` | TODO | |
 | `secret-003-route53-zone-id.feature` | TODO | |
 | `test-001-token-interceptor.feature` | TODO | |
+| `test-003-e2e-scaffold.feature` | TODO | |
+| `vuln-001-historical-pill-xss.feature` | Yes | `@R-24.1`–`@R-24.2`: text interpolation and literal malicious-markup rendering test |
+
 | `test-003-e2e-scaffold.feature` `@R-23.1`–`@R-23.3` | Yes | Playwright dependency and script, application-shell smoke test, and deferred auth-boundary test documentation added. |
 
 
@@ -1468,6 +1488,15 @@ Adds Playwright E2E scaffolding and a smoke test that verifies the application s
 
 | Check | Result |
 | --- | --- |
+| DS components used (list) | Existing historical-pill component |
+| Tokens used (not hard-coded colour) | No visual-token changes |
+| BC Sans imported | Existing application styling unchanged |
+| Manual a11y notes | Preserves the existing semantic spans and highlight class; the content remains readable as text |
+
+## Public-service minimums
+
+Checklist IDs addressed this PR: R-24.1, R-24.2
+
 | DS components used (list) | Not applicable — no UI changes. |
 | Tokens used (not hard-coded colour) | Not applicable — no UI changes. |
 | BC Sans imported | Not applicable — unchanged. |
@@ -1481,6 +1510,14 @@ Checklist IDs addressed this PR: Not applicable — no UI changes.
 
 | Type | Command / path | Result |
 | --- | --- | --- |
+| Unit | `yarn test-ci --include='src/app/shared/components/historical-pill/historical-pill.component.spec.ts'` | Passed: 3/3 |
+| Acceptance / feature | `spec/features/vuln-001-historical-pill-xss.feature` | Covered by focused unit test |
+| A11y automation | Not applicable; no new interactive UI |
+
+## Risks & follow-ups
+
+- Server-side validation of sub-area names is explicitly out of scope for VULN-001.
+
 | E2E smoke | `yarn e2e` | Passed — application title and visible root verified using a local test-only runtime configuration. |
 | Build | `yarn build` | Passed. |
 | Acceptance / feature | `spec/features/test-003-e2e-scaffold.feature` `@R-23.1`–`@R-23.3` | Satisfied by Playwright scaffold, smoke test, and documentation. |
@@ -1494,6 +1531,79 @@ Checklist IDs addressed this PR: Not applicable — no UI changes.
 
 Same shape as `REVIEW.md` — required before merge. Do not replace with a free-form sign-off.
 
+**Checked:** VULN-001 `@R-24.1`–`@R-24.2`; `spec/features/vuln-001-historical-pill-xss.feature`; component TypeScript/template; focused malicious-markup rendering test.
+
+**Could not check:** Live authenticated typeahead against the API; it requires Keycloak and the companion API.
+
+**Residual risk:** Server-side validation is out of scope; this UI now renders all sub-area name content as text.
+
+- Reviewer: _______________ Date: _______________
+
+---
+
+# PR evidence — [RA AUTH-004] Token refresh failure redirects to login
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-auth-004-fix-token-refresh-redirect |
+| Spec refs | spec/features/auth-004-token-refresh-redirect.feature |
+| Constitution articles touched | P3, P5, P7, J3, J5 |
+| Tasks | AUTH-004 TASK-001–TASK-003 in `spec/tasks.md` |
+| Authoring agent | GitHub Copilot Coding Agent |
+| Generated | 2026-09-02T21:52:30.183Z |
+
+## Intent
+
+When a background Keycloak token refresh fails after `onTokenExpired` (session expired or refresh token revoked), `KeycloakService` now logs the failure above debug and forces a full-page navigation to the login page instead of leaving the user in an authenticated-looking state with an unusable token. Successful refreshes are unchanged.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| `auth-004-token-refresh-redirect.feature` | Yes | `@R-25.1` covered by `src/app/services/keycloak.service.spec.ts` ("redirects to login when the background token refresh fails"). The handler is only registered when Keycloak is enabled, so local mock auth is unaffected. |
+| All other `spec/features/*.feature` | Not applicable | Out of scope for AUTH-004; retained from the feature index. |
+
+## Design system & accessibility
+
+| Check | Result |
+| --- | --- |
+| DS components used (list) | Not applicable — no UI markup changes; the existing `/login` page is reused. |
+| Tokens used (not hard-coded colour) | Not applicable — no style changes. |
+| BC Sans imported | Not applicable — unchanged. |
+| Manual a11y notes | Redirect lands on the existing login page, giving a clean re-authentication flow rather than a silent failure state; no new components rendered. |
+
+## Public-service minimums
+
+Checklist IDs addressed this PR: Not applicable — no new user interface elements.
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Unit | `yarn test-ci --include src/app/services/keycloak.service.spec.ts` | Passed: 29 SUCCESS |
+| Unit (full suite) | `yarn test-ci` | Passed: 242 SUCCESS |
+| Lint | `yarn lint` | Passed: 0 errors, 59 pre-existing `@angular-eslint/prefer-standalone` warnings in unrelated files. |
+| Acceptance / feature | `spec/features/auth-004-token-refresh-redirect.feature` | Implemented by unit coverage for `@R-25.1`, plus tests that a successful refresh does not redirect and that the login URL respects the app base href without looping when already on `/login`. |
+| A11y automation | Not run | Not applicable — no UI changes. |
+
+## Risks & follow-ups
+
+- The refresh failure log level was raised from `log` to `error` so the forced redirect is diagnosable; no token material is logged.
+- `refreshToken()` (the interceptor-driven refresh path) still surfaces failures to its caller and is unchanged; interceptor 401/403 semantics remain deferred to AUTH-006.
+- AUTH-003 logout behaviour is unchanged by this slice.
+
+## Review receipt (checkpoint 3)
+
+Same shape as `REVIEW.md` — required before merge. Do not replace with a free-form sign-off.
+
+**Checked:** AUTH-004 `@R-25.1`; `spec/tasks.md` TASK-001–TASK-003; targeted and full Karma/Jasmine suites; `yarn lint`.
+
+**Could not check:** A live Keycloak session expiring in a deployed environment; the redirect is verified only through unit tests with a mocked adapter.
+
+**Residual risk:** AUTH-006 (401 handling) and AUTH-007 (request host allowlisting) remain out of scope and unaddressed.
+
+- Reviewer: _______________ Date: _______________
+
 **Checked:** TEST-003 `@R-23.1`–`@R-23.3`; `yarn e2e`; `yarn build`; `spec/spec.md`; `spec/tasks.md`; Playwright configuration and E2E documentation.
 
 **Could not check:** Live Keycloak OIDC login or role-based authorization boundaries; no dedicated test realm or synthetic accounts are configured.
@@ -1501,4 +1611,3 @@ Same shape as `REVIEW.md` — required before merge. Do not replace with a free-
 **Residual risk:** Keycloak authentication and role enforcement remain dependent on existing unit coverage until dedicated integration-test identities are available.
 
 - Reviewer: _______________ Date: _______________
-

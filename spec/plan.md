@@ -1,14 +1,7 @@
-# Plan — TEST-003 E2E scaffold
+# Plan — AUTH-004 token refresh failure redirect
 
-> Checkpoint 2 for issue [#81](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/81).
+> Checkpoint 2 for issue [#83](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/83).
 
 ## Approach
 
-1. Add @playwright/test + playwright.config.ts
-2. e2e/smoke/app-shell.spec.ts (title + app-root)
-3. docs/e2e-testing.md for planned auth-boundary tests
-4. yarn e2e script; append evidence
-
-## Out of scope
-
-Full Keycloak automation; CI required status for e2e.
+On onTokenExpired, if updateToken rejects: log error and window.location.assign('/login'). Unit test with mocked updateToken failure. Append evidence.

@@ -1,6 +1,8 @@
-# Tasks — TEST-003
+# Tasks — TEST-003 E2E scaffold
 
 > Issue [#81](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/81)
+
+## Active slice — TEST-003
 
 - [x] **TASK-001** — Playwright dep + e2e script (@R-23.1)
 - [x] **TASK-002** — Smoke test app shell (@R-23.2)

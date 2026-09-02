@@ -7,19 +7,19 @@
 
 ## Active slice
 
-### TEST-003 — E2E scaffold and smoke coverage
+### AUTH-004 — Token refresh failure redirects to login
 
-- **Issue:** [#81](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/81)
-- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `TEST-003`
-- **Feature:** `features/test-003-e2e-scaffold.feature`
+- **Issue:** [#83](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/83)
+- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `AUTH-004`
+- **Feature:** `features/auth-004-token-refresh-redirect.feature`
 
 #### Problem
 
-No end-to-end or security-focused integration tests exist.
+Silent token-refresh failure only logs; users can remain in a broken authenticated-looking state.
 
 #### Outcome
 
-Playwright is present with a smoke test for the app shell and documentation of planned auth-boundary tests. Full Keycloak OIDC automation is deferred.
+When updateToken fails after onTokenExpired, the app navigates to /login.
 
 #### Users & personas
 
@@ -32,13 +32,12 @@ Playwright is present with a smoke test for the app shell and documentation of p
 
 **In scope**
 
-- @playwright/test, playwright.config, e2e smoke, docs/e2e-testing.md, yarn e2e script
-- Append evidence; must change package/src/e2e paths
+- KeycloakService onTokenExpired failure path using window.location.assign('/login')
+- Unit tests; append evidence; must change src/
 
 **Out of scope**
 
-- Full Keycloak OIDC automation
-- Making e2e a required CI gate
+- Interceptor 401 semantics (AUTH-006)
 
 #### Open questions
 
@@ -56,4 +55,4 @@ Playwright is present with a smoke test for the app shell and documentation of p
 
 ## Completed slices (recent)
 
-### SECRET-003 shipped — see rematch wiki
+### VULN-001 shipped — see rematch wiki
