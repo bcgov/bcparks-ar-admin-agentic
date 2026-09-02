@@ -7,19 +7,19 @@
 
 ## Active slice
 
-### BW-001 — Lock records unlock workflow
+### BW-002 — export-variance typo fix
 
-- **Issue:** [#90](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/90)
-- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `BW-001`
-- **Feature:** `features/bw-001-lock-records-unlock.feature`
+- **Issue:** [#91](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/91)
+- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `BW-002`
+- **Feature:** `features/bw-002-export-variance-typo.feature`
 
 #### Problem
 
-LockRecordsComponent always passes lock=true; no UI path to unlock a fiscal year.
+ExportService uses typo 'expor-variance' causing variance status check to fail silently.
 
 #### Outcome
 
-Admins can unlock a fiscal year via the UI; lock=false is invoked on unlock.
+Endpoint key is 'export-variance'; variance job status is retrieved correctly.
 
 #### Users & personas
 
