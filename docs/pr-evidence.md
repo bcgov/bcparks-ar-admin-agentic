@@ -2045,3 +2045,58 @@ Checklist IDs addressed this PR: N/A (test-only change; no UI markup modified)
 **Residual risk:** The Lock/Unlock affordance is split across two UI locations (top form for Lock, table row for Unlock), which may be less discoverable than a single toggle; deferred as a UX follow-up, not a functional defect.
 
 - Reviewer: _______________ Date: _______________
+
+---
+
+# PR evidence — [RA BW-002] Export service has typo 'expor-variance' — variance job status check silently fails
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-bw-002-fix-typo-export-variance |
+| Spec refs | spec/features/bw-002-export-variance-typo.feature |
+| Tasks | BW-002 entries in `spec/tasks.md` |
+| Authoring agent | GitHub Copilot Coding Agent |
+
+## Intent
+
+`ExportService.checkForReports()` called `ApiService.get('expor-variance', ...)` (missing the trailing 't') for the `variance` dataType branch. The misspelled endpoint key caused the API call to fail, which the surrounding `try/catch` silently swallowed by resetting the polling data item to `null` — masking the failure and risking users starting duplicate export jobs while waiting for a status that would never resolve. This slice corrects the key to `'export-variance'` and adds a regression test asserting the exact endpoint key passed to `ApiService.get` for the variance branch.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| `bw-002-export-variance-typo.feature` `@R-33.1` (Variance branch calls export-variance endpoint) | Yes | `ExportService.checkForReports()` now calls `this.apiService.get('export-variance', { getJob: true, fiscalYearEnd })`; covered by a new unit test in `export.service.spec.ts` asserting the exact call arguments. |
+
+## Design system & accessibility
+
+| Check | Result |
+| --- | --- |
+| DS components used (list) | N/A — no UI changes; this is a service-layer string fix. |
+| Tokens used (not hard-coded colour) | N/A |
+| BC Sans imported | N/A |
+| Manual a11y notes | N/A — no UI/markup touched. |
+
+## Public-service minimums
+
+Checklist IDs addressed this PR: N/A (backend/service fix only; no UI markup modified)
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Unit | `npx ng test --watch=false --include='src/app/services/export.service.spec.ts'` (Chrome Headless, no sandbox) | Passed — 6/6 specs, including the new test asserting `ApiService.get` is called with `'export-variance'`. |
+| Acceptance / feature | `spec/features/bw-002-export-variance-typo.feature` `@R-33.1` | Satisfied by the unit test above. |
+
+## Risks & follow-ups
+
+- None noted. The fix is a single-string correction with an accompanying regression test; no other endpoint keys in `export.service.ts` were found to be misspelled.
+
+## Review receipt (checkpoint 3)
+
+**Checked:** BW-002 `@R-33.1`; `spec/spec.md`; `spec/tasks.md`; `spec/features/bw-002-export-variance-typo.feature`; `ExportService.checkForReports()`.
+
+**Could not check:** End-to-end verification against the live export-variance backend endpoint (only unit-level mock verification was performed).
+
+**Residual risk:** None identified for BW-002. No gap accepted.
+
+- Reviewer: _______________ Date: _______________
