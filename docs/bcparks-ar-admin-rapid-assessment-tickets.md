@@ -18,7 +18,7 @@ Generated: 2026-08-12 · Reset for agentic-b: 2026-08-31 · Raw findings: **55**
 | ID | Severity | Domain | Component | Title | File? | GitHub |
 | --- | --- | --- | --- | --- | --- | --- |
 | AUTH-001 | High | AUTHENTICATION | auth-layer | Keycloak OIDC client initialised with `{}` — PKCE (S256) not config... | yes | pending |
-| AUTHZ-001 | High | AUTHORIZATION | auth-layer | Authorization bypass via URL query parameter injection on admin-onl... | yes | #55 |
+| AUTHZ-001 | High | AUTHORIZATION | auth-layer | Authorization bypass via URL query parameter injection on admin-onl... | yes | shipped #55 |
 | CONFIG-002 | High | CONFIGURATION | cloudfront-cdn | Missing Content-Security-Policy Header on All CloudFront Cache Beha... | yes | pending |
 | CONFIG-003 | High | CONFIGURATION | cloudfront-cdn | Missing Strict-Transport-Security (HSTS) Header on All CloudFront C... | yes | pending |
 | CONFIG-004 | High | CONFIGURATION | cloudfront-cdn | Missing X-Frame-Options, X-Content-Type-Options, Referrer-Policy, a... | yes | pending |
