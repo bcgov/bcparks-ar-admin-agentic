@@ -1,6 +1,36 @@
 {
-  "generatedAt": "2026-09-02T17:13:19.487Z",
+  "generatedAt": "2026-09-02T17:26:31.812Z",
   "criteria": [
+    {
+      "id": "R-01.1",
+      "feature": "spec/features/authz-001-admin-route-guard.feature",
+      "scenario": "Non-admin denied lock-records when query string present",
+      "tier": null
+    },
+    {
+      "id": "R-01.2",
+      "feature": "spec/features/authz-001-admin-route-guard.feature",
+      "scenario": "Non-admin denied manage-subareas when query string present",
+      "tier": null
+    },
+    {
+      "id": "R-01.3",
+      "feature": "spec/features/authz-001-admin-route-guard.feature",
+      "scenario": "Non-admin denied export-reports when query string present",
+      "tier": null
+    },
+    {
+      "id": "R-01.4",
+      "feature": "spec/features/authz-001-admin-route-guard.feature",
+      "scenario": "Admin allowed lock-records when query string present",
+      "tier": null
+    },
+    {
+      "id": "R-01.5",
+      "feature": "spec/features/authz-001-admin-route-guard.feature",
+      "scenario": "Path without query string still denied for non-admin",
+      "tier": null
+    },
     {
       "id": "R-00.1",
       "feature": "spec/features/example-happy-path.feature",
@@ -11,6 +41,36 @@
       "id": "R-00.2",
       "feature": "spec/features/example-happy-path.feature",
       "scenario": "Validation prevents incomplete submission",
+      "tier": null
+    },
+    {
+      "id": "R-02.1",
+      "feature": "spec/features/log-001-no-config-console-dump.feature",
+      "scenario": "Config init does not console.log the configuration object",
+      "tier": null
+    },
+    {
+      "id": "R-03.1",
+      "feature": "spec/features/log-003-authz-failure-logging.feature",
+      "scenario": "Authenticated but unauthorized user denial is logged before redirect",
+      "tier": null
+    },
+    {
+      "id": "R-03.2",
+      "feature": "spec/features/log-003-authz-failure-logging.feature",
+      "scenario": "Capability denial for a protected admin route is logged before redirect",
+      "tier": null
+    },
+    {
+      "id": "R-03.3",
+      "feature": "spec/features/log-003-authz-failure-logging.feature",
+      "scenario": "Capability denial still logs when the URL has a query string",
+      "tier": null
+    },
+    {
+      "id": "R-03.4",
+      "feature": "spec/features/log-003-authz-failure-logging.feature",
+      "scenario": "Allowed activation does not emit an authorization-failure log",
       "tier": null
     }
   ]
