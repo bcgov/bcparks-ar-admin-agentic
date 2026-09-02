@@ -5,6 +5,7 @@ import { ConfigService } from './config.service';
 import { LoggerService } from './logger.service';
 import { ToastService } from './toast.service';
 import { JwtUtil } from '../shared/utils/jwt-utils';
+import { Constants } from '../shared/utils/constants';
 
 describe('KeycloakService', () => {
   beforeEach(() => {
@@ -134,6 +135,28 @@ describe('KeycloakService', () => {
     });
     expect(keycloak.isAdmin()).toEqual(true);
     expect(decodeTokenSpy).not.toHaveBeenCalled();
+  });
+
+  it('isAdmin uses Constants.ApplicationRoles.ADMIN rather than a hardcoded role string', () => {
+    const keycloak = TestBed.get(KeycloakService);
+    spyOn(keycloak, 'getToken').and.returnValue('not-empty');
+    spyOn(keycloak, 'getTokenClaims').and.returnValue({
+      resource_access: {
+        'attendance-and-revenue': { roles: [Constants.ApplicationRoles.ADMIN] },
+      },
+    });
+    expect(keycloak.isAdmin()).toEqual(true);
+  });
+
+  it('isAdmin returns false when the role does not match Constants.ApplicationRoles.ADMIN', () => {
+    const keycloak = TestBed.get(KeycloakService);
+    spyOn(keycloak, 'getToken').and.returnValue('not-empty');
+    spyOn(keycloak, 'getTokenClaims').and.returnValue({
+      resource_access: {
+        'attendance-and-revenue': { roles: ['not-the-admin-role'] },
+      },
+    });
+    expect(keycloak.isAdmin()).toEqual(false);
   });
 
   it('isAuthorized reads roles from tokenParsed, not JwtUtil.decodeToken', () => {
