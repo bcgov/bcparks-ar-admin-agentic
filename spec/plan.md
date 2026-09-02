@@ -1,14 +1,9 @@
-# Plan — TEST-003 E2E scaffold
+# Plan — VULN-001 Historical pill XSS
 
-> Checkpoint 2 for issue [#81](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/81).
+> Checkpoint 2 for issue [#82](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/82).
 
 ## Approach
 
-1. Add @playwright/test + playwright.config.ts
-2. e2e/smoke/app-shell.spec.ts (title + app-root)
-3. docs/e2e-testing.md for planned auth-boundary tests
-4. yarn e2e script; append evidence
-
-## Out of scope
-
-Full Keycloak automation; CI required status for e2e.
+1. getHighlightedMatch returns plain text segments (no HTML wrappers).
+2. Replace [innerHtml] with text interpolation; keep highlight class on middle span.
+3. Unit tests for malicious input; append evidence.

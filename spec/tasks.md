@@ -1,8 +1,7 @@
-# Tasks — TEST-003
+# Tasks — VULN-001
 
-> Issue [#81](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/81)
+> Issue [#82](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/82)
 
-- [ ] **TASK-001** — Playwright dep + e2e script (@R-23.1)
-- [ ] **TASK-002** — Smoke test app shell (@R-23.2)
-- [ ] **TASK-003** — Document auth-boundary follow-ups (@R-23.3)
-- [ ] **TASK-004** — Append docs/pr-evidence.md
+- [ ] **TASK-001** — Text binding not innerHtml (@R-24.1)
+- [ ] **TASK-002** — Malicious name rendered as text (@R-24.2)
+- [ ] **TASK-003** — Append docs/pr-evidence.md
