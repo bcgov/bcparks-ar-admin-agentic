@@ -1,6 +1,6 @@
-# Tasks — LOG-001 (active)
+# Tasks — LOG-003 (active)
 
-- [x] Remove full-config `console.log` from `ConfigService` init
-- [x] Unit test `@R-02.1` (console spy)
-- [x] Append `docs/pr-evidence.md` for LOG-001
+- [ ] Warn-level authz failure logs in AuthGuard (no tokens)
+- [ ] Unit tests `@R-03.1`–`@R-03.4`
+- [ ] Append `docs/pr-evidence.md` for LOG-003
 - [ ] Checkpoint 3 + merge (must change `src/`)
