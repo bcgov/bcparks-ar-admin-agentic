@@ -1,47 +1,33 @@
-# Plan — Keycloak lifecycle log levels (LOG-002)
+# Plan — CloudFront viewer TLS 1.2+ (CRYPTO-001)
 
-> Architecture and delivery for issue [#66](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/66) / RA LOG-002.  
+> Architecture and delivery for issue [#74](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/74) / RA CRYPTO-001.  
 > Checkpoint 1 (spec) is merged. This document is **checkpoint 2**.
 
 ## Summary
 
-Raise `onAuthError`, `onAuthRefreshError`, and `onAuthLogout` in `KeycloakService` from `debug` to **warn** (or error). Include a non-secret identity hint via existing `getUserIdentity()` when available. Unit-test `@R-05.1`–`@R-05.4`. Append evidence. **Must change `src/`** (agentic-b failure mode was evidence-only).
-
-Server-side audit endpoint remains LOG-007 residual.
+Change `template.yaml` CloudFront `ViewerCertificate.MinimumProtocolVersion` from `TLSv1` to **`TLSv1.2_2021`**. Append evidence. Must change the template (infra path — not evidence-only).
 
 ## Architecture
 
 ```text
-KeycloakService.init
-  onAuthError / onAuthRefreshError / onAuthLogout
-    → LoggerService.warn|error({ event, identity?, … })  // not debug
-  onAuthSuccess / onAuthRefreshSuccess
-    → may stay debug
+template.yaml
+  AWS::CloudFront::Distribution
+    ViewerCertificate.MinimumProtocolVersion: TLSv1.2_2021
 ```
 
 ## Key decisions
 
 | Decision | Choice | Rationale |
 | --- | --- | --- |
-| Level for errors/logout | `warn` (acceptable: `error`) | Survives non-debug deployments |
-| Identity | `getUserIdentity()` fields only | No tokens |
-| Success callbacks | Leave at debug | Assessment prioritised errors/logout |
-| Server audit API | Out of scope | LOG-007 |
-| Evidence | `--append --finding LOG-002` | Preserve prior receipts |
-
-## Test approach
-
-- Spy `LoggerService.warn` / `error` in `keycloak.service.spec.ts`
-- Invoke callbacks after init (or extract/test callback wiring)
-- Assert no raw token in logged payload
-- CI lint/test
+| Policy | `TLSv1.2_2021` | Assessment recommended |
+| Tests | Static assert / grep in CI or document template inspection | No app unit test required |
+| Evidence | `--append --finding CRYPTO-001` | Preserve prior receipts |
 
 ## Tasks
 
-1. Elevate three callbacks; add identity hint; keep success at debug
-2. Unit tests `@R-05.1`–`@R-05.4`
-3. Append `docs/pr-evidence.md` for LOG-002 (note LOG-007 residual)
-4. Checkpoint 3 + merge (must change `src/`)
+1. Set `MinimumProtocolVersion: TLSv1.2_2021` in `template.yaml`
+2. Append `docs/pr-evidence.md` for CRYPTO-001
+3. Checkpoint 3 + merge (must change template / allowed impl path)
 
 ## Approval (checkpoint 2)
 
