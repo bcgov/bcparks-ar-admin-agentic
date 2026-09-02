@@ -6,7 +6,7 @@ import { DataService } from './data.service';
 import { EventService, EventObject, EventKeywords } from './event.service';
 import { ToastService, ToastTypes } from './toast.service';
 
-import moment from 'moment';
+import { DateTime } from 'luxon';
 import { LoadingService } from './loading.service';
 import { LoggerService } from './logger.service';
 import { Utils } from '../shared/utils/utils';
@@ -68,7 +68,7 @@ export class ActivityService {
 
       // Date for accordion
       res.lastUpdatedAccordion = res.lastUpdated
-        ? moment(new Date(res.lastUpdated)).format('YYYY-MM-DD')
+        ? DateTime.fromJSDate(new Date(res.lastUpdated)).toFormat('yyyy-MM-dd')
         : 'Never';
 
       this.dataService.setItemValue(id, res);
