@@ -116,7 +116,7 @@ jobs:
               ApiGatewayId=${{ vars.AR_API_ID }} \
               Stage=api \
               EnvDomainName="dev-ar.bcparks.ca" \
-              DomainCertificateArn="arn:aws:acm:us-east-1:059942063916:certificate/3828a51b-0e13-4872-a2c8-3e9c71dae926"
+              DomainCertificateArn="${{ vars.DOMAIN_CERTIFICATE_ARN }}"
 
       - name: Upload build files to S3
         run: |

@@ -1267,3 +1267,67 @@ Checklist IDs addressed this PR: Not applicable — no user interface changes.
 **Residual risk:** Browser-console logs remain ephemeral until a separately approved backend log-shipping implementation is delivered.
 
 - Reviewer: _______________ Date: _______________
+
+---
+
+# PR evidence — [RA SECRET-002] Remove hardcoded non-production AWS account IDs
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-secret-002-remove-hardcoded-aws-ids |
+| Spec refs | spec/features/secret-002-nonprod-account-ids.feature |
+| Constitution articles touched | P1, P5, P7 |
+| Tasks | see spec/tasks.md |
+| Authoring agent | GitHub Copilot Coding Agent |
+| Generated | 2026-09-02T21:12:34.381Z |
+
+## Intent
+
+Non-production account IDs and certificate ARNs are no longer committed in deployment
+workflows, scripts, SAM defaults, or local parameter variables. Deployments now source
+certificate ARNs from GitHub environment variables, while scripts require account/profile
+values through environment variables.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| `secret-002-nonprod-account-ids.feature` `@R-21.1`–`@R-21.4` | Yes | Workflows use `vars.DOMAIN_CERTIFICATE_ARN`; the SAM parameter has no default; scripts require account/profile environment variables. |
+
+
+## Design system & accessibility
+
+| Check | Result |
+| --- | --- |
+| DS components used (list) | Not applicable — no UI changes. |
+| Tokens used (not hard-coded colour) | Not applicable — no UI changes. |
+| BC Sans imported | Not applicable — unchanged. |
+| Manual a11y notes | Not applicable — no UI changes. |
+
+## Public-service minimums
+
+Checklist IDs addressed this PR: Not applicable — no UI changes.
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Static | Focused Python assertions, `bash -n`, `sam validate --template template.yaml --lint` | Passed |
+| Acceptance / feature | spec/features/secret-002-nonprod-account-ids.feature | Satisfied by static workflow, template, and script inspection for `@R-21.1`–`@R-21.4`. |
+| A11y automation | Not run | Not applicable — no UI changes. |
+
+## Risks & follow-ups
+
+- GitHub environment variables must be populated before dev/test deployment.
+
+## Review receipt (checkpoint 3)
+
+Same shape as `REVIEW.md` — required before merge. Do not replace with a free-form sign-off.
+
+**Checked:** SECRET-002 `@R-21.1`–`@R-21.4`; `spec/spec.md`; `spec/tasks.md`; changed workflows, scripts, `template.yaml`, and `vars.json`; focused static checks and SAM validation.
+
+**Could not check:** A live deployment or GitHub environment variable configuration; those require the remote AWS/GitHub environments.
+
+**Residual risk:** Deployments fail if required environment variables are missing, which is preferable to silently using an account-specific default.
+
+- Reviewer: _______________ Date: _______________

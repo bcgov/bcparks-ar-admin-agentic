@@ -874,7 +874,7 @@ Add a server-side log shipping path to LoggerService. At minimum, batch and POST
 ```markdown
 ## Problem
 
-Two non-production AWS Account IDs (059942063916 for LZA dev/test and 856925536711 for the legacy account) are hardcoded in setup scripts, CI/CD workflows, vars.json, and template.yaml SAM defaults. This enables infrastructure enumeration and use of account IDs in crafted IAM principals. The SAM template Default: values create a risk of silent deployment to the wrong account.
+Two non-production AWS Account IDs (one for LZA dev/test and one for the legacy account) are hardcoded in setup scripts, CI/CD workflows, vars.json, and template.yaml SAM defaults. This enables infrastructure enumeration and use of account IDs in crafted IAM principals. The SAM template Default: values create a risk of silent deployment to the wrong account.
 
 ## Evidence / location
 
@@ -2260,4 +2260,3 @@ Replace concatenation with encodeURIComponent() on both key and value, or use th
 ```
 
 </details>
-

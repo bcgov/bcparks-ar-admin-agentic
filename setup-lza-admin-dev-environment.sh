@@ -33,7 +33,8 @@ REPO="bcgov/bcparks-ar-admin"
 ENVIRONMENT="lza-dev"
 
 # AWS Configuration
-AWS_ACCOUNT_ID="059942063916"
+: "${AWS_ACCOUNT_ID:?Set AWS_ACCOUNT_ID to the target AWS account ID}"
+: "${AWS_PROFILE_LZA:?Set AWS_PROFILE_LZA to the target AWS CLI profile}"
 AWS_REGION="ca-central-1"
 BUDGET_NUMBER="588"
 
@@ -49,7 +50,7 @@ if [ $# -ne 1 ]; then
     echo "Usage: $0 <api-gateway-id>"
     echo ""
     echo "Get API Gateway ID with:"
-    echo "  aws apigateway get-rest-apis --profile 059942063916_BCGOV_LZA_Admin \\"
+    echo "  aws apigateway get-rest-apis --profile ${AWS_PROFILE_LZA} \\"
     echo "    --query 'items[?name==\`bc-parks-ar-api-lza-dev\`].id' --output text"
     exit 1
 fi

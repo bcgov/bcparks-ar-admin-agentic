@@ -30,7 +30,7 @@ ADMIN_DOMAIN="lza-dev-ar-admin.bcparks.ca"
 API_DOMAIN="lza-dev-ar.bcparks.ca"
 HOSTED_ZONE_NAME="bcparks.ca"
 AWS_PROFILE_ROUTE53="parksweb"
-AWS_PROFILE_LZA="059942063916_BCGOV_LZA_Admin"
+: "${AWS_PROFILE_LZA:?Set AWS_PROFILE_LZA to the target AWS CLI profile}"
 AWS_REGION="ca-central-1"
 
 echo -e "${BLUE}========================================${NC}"
