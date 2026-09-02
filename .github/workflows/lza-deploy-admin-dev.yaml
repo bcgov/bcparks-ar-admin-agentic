@@ -77,7 +77,9 @@ jobs:
           (function (window) {
               window.__env = window.__env || {};
 
-              window.__env.logLevel = 0;
+              // LogLevel enum (src/app/services/logger.service.ts): All=0, Debug=1, Info=2, Warn=3, Error=4, Fatal=5, Off=6
+              // Dev: may be more verbose than prod/test (Info).
+              window.__env.logLevel = 2;
 
               // Get config from remote host?
               window.__env.configEndpoint = true;

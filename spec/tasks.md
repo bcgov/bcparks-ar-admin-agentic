@@ -4,7 +4,7 @@
 
 ## Active slice — CONFIG-006
 
-- [ ] **TASK-001** — Set prod env.js logLevel to 4 (Error) in `lza-deploy-admin-prod.yaml` (@R-16.1)
-- [ ] **TASK-002** — Set test logLevel to 3 (Warn) and dev to 2 (Info) (@R-16.2)
-- [ ] **TASK-003** — Add workflow comments documenting LogLevel enum mapping
-- [ ] **TASK-004** — Append `docs/pr-evidence.md`; do not replace prior evidence blocks
+- [x] **TASK-001** — Set prod env.js logLevel to 4 (Error) in `lza-deploy-admin-prod.yaml` (@R-16.1)
+- [x] **TASK-002** — Set test logLevel to 3 (Warn) and dev to 2 (Info) (@R-16.2)
+- [x] **TASK-003** — Add workflow comments documenting LogLevel enum mapping
+- [x] **TASK-004** — Append `docs/pr-evidence.md`; do not replace prior evidence blocks

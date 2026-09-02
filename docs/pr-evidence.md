@@ -962,3 +962,61 @@ outcomes for all four admin-only routes plus a non-admin-only control route.
 **Residual risk:** None identified beyond the accepted gap noted above.
 
 - Reviewer: _______________ Date: _______________
+
+---
+
+# PR evidence — [RA CONFIG-006] Deployment pipeline log levels
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-config-006-fix-loglevel-hardcode |
+| Spec refs | spec/features/config-006-deploy-log-level.feature |
+| Tasks | CONFIG-006 entries in `spec/tasks.md` |
+| Authoring agent | GitHub Copilot Coding Agent |
+
+## Intent
+
+Replace the hardcoded `window.__env.logLevel = 0` (`LogLevel.All`) in all three LZA deployment
+pipelines with environment-appropriate values, so production and test no longer emit
+debug-level console output (including Keycloak OIDC lifecycle events) by default.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| `config-006-deploy-log-level.feature` `@R-16.1` | Yes | `lza-deploy-admin-prod.yaml` now sets `window.__env.logLevel = 4` (`LogLevel.Error`), which is not `All` (0) and is Warn or more restrictive. |
+| `config-006-deploy-log-level.feature` `@R-16.2` | Yes | `lza-deploy-admin-test.yaml` sets `logLevel = 3` (`Warn`); `lza-deploy-admin-dev.yaml` sets `logLevel = 2` (`Info`), which is more verbose than prod (4) and test (3), and prod remains the most restrictive. |
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Static | `grep -rn "logLevel = 0" .github/workflows/` | PASS — zero matches; no deploy pipeline leaves `logLevel` at `LogLevel.All`. |
+| Static | `python3 -c "import yaml; yaml.safe_load(open(f))"` for all three edited workflow files | PASS — YAML remains valid after edits. |
+| Manual inspection | `lza-deploy-admin-{prod,test,dev}.yaml` generated `env.js` blocks | PASS — prod=4 (Error), test=3 (Warn), dev=2 (Info); inline comments document the `LogLevel` enum mapping from `src/app/services/logger.service.ts` for future maintainers. |
+
+## Risks & follow-ups
+
+- Accepted gap (out of scope per `spec/spec.md`): runtime log-level switching without
+  a redeploy is not implemented; changing the deployed level still requires a pipeline run.
+- Accepted gap (out of scope, tracked separately as LOG-007): browser-console logging
+  itself is not removed — only the default verbosity is reduced per environment.
+- The previously reported `ConfigService.init()` unconditional `console.log('Configuration:', ...)`
+  dump was already remediated under LOG-001 (`spec/features/log-001-no-config-console-dump.feature`);
+  current `ConfigService.init()` contains no such call, so no additional code change was needed here.
+- Local `src/env.js` (used for local dev, not deployed) is unchanged; this residual is
+  explicitly accepted as out of scope in `spec/spec.md`.
+
+## Review receipt (checkpoint 3)
+
+**Checked:** All three `.github/workflows/lza-deploy-admin-{prod,test,dev}.yaml` files no longer
+contain `logLevel = 0`; prod/test/dev values (4/3/2) match `@R-16.1`/`@R-16.2`; current
+`ConfigService.init()` source confirmed to already lack the config-dump `console.log` described
+in the issue (remediated previously under LOG-001).
+
+**Could not check:** A live deployment run of the LZA pipelines (sandbox has no AWS/GitHub Actions
+execution environment); relied on static YAML inspection and value verification instead.
+
+**Residual risk:** None identified beyond the accepted, explicitly out-of-scope gaps noted above.
+
+- Reviewer: _______________ Date: _______________
