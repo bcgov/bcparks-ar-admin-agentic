@@ -7,19 +7,19 @@
 
 ## Active slice
 
-### AUTH-004 — Token refresh failure redirects to login
+### AUTH-005 — require KEYCLOAK_CLIENT_ID
 
-- **Issue:** [#83](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/83)
-- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `AUTH-004`
-- **Feature:** `features/auth-004-token-refresh-redirect.feature`
+- **Issue:** [#84](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/84)
+- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `AUTH-005`
+- **Feature:** `features/auth-005-keycloak-client-id.feature`
 
 #### Problem
 
-Silent token-refresh failure only logs; users can remain in a broken authenticated-looking state.
+Hardcoded fallback OAuth client ID 'nrpti-admin' when KEYCLOAK_CLIENT_ID absent.
 
 #### Outcome
 
-When updateToken fails after onTokenExpired, the app navigates to /login.
+Init fails clearly when KEYCLOAK_CLIENT_ID is missing; no nrpti-admin fallback.
 
 #### Users & personas
 
@@ -32,12 +32,13 @@ When updateToken fails after onTokenExpired, the app navigates to /login.
 
 **In scope**
 
-- KeycloakService onTokenExpired failure path using window.location.assign('/login')
-- Unit tests; append evidence; must change src/
+- Implement assessment Expected for this finding
+- Unit tests as appropriate
+- Append evidence; must change src/
 
 **Out of scope**
 
-- Interceptor 401 semantics (AUTH-006)
+- Unrelated findings
 
 #### Open questions
 
@@ -55,4 +56,4 @@ When updateToken fails after onTokenExpired, the app navigates to /login.
 
 ## Completed slices (recent)
 
-### VULN-001 shipped — see rematch wiki
+- Prior rematch slices shipped — see wiki
