@@ -7,40 +7,39 @@
 
 ## Active slice
 
-### LOG-005 — Sanitize error logging
+### LOG-006 — Structured JSON log format
 
-- **Issue:** [#76](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/76)
-- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `LOG-005`
-- **Feature:** `features/log-005-sanitize-error-logging.feature`
+- **Issue:** [#77](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/77)
+- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `LOG-006`
+- **Feature:** `features/log-006-structured-log-format.feature`
 
 #### Problem
 
-Raw error objects are logged to the console (ConfigService remote config failures; Angular bootstrap catch), which can expose stack traces and internal URLs in DevTools.
+LoggerService emits unstructured plain-text log lines, which are hard to parse, correlate, or alert on automatically.
 
 #### Outcome
 
-Failure paths log **message strings only** (via LoggerService where available; message-only console.error at bootstrap). Raw Error objects are not passed to console.error.
+Log entries are emitted as JSON objects with level, timestamp, message, and placeholder identity/correlation fields. Warnings and errors set securityEvent true.
 
 #### Users & personas
 
 | Persona | Goal |
 | --- | --- |
-| Operators | Errors visible without leaking stacks |
-| Security reviewers | No raw exception dumps in console |
+| Operators / reviewers | See signed behaviour for this finding |
+| Developers | Clear in/out of scope |
 
 #### Scope
 
 **In scope**
 
-- ConfigService remote-config error path
-- `main.ts` bootstrap catch
-- Unit tests; append evidence; must change `src/`
+- Replace plain-text formatter with JSON serialization in LoggerService
+- Unit tests for @R-19.1 / @R-19.2
+- Append evidence; must change `src/`
 
 **Out of scope**
 
-- Structured JSON format (LOG-006)
-- Global ErrorHandler (LOG-008)
-- Server-side shipping (LOG-007)
+- SIEM / server-side shipping (LOG-007)
+- Wiring real userId/sessionId from Keycloak
 
 #### Open questions
 
@@ -58,10 +57,6 @@ Failure paths log **message strings only** (via LoggerService where available; m
 
 ## Completed slices (recent)
 
-### LOG-004 — LoggerService default when logLevel missing
+### LOG-005 — Sanitize error logging
 
-- **Issue:** [#75](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/75) (shipped)
-
-### CONFIG-006 — Deployment pipeline log levels
-
-- **Issue:** [#73](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/73) (shipped)
+- **Issue:** [#76](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/76) (shipped)
