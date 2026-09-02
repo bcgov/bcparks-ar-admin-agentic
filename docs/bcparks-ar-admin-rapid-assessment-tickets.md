@@ -46,7 +46,7 @@ Generated: 2026-08-12 · Reset for agentic-b: 2026-08-31 · Raw findings: **55**
 | AUTH-006 | Low | AUTHENTICATION | shared-infrastructure | `TokenInterceptor` triggers token refresh on HTTP 403 (should be 401) | yes | shipped #85 |
 | AUTH-007 | Low | AUTHENTICATION | shared-infrastructure | Bearer token injected into every outbound request with no host allo... | yes | shipped #86 |
 | AUTHZ-003 | Low | AUTHORIZATION | angular-spa-shell | manage-subareas navigation link visible in header for non-admin users | yes | shipped #87 |
-| AUTHZ-004 | Low | AUTHORIZATION | auth-layer | isAdmin() uses hardcoded role string instead of centralized constant | yes | #88 |
+| AUTHZ-004 | Low | AUTHORIZATION | auth-layer | isAdmin() uses hardcoded role string instead of centralized constant | yes | shipped #88 |
 | AUTHZ-005 | Low | AUTHORIZATION | auth-layer | Incomplete optional chaining in isAdmin() can throw TypeError on at... | yes | #89 |
 | BW-001 | Low | CODE_VULNERABILITY | lock-records-module | Lock Records component has no unlock workflow — lock parameter hard... | yes | #90 |
 | BW-002 | Low | CODE_VULNERABILITY | export-reports-module | Export service has typo 'expor-variance' — variance job status chec... | yes | #91 |
