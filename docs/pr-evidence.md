@@ -323,3 +323,70 @@ Same shape as `REVIEW.md` — required before merge. Do not replace with a free-
 **Residual risk:** Persistent server-side audit endpoint/shipping is out of scope for LOG-002 and remains tracked as LOG-007; `LogLevel.Off` default remains tracked as LOG-004.
 
 - Reviewer: _______________ Date: _______________
+
+---
+
+# PR evidence — [RA CRYPTO-001] CloudFront viewer TLS minimum version
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-crypto-001-update-tls-minimum-version |
+| Spec refs | spec/features/authz-001-admin-route-guard.feature, spec/features/crypto-001-cloudfront-tls-minimum.feature, spec/features/example-happy-path.feature, spec/features/log-001-no-config-console-dump.feature, spec/features/log-002-keycloak-lifecycle-log-levels.feature, spec/features/log-003-authz-failure-logging.feature, spec/features/test-001-token-interceptor.feature |
+| Constitution articles touched | P1–P8 (confirm) |
+| Tasks | see spec/tasks.md |
+| Authoring agent | GitHub Copilot Coding Agent |
+| Generated | 2026-09-02T18:24:21.523Z |
+
+## Intent
+
+`template.yaml` CloudFront `ViewerCertificate.MinimumProtocolVersion` changed from `TLSv1` to `TLSv1.2_2021`, so the edge no longer negotiates TLS 1.0/1.1 viewer connections. Origin-to-CloudFront TLS was already 1.2 and is unchanged.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| `authz-001-admin-route-guard.feature` | Not applicable | Out of scope for CRYPTO-001; retained from the feature index. |
+| `crypto-001-cloudfront-tls-minimum.feature` | Yes | `@R-06.1` covered by static inspection of `template.yaml`: `MinimumProtocolVersion: TLSv1.2_2021`, no remaining `TLSv1` (bare) value. |
+| `example-happy-path.feature` | Not applicable | Out of scope for CRYPTO-001; retained from the feature index. |
+| `log-001-no-config-console-dump.feature` | Not applicable | Out of scope for CRYPTO-001; retained from the feature index. |
+| `log-002-keycloak-lifecycle-log-levels.feature` | Not applicable | Out of scope for CRYPTO-001; retained from the feature index. |
+| `log-003-authz-failure-logging.feature` | Not applicable | Out of scope for CRYPTO-001; retained from the feature index. |
+| `test-001-token-interceptor.feature` | Not applicable | Out of scope for CRYPTO-001; retained from the feature index. |
+
+
+## Design system & accessibility
+
+| Check | Result |
+| --- | --- |
+| DS components used (list) | Not applicable — no UI changes. |
+| Tokens used (not hard-coded colour) | Not applicable — no style changes. |
+| BC Sans imported | Not applicable — unchanged. |
+| Manual a11y notes | Not applicable — infrastructure template change only, no rendered UI change. |
+
+## Public-service minimums
+
+Checklist IDs addressed this PR: Not applicable — no user interface changes.
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Static | `grep MinimumProtocolVersion template.yaml` | Confirmed value is `TLSv1.2_2021`; no bare `TLSv1` remains in the `ViewerCertificate` block. |
+| Acceptance / feature | `spec/features/crypto-001-cloudfront-tls-minimum.feature` | Satisfied by the static template check for `@R-06.1`. |
+| A11y automation | Not run | Not applicable — no UI changes. |
+
+## Risks & follow-ups
+
+- Live TLS handshake smoke against the deployed CloudFront distribution is residual; this PR only changes the SAM template value. Confirming the deployed distribution enforces TLS 1.2+ after the next deploy is a follow-up outside this repo's CI.
+
+## Review receipt (checkpoint 3)
+
+Same shape as `REVIEW.md` — required before merge. Do not replace with a free-form sign-off.
+
+**Checked:** CRYPTO-001 `@R-06.1`; `spec/spec.md` active CRYPTO-001 slice; `spec/tasks.md`; `template.yaml` diff confirming `MinimumProtocolVersion: TLSv1.2_2021`; origin SSL protocols in `template.yaml` remain `TLSv1.2` (unchanged, out of scope).
+
+**Could not check:** Live TLS handshake against the deployed CloudFront distribution; this is an infra template-only change validated statically.
+
+**Residual risk:** Post-deploy live smoke test of the viewer TLS policy is deferred; no code path exists in this repo's CI to exercise a live CloudFront handshake.
+
+- Reviewer: _______________ Date: _______________
