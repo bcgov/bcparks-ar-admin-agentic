@@ -1,6 +1,6 @@
-# Tasks — CONFIG-003 (active)
+# Tasks — CONFIG-004 (active)
 
-- [x] Add custom CloudFront response headers policy with HSTS (max-age ≥ 31536000, includeSubDomains; preload if supported) + CORS parity with SimpleCORS
-- [x] Attach policy to all three cache behaviours (replace managed SimpleCORS id)
-- [x] Append `docs/pr-evidence.md` for CONFIG-003
+- [ ] Extend `CloudFrontResponseHeadersPolicy` in `template.yaml`: FrameOptions DENY, ContentTypeOptions nosniff, ReferrerPolicy strict-origin-when-cross-origin, Permissions-Policy via CustomHeadersConfig (camera/microphone/geolocation/payment/usb/interest-cohort disabled); preserve HSTS + CORS
+- [ ] Confirm all three cache behaviours still reference `!Ref CloudFrontResponseHeadersPolicy`
+- [ ] Append `docs/pr-evidence.md` for CONFIG-004 (do not overwrite prior slices)
 - [ ] Checkpoint 3 + merge (must change `template.yaml`; refuse evidence-only)
