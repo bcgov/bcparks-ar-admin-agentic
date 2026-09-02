@@ -25,7 +25,10 @@ Run the **same 45 recommended** rapid-assessment findings as `agentic-b`, end-to
 
 | When | Slice # | Change | Why |
 | --- | ---: | --- | --- |
-| _(filled during run)_ | | | |
+| 2026-09-02 | 0 | Closed stale Copilot PR #50 | Pre-reset SECRET-001 draft |
+| 2026-09-02 | 1–2 | Spec/plan via orchestrator; impl via Copilot | Prefer cloud for code |
+| 2026-09-02 | 2 | Closed conflicted #105 backlog-links PR | Re-link later from main |
+| _(more during run)_ | | | |
 
 ## Metrics reviews
 
