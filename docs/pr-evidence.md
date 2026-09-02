@@ -1416,3 +1416,88 @@ Same shape as `REVIEW.md` — required before merge. Do not replace with a free-
 **Residual risk:** The fallback lookup fails if the configured AWS profile lacks Route53 list permission or the hosted zone is unavailable.
 
 - Reviewer: _______________ Date: _______________
+
+---
+
+# PR evidence — [RA TEST-003] E2E scaffold and smoke coverage
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-test-003-add-e2e-tests |
+| Spec refs | spec/features/auth-001-pkce.feature, spec/features/auth-002-token-claims.feature, spec/features/auth-003-logout.feature, spec/features/authz-001-admin-route-guard.feature, spec/features/authz-002-admin-only-routes.feature, spec/features/config-002-cloudfront-csp.feature, spec/features/config-003-cloudfront-hsts.feature, spec/features/config-004-cloudfront-security-headers.feature, spec/features/config-005-trivy-triggers.feature, spec/features/config-006-deploy-log-level.feature, spec/features/crypto-001-cloudfront-tls-minimum.feature, spec/features/example-happy-path.feature, spec/features/log-001-no-config-console-dump.feature, spec/features/log-002-keycloak-lifecycle-log-levels.feature, spec/features/log-003-authz-failure-logging.feature, spec/features/log-004-logger-default-level.feature, spec/features/log-005-sanitize-error-logging.feature, spec/features/log-006-structured-log-format.feature, spec/features/log-007-browser-console-logging.feature, spec/features/secret-001-prod-certificate-arn.feature, spec/features/secret-002-nonprod-account-ids.feature, spec/features/secret-003-route53-zone-id.feature, spec/features/test-001-token-interceptor.feature, spec/features/test-003-e2e-scaffold.feature |
+| Constitution articles touched | P1–P8 (confirm) |
+| Tasks | see spec/tasks.md |
+| Authoring agent | unspecified |
+| Generated | 2026-09-02T21:29:43.600Z |
+
+## Intent
+
+Adds Playwright E2E scaffolding and a smoke test that verifies the application shell loads. Documents the deferred Keycloak authentication and authorization-boundary coverage needed once a dedicated test realm and synthetic accounts are available.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| `auth-001-pkce.feature` | TODO | |
+| `auth-002-token-claims.feature` | TODO | |
+| `auth-003-logout.feature` | TODO | |
+| `authz-001-admin-route-guard.feature` | TODO | |
+| `authz-002-admin-only-routes.feature` | TODO | |
+| `config-002-cloudfront-csp.feature` | TODO | |
+| `config-003-cloudfront-hsts.feature` | TODO | |
+| `config-004-cloudfront-security-headers.feature` | TODO | |
+| `config-005-trivy-triggers.feature` | TODO | |
+| `config-006-deploy-log-level.feature` | TODO | |
+| `crypto-001-cloudfront-tls-minimum.feature` | TODO | |
+| `example-happy-path.feature` | TODO | |
+| `log-001-no-config-console-dump.feature` | TODO | |
+| `log-002-keycloak-lifecycle-log-levels.feature` | TODO | |
+| `log-003-authz-failure-logging.feature` | TODO | |
+| `log-004-logger-default-level.feature` | TODO | |
+| `log-005-sanitize-error-logging.feature` | TODO | |
+| `log-006-structured-log-format.feature` | TODO | |
+| `log-007-browser-console-logging.feature` | TODO | |
+| `secret-001-prod-certificate-arn.feature` | TODO | |
+| `secret-002-nonprod-account-ids.feature` | TODO | |
+| `secret-003-route53-zone-id.feature` | TODO | |
+| `test-001-token-interceptor.feature` | TODO | |
+| `test-003-e2e-scaffold.feature` `@R-23.1`–`@R-23.3` | Yes | Playwright dependency and script, application-shell smoke test, and deferred auth-boundary test documentation added. |
+
+
+## Design system & accessibility
+
+| Check | Result |
+| --- | --- |
+| DS components used (list) | Not applicable — no UI changes. |
+| Tokens used (not hard-coded colour) | Not applicable — no UI changes. |
+| BC Sans imported | Not applicable — unchanged. |
+| Manual a11y notes | The smoke test confirms the application root renders. |
+
+## Public-service minimums
+
+Checklist IDs addressed this PR: Not applicable — no UI changes.
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| E2E smoke | `yarn e2e` | Passed — application title and visible root verified using a local test-only runtime configuration. |
+| Build | `yarn build` | Passed. |
+| Acceptance / feature | `spec/features/test-003-e2e-scaffold.feature` `@R-23.1`–`@R-23.3` | Satisfied by Playwright scaffold, smoke test, and documentation. |
+| A11y automation | Not run | No UI changes. |
+
+## Risks & follow-ups
+
+- Live Keycloak OIDC and authorization-boundary E2E tests remain deferred until a dedicated test realm and synthetic test accounts are available.
+
+## Review receipt (checkpoint 3)
+
+Same shape as `REVIEW.md` — required before merge. Do not replace with a free-form sign-off.
+
+**Checked:** TEST-003 `@R-23.1`–`@R-23.3`; `yarn e2e`; `yarn build`; `spec/spec.md`; `spec/tasks.md`; Playwright configuration and E2E documentation.
+
+**Could not check:** Live Keycloak OIDC login or role-based authorization boundaries; no dedicated test realm or synthetic accounts are configured.
+
+**Residual risk:** Keycloak authentication and role enforcement remain dependent on existing unit coverage until dedicated integration-test identities are available.
+
+- Reviewer: _______________ Date: _______________

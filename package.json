@@ -8,6 +8,7 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "test-ci": "ng test --watch=false --browsers=ChromeHeadlessNoSandbox",
+    "e2e": "playwright test",
     "lint": "ng lint --format=stylish"
   },
   "pre-push": [
@@ -55,6 +56,7 @@
     "@angular/compiler-cli": "^19.2.18",
     "@angular/localize": "^19.2.18",
     "@babel/runtime": "^7.23.2",
+    "@playwright/test": "1.62.1",
     "@types/jasmine": "~4.3.1",
     "@types/node": "^18.16.2",
     "@typescript-eslint/eslint-plugin": "7.11.0",
