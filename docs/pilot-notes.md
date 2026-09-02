@@ -46,5 +46,5 @@ Run the **same 45 recommended** rapid-assessment findings as `agentic-b`, end-to
 
 | Milestone | Target | Issue |
 | --- | ---: | --- |
-| 1/3 | after ~15 shipped | TBD |
+| 1/3 | after ~15 shipped | [#150](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/150) run [33678529733](https://github.com/bcgov/bcparks-ar-admin-agentic/actions/runs/33678529733) |
 | 2/3 | after ~30 shipped | TBD |
