@@ -5,6 +5,7 @@ import { By } from '@angular/platform-browser';
 import { NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
 import { ConfigService } from '../services/config.service';
 import { KeycloakService } from '../services/keycloak.service';
+import { HomeComponent } from '../home/home.component';
 
 import { HeaderComponent } from './header.component';
 
@@ -13,6 +14,14 @@ describe('HeaderComponent', () => {
   let fixture: ComponentFixture<HeaderComponent>;
   const mockConfigService = jasmine.createSpyObj('ConfigService', {}, { config: { ENVIRONMENT: 'prod'} });
   let mockKeycloakService: jasmine.SpyObj<KeycloakService>;
+
+  const mockRoutes = [
+    { path: 'export-reports', component: HomeComponent, data: { icon: 'bi-circle' } },
+    { path: 'lock-records', component: HomeComponent, data: { icon: 'bi-circle' } },
+    { path: 'review-data', component: HomeComponent, data: { icon: 'bi-circle' } },
+    { path: 'manage-subareas', component: HomeComponent, data: { icon: 'bi-circle' } },
+    { path: 'home', component: HomeComponent, data: { icon: 'bi-circle' } },
+  ];
 
   beforeEach(async () => {
     mockKeycloakService = jasmine.createSpyObj('KeycloakService', [
@@ -28,7 +37,7 @@ describe('HeaderComponent', () => {
     mockKeycloakService.getWelcomeMessage.and.returnValue('');
 
     await TestBed.configureTestingModule({
-      imports: [NgbCollapseModule, RouterTestingModule],
+      imports: [NgbCollapseModule, RouterTestingModule.withRoutes(mockRoutes)],
       declarations: [HeaderComponent],
       providers: [
         {
@@ -69,5 +78,26 @@ describe('HeaderComponent', () => {
     logoutButtons[0].nativeElement.click();
 
     expect(mockKeycloakService.logout).toHaveBeenCalledTimes(1);
+  });
+
+  it('excludes manage-subareas from routes when not allowed', () => {
+    mockKeycloakService.isAllowed.and.callFake((service: string) => service !== 'manage-subareas');
+
+    fixture = TestBed.createComponent(HeaderComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    expect(component.routes.some((route) => route.path === 'manage-subareas')).toBe(false);
+    expect(mockKeycloakService.isAllowed).toHaveBeenCalledWith('manage-subareas');
+  });
+
+  it('includes manage-subareas in routes when allowed', () => {
+    mockKeycloakService.isAllowed.and.returnValue(true);
+
+    fixture = TestBed.createComponent(HeaderComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    expect(component.routes.some((route) => route.path === 'manage-subareas')).toBe(true);
   });
 });
