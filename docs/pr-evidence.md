@@ -1676,3 +1676,68 @@ Same shape as `REVIEW.md` — required before merge. Do not replace with a free-
 **Residual risk:** None identified beyond existing AUTH-series gaps (AUTH-006 401 handling, AUTH-007 request host allowlisting), which remain out of scope for this PR.
 
 - Reviewer: _______________ Date: _______________
+
+---
+
+# PR evidence — [RA AUTH-006] TokenInterceptor refresh trigger 401 not 403
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-auth-006-fix-token-refresh-trigger |
+| Spec refs | spec/features/auth-006-interceptor-401.feature |
+| Constitution articles touched | P3, P5, P7, J3, J5 |
+| Tasks | AUTH-006 TASK-001–TASK-003 in `spec/tasks.md` |
+| Authoring agent | GitHub Copilot Coding Agent |
+| Generated | 2026-09-02T22:28:40.933Z |
+
+## Intent
+
+`TokenInterceptor` triggered a token refresh cycle on HTTP 403 (Forbidden) responses, conflating authorization failures (valid token, insufficient permission) with authentication failures (expired/invalid token). Per RFC 9110, 401 signals invalid/expired credentials while 403 signals an authenticated-but-unauthorized request. This PR changes the interceptor to trigger the refresh-and-retry flow only on HTTP 401, and lets 403 responses propagate directly to the caller without attempting a refresh.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| `auth-006-interceptor-401.feature` `@R-27.1` | Yes | Covered by `src/app/shared/utils/token-interceptor.spec.ts` ("refreshes the token and retries a 401 request", "surfaces refresh failures", "shares an in-flight refresh between concurrent 401 requests"): a 401 response triggers exactly one refresh, the retried request carries the refreshed bearer token, and concurrent 401s share a single in-flight refresh. |
+| `auth-006-interceptor-401.feature` `@R-27.2` | Yes | Covered by `src/app/shared/utils/token-interceptor.spec.ts` ("surfaces 403 authorization failures without refreshing the token"): a 403 response is propagated to the caller unchanged and `refreshToken` is never invoked. |
+| All other `spec/features/*.feature` | Not applicable | Out of scope for AUTH-006; retained from the feature index. |
+
+## Design system & accessibility
+
+| Check | Result |
+| --- | --- |
+| DS components used (list) | Not applicable — no UI markup changes. |
+| Tokens used (not hard-coded colour) | Not applicable — no style changes. |
+| BC Sans imported | Not applicable — unchanged. |
+| Manual a11y notes | Not applicable — no user-facing UI changed by this fix. |
+
+## Public-service minimums
+
+Checklist IDs addressed this PR: Not applicable — no new user interface elements.
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Unit | `ng test --watch=false --browsers=ChromeHeadless --include='**/token-interceptor.spec.ts'` | Passed: 7 SUCCESS |
+| Unit (full suite) | `ng test --watch=false --browsers=ChromeHeadless` | Passed: 245 SUCCESS |
+| Lint | `ng lint --format=stylish` | Passed: 0 errors, 59 pre-existing `@angular-eslint/prefer-standalone` warnings in unrelated files. |
+| Acceptance / feature | `spec/features/auth-006-interceptor-401.feature` | Implemented by unit coverage for `@R-27.1` and `@R-27.2`. |
+| A11y automation | Not run | Not applicable — no UI changes. |
+
+## Risks & follow-ups
+
+- No live backend was exercised; the 401-vs-403 behaviour is verified only through unit tests using `HttpClientTestingModule` and a mocked `KeycloakService`.
+- Other AUTH-series findings (AUTH-007 request host allowlisting) remain out of scope and unaddressed by this slice.
+
+## Review receipt (checkpoint 3)
+
+Same shape as `REVIEW.md` — required before merge. Do not replace with a free-form sign-off.
+
+**Checked:** AUTH-006 `@R-27.1`–`@R-27.2`; `spec/tasks.md` TASK-001–TASK-003; targeted and full Karma/Jasmine suites; `ng lint`.
+
+**Could not check:** A live backend or Keycloak realm returning genuine 401/403 responses; the fix is verified only through unit tests with `HttpClientTestingModule` and a mocked `KeycloakService`.
+
+**Residual risk:** None identified beyond existing AUTH-series gaps (AUTH-007 request host allowlisting), which remain out of scope for this PR.
+
+- Reviewer: _______________ Date: _______________

@@ -69,7 +69,7 @@ describe('TokenInterceptor', () => {
     request.flush({});
   });
 
-  it('refreshes the token and retries a 403 request', () => {
+  it('refreshes the token and retries a 401 request', () => {
     token = 'expired-token';
     refreshToken.and.callFake(() => {
       token = 'refreshed-token';
@@ -80,7 +80,7 @@ describe('TokenInterceptor', () => {
 
     httpTestingController
       .expectOne('/refresh')
-      .flush({}, { status: 403, statusText: 'Forbidden' });
+      .flush({}, { status: 401, statusText: 'Unauthorized' });
 
     const retry = httpTestingController.expectOne('/refresh');
     expect(refreshToken).toHaveBeenCalledTimes(1);
@@ -101,13 +101,13 @@ describe('TokenInterceptor', () => {
 
     httpTestingController
       .expectOne('/refresh-failure')
-      .flush({}, { status: 403, statusText: 'Forbidden' });
+      .flush({}, { status: 401, statusText: 'Unauthorized' });
 
     expect(receivedError).toBe(refreshFailure);
     expect(refreshToken).toHaveBeenCalledTimes(1);
   });
 
-  it('surfaces non-403 errors without refreshing the token', () => {
+  it('surfaces non-401 errors without refreshing the token', () => {
     let receivedError: HttpErrorResponse;
 
     http.get('/not-found').subscribe({
@@ -122,7 +122,22 @@ describe('TokenInterceptor', () => {
     expect(refreshToken).not.toHaveBeenCalled();
   });
 
-  it('shares an in-flight refresh between concurrent 403 requests', () => {
+  it('surfaces 403 authorization failures without refreshing the token', () => {
+    let receivedError: HttpErrorResponse;
+
+    http.get('/forbidden').subscribe({
+      error: (error) => (receivedError = error),
+    });
+
+    httpTestingController
+      .expectOne('/forbidden')
+      .flush({}, { status: 403, statusText: 'Forbidden' });
+
+    expect(receivedError.status).toBe(403);
+    expect(refreshToken).not.toHaveBeenCalled();
+  });
+
+  it('shares an in-flight refresh between concurrent 401 requests', () => {
     const refreshComplete = new Subject<void>();
     token = 'expired-token';
     refreshToken.and.returnValue(refreshComplete);
@@ -132,10 +147,10 @@ describe('TokenInterceptor', () => {
 
     httpTestingController
       .expectOne('/first')
-      .flush({}, { status: 403, statusText: 'Forbidden' });
+      .flush({}, { status: 401, statusText: 'Unauthorized' });
     httpTestingController
       .expectOne('/second')
-      .flush({}, { status: 403, statusText: 'Forbidden' });
+      .flush({}, { status: 401, statusText: 'Unauthorized' });
 
     expect(refreshToken).toHaveBeenCalledTimes(1);
 
