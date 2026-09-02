@@ -29,7 +29,7 @@ Generated: 2026-08-12 · Reset for agentic-b: 2026-08-31 · Raw findings: **55**
 | TEST-001 | High | TESTING | auth-layer | HTTP token interceptor has zero test coverage | yes | shipped #68 |
 | AUTH-002 | Medium | AUTHENTICATION | auth-layer | Client-side `JwtUtil.decodeToken()` performs no signature verificat... | yes | shipped #69 |
 | AUTH-003 | Medium | AUTHENTICATION | auth-layer | No logout mechanism exists; sessions end only on token expiry (risk... | yes | shipped #70 |
-| AUTHZ-002 | Medium | AUTHORIZATION | auth-layer | Dead guard conditions for export-reports and review-data — isAllowe... | yes | #71 |
+| AUTHZ-002 | Medium | AUTHORIZATION | auth-layer | Dead guard conditions for export-reports and review-data — isAllowe... | yes | shipped #71 |
 | CONFIG-005 | Medium | CONFIGURATION | cloudfront-cdn | Security Scan Gate (Trivy) Has All Automatic CI/CD Triggers Disabled | yes | #72 |
 | CONFIG-006 | Medium | CONFIGURATION | shared-infrastructure | logLevel = 0 (LogLevel.All) Hardcoded in All Deployment Pipelines I... | yes | #73 |
 | CRYPTO-001 | Medium | CRYPTOGRAPHY | cloudfront-cdn | CloudFront viewer TLS minimum version permits deprecated TLS 1.0 an... | yes | shipped #74 |
