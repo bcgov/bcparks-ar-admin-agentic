@@ -255,3 +255,71 @@ Same shape as `REVIEW.md` — required before merge. Do not replace with a free-
 **Residual risk:** AUTH-003/AUTH-004 logout, AUTH-006 401 handling, and AUTH-007 request host allowlisting remain explicitly out of scope.
 
 - Reviewer: _______________ Date: _______________
+
+---
+
+# PR evidence — [RA LOG-002] Keycloak authentication lifecycle log levels
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-log-002-elevate-logging-levels |
+| Spec refs | spec/features/authz-001-admin-route-guard.feature, spec/features/example-happy-path.feature, spec/features/log-001-no-config-console-dump.feature, spec/features/log-002-keycloak-lifecycle-log-levels.feature, spec/features/log-003-authz-failure-logging.feature, spec/features/test-001-token-interceptor.feature |
+| Constitution articles touched | P1–P8 (confirm) |
+| Tasks | see spec/tasks.md |
+| Authoring agent | GitHub Copilot Coding Agent |
+| Generated | 2026-09-02T18:07:27.923Z |
+
+## Intent
+
+Keycloak auth error, token refresh error, and logout lifecycle callbacks now emit above-debug log entries through the existing `LoggerService`, while auth success and refresh success remain debug-only. The elevated entries include only a minimal identity hint (`sub` and `email` claims when available) and do not include raw access tokens, refresh tokens, or credentials.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| `authz-001-admin-route-guard.feature` | Not applicable | Out of scope for LOG-002; retained from the feature index. |
+| `example-happy-path.feature` | Not applicable | Out of scope for LOG-002; retained from the feature index. |
+| `log-001-no-config-console-dump.feature` | Not applicable | Out of scope for LOG-002; retained from the feature index. |
+| `log-002-keycloak-lifecycle-log-levels.feature` | Yes | `@R-05.1`–`@R-05.4` covered by focused Karma/Jasmine tests in `src/app/services/keycloak.service.spec.ts`. |
+| `log-003-authz-failure-logging.feature` | Not applicable | Out of scope for LOG-002; retained from the feature index. |
+| `test-001-token-interceptor.feature` | Not applicable | Out of scope for LOG-002; retained from the feature index. |
+
+
+## Design system & accessibility
+
+| Check | Result |
+| --- | --- |
+| DS components used (list) | Not applicable — no UI changes. |
+| Tokens used (not hard-coded colour) | Not applicable — no style changes. |
+| BC Sans imported | Not applicable — unchanged. |
+| Manual a11y notes | Not applicable — Keycloak service logging only, no rendered UI change. |
+
+## Public-service minimums
+
+Checklist IDs addressed this PR: Not applicable — no user interface changes.
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Unit | `yarn test-ci --include src/app/services/keycloak.service.spec.ts` | Passed: 10 SUCCESS |
+| Lint | `yarn lint` | Passed with existing warnings: 0 errors, 59 pre-existing `@angular-eslint/prefer-standalone` warnings in unrelated files. |
+| Acceptance / feature | `spec/features/log-002-keycloak-lifecycle-log-levels.feature` | Implemented by unit coverage for `@R-05.1`–`@R-05.4`, including an assertion that the raw token does not appear in emitted lifecycle log messages. |
+| A11y automation | Not run | Not applicable — no UI changes. |
+
+## Risks & follow-ups
+
+- Server-side/SIEM shipping of auth lifecycle audit events remains deferred to LOG-007, as directed by the signed LOG-002 spec slice for this UI-only repository.
+- `LoggerService` still defaults to `LogLevel.Off` (tracked separately as LOG-004); this slice only raises the selected lifecycle callbacks above debug.
+
+## Review receipt (checkpoint 3)
+
+Same shape as `REVIEW.md` — required before merge. Do not replace with a free-form sign-off.
+
+**Checked:** LOG-002 `@R-05.1`–`@R-05.4`; `spec/spec.md` active LOG-002 slice; `spec/tasks.md`; targeted `KeycloakService` unit tests; manual review confirming no raw token/secret appears in logged lifecycle message fields.
+
+**Could not check:** Full interactive Keycloak/browser lifecycle against a live IdP; local environment uses a mocked Keycloak JS object.
+
+**Residual risk:** Persistent server-side audit endpoint/shipping is out of scope for LOG-002 and remains tracked as LOG-007; `LogLevel.Off` default remains tracked as LOG-004.
+
+- Reviewer: _______________ Date: _______________
