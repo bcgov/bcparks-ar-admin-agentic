@@ -275,6 +275,49 @@ describe('KeycloakService', () => {
       expect(keycloakAuth.init).toHaveBeenCalledWith({ pkceMethod: 'S256' });
     });
 
+    // @AUTH-005 @R-26.2 the configured client id must be passed through as-is.
+    it('creates the Keycloak adapter with the configured KEYCLOAK_CLIENT_ID', async () => {
+      const capturedConfigs: any[] = [];
+      (globalThis as any).Keycloak = function (config: any) {
+        capturedConfigs.push(config);
+        return keycloakAuth;
+      };
+
+      await keycloak.init();
+
+      expect(capturedConfigs.length).toEqual(1);
+      expect(capturedConfigs[0].clientId).toEqual('attendance-and-revenue');
+    });
+
+    // @AUTH-005 a missing KEYCLOAK_CLIENT_ID must never silently fall back
+    // to another application's hardcoded OAuth client ID.
+    it('fails init and does not fall back to a hardcoded client ID when KEYCLOAK_CLIENT_ID is missing', async () => {
+      const toastService = jasmine.createSpyObj('ToastService', [
+        'addMessage',
+      ]);
+      const configServiceNoClientId = {
+        config: {
+          KEYCLOAK_ENABLED: true,
+          KEYCLOAK_URL: 'https://keycloak.example.com',
+          KEYCLOAK_REALM: 'bcparks-service-transformation',
+        },
+      };
+
+      const keycloakNoClientId = new KeycloakService(
+        configServiceNoClientId as any,
+        loggerService,
+        toastService,
+      );
+
+      await expectAsync(keycloakNoClientId.init()).toBeRejected();
+
+      expect(keycloakAuth.init).not.toHaveBeenCalled();
+      expect(toastService.addMessage).toHaveBeenCalled();
+      const message = loggerService.error.calls.mostRecent().args[0];
+      expect(message).toContain('KEYCLOAK_CLIENT_ID');
+      expect(message).not.toContain('nrpti-admin');
+    });
+
     it('logs auth errors above debug with a non-secret identity hint', async () => {
       await initWithDecodedIdentity();
 
