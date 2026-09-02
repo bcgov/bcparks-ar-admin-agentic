@@ -1,7 +1,7 @@
-# Tasks — AUTH-005
+# Tasks — AUTH-006
 
-> Issue [#84](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/84)
+> Issue [#85](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/85)
 
-- [x] **TASK-001** — Reject missing KEYCLOAK_CLIENT_ID
-- [x] **TASK-002** — Remove nrpti-admin fallback
-- [x] **TASK-003** — Unit tests + append evidence
+- [ ] **TASK-001** — Refresh on 401 not 403
+- [ ] **TASK-002** — Update token-interceptor.spec.ts
+- [ ] **TASK-003** — Append evidence

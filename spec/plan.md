@@ -1,3 +1,3 @@
-# Plan — AUTH-005 require KEYCLOAK_CLIENT_ID
+# Plan — AUTH-006 TokenInterceptor 401 refresh
 
-Remove 'nrpti-admin' fallback. Validate KEYCLOAK_CLIENT_ID before Keycloak adapter construct; reject with toast/logger error. Unit tests @R-26.x. Append evidence.
+Change TokenInterceptor to refresh on HTTP 401 instead of 403. Update tests and JSDoc. Append evidence.
