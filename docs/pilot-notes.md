@@ -39,6 +39,7 @@ Run the **same 45 recommended** rapid-assessment findings as `agentic-b`, end-to
 | 2026-09-02 | 14 | AUTHZ-002 shipped via Copilot [#145](https://github.com/bcgov/bcparks-ar-admin-agentic/pull/145) | export-reports/review-data admin-only |
 | 2026-09-02 | 14 | Spec [#146](https://github.com/bcgov/bcparks-ar-admin-agentic/pull/146) backfilled after plan raced ahead of CP1 | Orchestrator `gh pr create` failed to capture SPEC number; land CP1 before ready-for-agent |
 | 2026-09-02 | 15 | CONFIG-005 shipped via Copilot [#149](https://github.com/bcgov/bcparks-ar-admin-agentic/pull/149) | Trivy push/PR/schedule triggers enabled |
+| 2026-09-02 | 15 | Fixed `collect-metrics.mjs` missing `collectPrStats` function header (syntax error) | Metrics 1/3 workflow failed; same bug in patterns/tier2-v3 |
 | _(more during run)_ | | | |
 
 ## Metrics reviews
