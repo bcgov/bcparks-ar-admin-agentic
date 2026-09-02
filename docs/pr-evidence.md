@@ -1989,3 +1989,59 @@ Same shape as `REVIEW.md` — required before merge. Do not replace with a free-
 **Residual risk:** None identified for AUTHZ-005. No gap accepted.
 
 - Reviewer: _______________ Date: _______________
+
+---
+
+# PR evidence — [RA BW-001] Lock Records component has no unlock workflow
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-bw-001-add-unlock-workflow |
+| Spec refs | spec/features/bw-001-lock-records-unlock.feature |
+| Tasks | BW-001 entries in `spec/tasks.md` |
+| Authoring agent | GitHub Copilot Coding Agent |
+
+## Intent
+
+`LockRecordsComponent` only ever called `FiscalYearLockService.lockUnlockFiscalYear(year, true)`, so once a fiscal year was locked it could not be unlocked through the UI. The Locked Records table (`FiscalYearLockTableComponent`) already renders each locked fiscal year with an unlock action (`FiscalYearUnlockerComponent`) that invokes `lockUnlockFiscalYear(year, false)`. This slice adds unit test coverage confirming both the lock (`true`) and unlock (`false`) code paths are exercised, and updates spec traceability.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| `bw-001-lock-records-unlock.feature` `@R-32.1` (Unlock invokes lock=false) | Yes | `FiscalYearUnlockerComponent.unlockFiscalYear()` calls `FiscalYearLockService.lockUnlockFiscalYear(year, false)`; covered by a new unit test in `fiscal-year-unlocker.component.spec.ts`. |
+| `bw-001-lock-records-unlock.feature` `@R-32.2` (Lock invokes lock=true) | Yes | `LockRecordsComponent.submit()` calls `FiscalYearLockService.lockUnlockFiscalYear(year, true)`; covered by a new unit test in `lock-records.component.spec.ts`. |
+
+## Design system & accessibility
+
+| Check | Result |
+| --- | --- |
+| DS components used (list) | No new UI added — existing `ngds-date-input`, `app-table`, and Bootstrap-styled buttons (`btn btn-primary`, `btn btn-outline-primary`) are reused unchanged. |
+| Tokens used (not hard-coded colour) | N/A — no styling changes. |
+| BC Sans imported | N/A — no styling changes. |
+| Manual a11y notes | Unlock button already exposes an icon-only `<button>`; no changes made in this slice. |
+
+## Public-service minimums
+
+Checklist IDs addressed this PR: N/A (test-only change; no UI markup modified)
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Unit | `npx ng test --watch=false --browsers=ChromeHeadlessNoSandbox --include='**/lock-records/**/*.spec.ts'` | Passed — 5/5 specs, including the two new lock/unlock assertions. |
+| Acceptance / feature | `spec/features/bw-001-lock-records-unlock.feature` `@R-32.1`, `@R-32.2` | Satisfied by the unit tests above. |
+
+## Risks & follow-ups
+
+- No behavioural/UI change was required; the unlock action already existed via the locked-records table. If a future design review wants a dedicated Unlock button/toggle alongside the Lock button in the top form, that would be a separate UX enhancement.
+
+## Review receipt (checkpoint 3)
+
+**Checked:** BW-001 `@R-32.1`–`@R-32.2`; `spec/spec.md`; `spec/tasks.md`; `spec/features/bw-001-lock-records-unlock.feature`; `LockRecordsComponent`, `FiscalYearLockTableComponent`, `FiscalYearUnlockerComponent`, `FiscalYearLockService`.
+
+**Could not check:** A live browser accessibility audit of the unlock control; only unit-level verification was performed.
+
+**Residual risk:** The Lock/Unlock affordance is split across two UI locations (top form for Lock, table row for Unlock), which may be less discoverable than a single toggle; deferred as a UX follow-up, not a functional defect.
+
+- Reviewer: _______________ Date: _______________
