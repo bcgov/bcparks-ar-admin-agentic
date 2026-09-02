@@ -329,4 +329,107 @@ describe('KeycloakService', () => {
       expect(loggerService.error).not.toHaveBeenCalled();
     });
   });
+
+  // @AUTH-004 a background refresh failure must force re-authentication
+  // instead of leaving the user in an authenticated-looking state.
+  describe('token expiry handling', () => {
+    let keycloak: KeycloakService;
+    let loggerService: jasmine.SpyObj<LoggerService>;
+    let keycloakAuth: any;
+    let redirectToLoginSpy: jasmine.Spy;
+
+    beforeEach(() => {
+      loggerService = jasmine.createSpyObj('LoggerService', [
+        'debug',
+        'error',
+        'log',
+        'warn',
+      ]);
+
+      const configService = {
+        config: {
+          KEYCLOAK_ENABLED: true,
+          KEYCLOAK_URL: 'https://keycloak.example.com',
+          KEYCLOAK_REALM: 'bcparks-service-transformation',
+          KEYCLOAK_CLIENT_ID: 'attendance-and-revenue',
+        },
+      };
+
+      keycloakAuth = {
+        init: jasmine.createSpy('init').and.returnValue(Promise.resolve(true)),
+        token: 'raw-access-token-value',
+        tokenParsed: { sub: 'user-123', email: 'person@example.com' },
+        updateToken: jasmine.createSpy('updateToken'),
+      };
+
+      (globalThis as any).Keycloak = function () {
+        return keycloakAuth;
+      };
+
+      keycloak = new KeycloakService(
+        configService as any,
+        loggerService,
+        jasmine.createSpyObj('ToastService', ['addMessage']),
+      );
+
+      redirectToLoginSpy = spyOn<any>(keycloak, 'redirectToLogin');
+    });
+
+    afterEach(() => {
+      delete (globalThis as any).Keycloak;
+    });
+
+    it('redirects to login when the background token refresh fails', async () => {
+      keycloakAuth.updateToken.and.returnValue(
+        Promise.reject('refresh token expired'),
+      );
+
+      await keycloak.init();
+      await keycloakAuth.onTokenExpired();
+
+      expect(redirectToLoginSpy).toHaveBeenCalledTimes(1);
+      const message = loggerService.error.calls.mostRecent().args[0];
+      expect(message).toContain('KC refresh error');
+      expect(message).not.toContain('raw-access-token-value');
+    });
+
+    it('does not redirect when the background token refresh succeeds', async () => {
+      keycloakAuth.updateToken.and.returnValue(Promise.resolve(true));
+
+      await keycloak.init();
+      await keycloakAuth.onTokenExpired();
+
+      expect(redirectToLoginSpy).not.toHaveBeenCalled();
+    });
+
+    it('navigates to the login page relative to the app base href', () => {
+      redirectToLoginSpy.and.callThrough();
+      const assignSpy = jasmine.createSpy('assign');
+      spyOnProperty(window, 'location', 'get').and.returnValue({
+        origin: window.location.origin,
+        pathname: '/dayuse',
+        assign: assignSpy,
+      } as any);
+
+      (keycloak as any).redirectToLogin();
+
+      expect(assignSpy).toHaveBeenCalledOnceWith(
+        new URL('/login', window.location.origin).toString(),
+      );
+    });
+
+    it('does not redirect when the user is already on the login page', () => {
+      redirectToLoginSpy.and.callThrough();
+      const assignSpy = jasmine.createSpy('assign');
+      spyOnProperty(window, 'location', 'get').and.returnValue({
+        origin: window.location.origin,
+        pathname: '/login',
+        assign: assignSpy,
+      } as any);
+
+      (keycloak as any).redirectToLogin();
+
+      expect(assignSpy).not.toHaveBeenCalled();
+    });
+  });
 });

@@ -77,7 +77,11 @@ export class KeycloakService {
               this.loggerService.log(`KC refreshed token?: ${refreshed}`);
             })
             .catch((err) => {
-              this.loggerService.log(`KC refresh error: ${err}`);
+              this.loggerService.error(`KC refresh error: ${err}`);
+              // The session can no longer be refreshed: force a clean
+              // re-authentication instead of leaving the user in an
+              // authenticated-looking state with an unusable token.
+              this.redirectToLogin();
             });
         };
 
@@ -231,6 +235,25 @@ export class KeycloakService {
 
       return { unsubscribe() {} };
     });
+  }
+
+  /**
+   * Sends the browser to the login page after the Keycloak session can no
+   * longer be refreshed. A full navigation (rather than a router navigation)
+   * is used so all in-memory state tied to the expired session is discarded.
+   *
+   * @memberof KeycloakService
+   */
+  private redirectToLogin() {
+    const baseHref = document.querySelector('base')?.getAttribute('href') || '/';
+    const loginUrl = new URL('login', new URL(baseHref, window.location.origin));
+
+    // Avoid a redirect loop if the user is already on the login page.
+    if (window.location.pathname === loginUrl.pathname) {
+      return;
+    }
+
+    window.location.assign(loginUrl.toString());
   }
 
   private logAuthLifecycleEvent(eventType: string, level: 'warn' | 'error') {
