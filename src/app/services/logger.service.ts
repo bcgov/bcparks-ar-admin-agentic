@@ -11,9 +11,21 @@ export enum LogLevel {
   Off = 6
 }
 
+/**
+ * Runtime configuration name reserved for a future, approved server-side log
+ * shipping implementation. It is intentionally not read by LoggerService.
+ * See docs/logging-architecture.md.
+ */
+export const LOG_SHIPPING_ENDPOINT_CONFIG_KEY = 'LOG_SHIPPING_ENDPOINT';
+
 @Injectable({
   providedIn: 'root',
 })
+/**
+ * Emits structured application logs to the browser console only. Server-side
+ * persistence and SIEM integration are not implemented in this application.
+ * See docs/logging-architecture.md for the approved future implementation path.
+ */
 export class LoggerService {
   // Safe default: if env.js omits logLevel, fall back to Warn (not Off) so
   // security-relevant warnings/errors are never silently dropped.

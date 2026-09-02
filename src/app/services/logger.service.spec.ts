@@ -1,7 +1,7 @@
 import { HttpClient, HttpHandler } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { ConfigService } from './config.service';
-import { LoggerService, LogLevel } from './logger.service';
+import { LoggerService, LogLevel, LOG_SHIPPING_ENDPOINT_CONFIG_KEY } from './logger.service';
 
 describe('LoggerService', () => {
   let originalEnv: any;
@@ -34,6 +34,10 @@ describe('LoggerService', () => {
 
     loggerService.fatal('Some Fatal Message');
     expect(LoggerService.prototype.log).toHaveBeenCalledTimes(4);
+  });
+
+  it('should expose the reserved, inactive log shipping configuration name', () => {
+    expect(LOG_SHIPPING_ENDPOINT_CONFIG_KEY).toBe('LOG_SHIPPING_ENDPOINT');
   });
 
   // @R-17.1: Missing logLevel defaults to Warn not Off
