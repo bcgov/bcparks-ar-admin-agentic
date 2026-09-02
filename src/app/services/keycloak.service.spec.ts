@@ -20,46 +20,52 @@ describe('KeycloakService', () => {
     });
   });
 
-  it('idp should be `idir` if the token has an idir_userid property', () => {
-    spyOn(JwtUtil, 'decodeToken').and.callFake(() => {
+  it('idp should be `idir` if tokenParsed has an idir_userid property', () => {
+    const decodeTokenSpy = spyOn(JwtUtil, 'decodeToken');
+    const keycloak = TestBed.get(KeycloakService);
+    spyOn(keycloak, 'getToken').and.callFake(() => {
+      return 'not-empty';
+    });
+    spyOn(keycloak, 'getTokenClaims').and.callFake(() => {
       return {
         idir_userid: '12345',
       };
     });
+    const idp = keycloak.getIdpFromToken();
+    expect(idp).toEqual('idir');
+    expect(decodeTokenSpy).not.toHaveBeenCalled();
+  });
+
+  it('idp should be `bceid` if tokenParsed has an bceid_userid property', () => {
+    const decodeTokenSpy = spyOn(JwtUtil, 'decodeToken');
     const keycloak = TestBed.get(KeycloakService);
     spyOn(keycloak, 'getToken').and.callFake(() => {
       return 'not-empty';
     });
-    const idp = keycloak.getIdpFromToken();
-    expect(idp).toEqual('idir');
-  });
-
-  it('idp should be `bceid` if the token has an bceid_userid property', () => {
-    spyOn(JwtUtil, 'decodeToken').and.callFake(() => {
+    spyOn(keycloak, 'getTokenClaims').and.callFake(() => {
       return {
         bceid_userid: '12345',
       };
     });
+    const idp = keycloak.getIdpFromToken();
+    expect(idp).toEqual('bceid');
+    expect(decodeTokenSpy).not.toHaveBeenCalled();
+  });
+
+  it('idp should be `bcsc` if tokenParsed does not match any known patterns', () => {
+    const decodeTokenSpy = spyOn(JwtUtil, 'decodeToken');
     const keycloak = TestBed.get(KeycloakService);
     spyOn(keycloak, 'getToken').and.callFake(() => {
       return 'not-empty';
     });
-    const idp = keycloak.getIdpFromToken();
-    expect(idp).toEqual('bceid');
-  });
-
-  it('idp should be `bcsc` if the token does not match any known patterns', () => {
-    spyOn(JwtUtil, 'decodeToken').and.callFake(() => {
+    spyOn(keycloak, 'getTokenClaims').and.callFake(() => {
       return {
         preferred_username: 'abc',
       };
     });
-    const keycloak = TestBed.get(KeycloakService);
-    spyOn(keycloak, 'getToken').and.callFake(() => {
-      return 'not-empty';
-    });
     const idp = keycloak.getIdpFromToken();
     expect(idp).toEqual('bcsc');
+    expect(decodeTokenSpy).not.toHaveBeenCalled();
   });
 
   it('getUserIdentity should return empty userId/email when there is no token', () => {
@@ -70,36 +76,86 @@ describe('KeycloakService', () => {
     expect(keycloak.getUserIdentity()).toEqual({ userId: '', email: '' });
   });
 
-  it('getUserIdentity should return the sub and email claims from the token', () => {
-    spyOn(JwtUtil, 'decodeToken').and.callFake(() => {
+  it('getUserIdentity should return the sub and email claims from tokenParsed', () => {
+    const decodeTokenSpy = spyOn(JwtUtil, 'decodeToken');
+    const keycloak = TestBed.get(KeycloakService);
+    spyOn(keycloak, 'getToken').and.callFake(() => {
+      return 'not-empty';
+    });
+    spyOn(keycloak, 'getTokenClaims').and.callFake(() => {
       return {
         sub: 'abc-123',
         email: 'person@example.com',
       };
-    });
-    const keycloak = TestBed.get(KeycloakService);
-    spyOn(keycloak, 'getToken').and.callFake(() => {
-      return 'not-empty';
     });
     expect(keycloak.getUserIdentity()).toEqual({
       userId: 'abc-123',
       email: 'person@example.com',
     });
+    expect(decodeTokenSpy).not.toHaveBeenCalled();
   });
 
   it('getUserIdentity should not leak the raw token', () => {
-    spyOn(JwtUtil, 'decodeToken').and.callFake(() => {
+    const decodeTokenSpy = spyOn(JwtUtil, 'decodeToken');
+    const keycloak = TestBed.get(KeycloakService);
+    spyOn(keycloak, 'getToken').and.callFake(() => {
+      return 'super-secret-raw-token-value';
+    });
+    spyOn(keycloak, 'getTokenClaims').and.callFake(() => {
       return {
         sub: 'abc-123',
         email: 'person@example.com',
       };
     });
-    const keycloak = TestBed.get(KeycloakService);
-    spyOn(keycloak, 'getToken').and.callFake(() => {
-      return 'super-secret-raw-token-value';
-    });
     const identity = keycloak.getUserIdentity();
     expect(JSON.stringify(identity)).not.toContain('super-secret-raw-token-value');
+    expect(decodeTokenSpy).not.toHaveBeenCalled();
+  });
+
+  it('getTokenClaims returns the Keycloak adapter tokenParsed for a real session', () => {
+    const keycloak = TestBed.get(KeycloakService);
+    (keycloak as any).keycloakAuth = {
+      tokenParsed: { sub: 'user-1', resource_access: {} },
+    };
+    expect(keycloak.getTokenClaims()).toEqual({
+      sub: 'user-1',
+      resource_access: {},
+    });
+  });
+
+  it('isAdmin reads the sysadmin role from tokenParsed, not JwtUtil.decodeToken', () => {
+    const decodeTokenSpy = spyOn(JwtUtil, 'decodeToken');
+    const keycloak = TestBed.get(KeycloakService);
+    spyOn(keycloak, 'getToken').and.returnValue('not-empty');
+    spyOn(keycloak, 'getTokenClaims').and.returnValue({
+      resource_access: {
+        'attendance-and-revenue': { roles: ['sysadmin'] },
+      },
+    });
+    expect(keycloak.isAdmin()).toEqual(true);
+    expect(decodeTokenSpy).not.toHaveBeenCalled();
+  });
+
+  it('isAuthorized reads roles from tokenParsed, not JwtUtil.decodeToken', () => {
+    const decodeTokenSpy = spyOn(JwtUtil, 'decodeToken');
+    const keycloak = TestBed.get(KeycloakService);
+    spyOn(keycloak, 'getToken').and.returnValue('not-empty');
+    spyOn(keycloak, 'getTokenClaims').and.returnValue({
+      resource_access: {
+        'attendance-and-revenue': { roles: ['user'] },
+      },
+    });
+    expect(keycloak.isAuthorized()).toEqual(true);
+    expect(decodeTokenSpy).not.toHaveBeenCalled();
+  });
+
+  it('getWelcomeMessage reads the name claim from tokenParsed, not JwtUtil.decodeToken', () => {
+    const decodeTokenSpy = spyOn(JwtUtil, 'decodeToken');
+    const keycloak = TestBed.get(KeycloakService);
+    spyOn(keycloak, 'getToken').and.returnValue('not-empty');
+    spyOn(keycloak, 'getTokenClaims').and.returnValue({ name: 'Jane Doe' });
+    expect(keycloak.getWelcomeMessage()).toEqual('Jane Doe');
+    expect(decodeTokenSpy).not.toHaveBeenCalled();
   });
 
   describe('Keycloak lifecycle logging', () => {
@@ -146,10 +202,10 @@ describe('KeycloakService', () => {
     });
 
     async function initWithDecodedIdentity() {
-      spyOn(JwtUtil, 'decodeToken').and.returnValue({
+      keycloakAuth.tokenParsed = {
         sub: 'user-123',
         email: 'person@example.com',
-      });
+      };
 
       await keycloak.init();
       loggerService.debug.calls.reset();

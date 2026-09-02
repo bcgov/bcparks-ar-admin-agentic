@@ -698,3 +698,64 @@ live production deployment; both require platform operator access.
 operator sets `DOMAIN_CERTIFICATE_ARN` on the `lza-prod` environment.
 
 - Reviewer: _______________ Date: _______________
+
+---
+
+# PR evidence — [RA AUTH-002] Route role/IDP claim reads through library-verified tokenParsed
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-auth-002-fix-jwt-util-verification |
+| Spec refs | spec/features/auth-002-token-claims.feature |
+| Constitution articles touched | P5, P7, J3, J5 |
+| Tasks | AUTH-002 entries in spec/tasks.md |
+| Authoring agent | GitHub Copilot Coding Agent |
+| Generated | 2026-09-02T19:24:21.857Z |
+
+## Intent
+
+`KeycloakService` role, IDP, welcome-message, and identity helpers previously read claims via the custom `JwtUtil.decodeToken()` (a Base64 payload decode with no signature verification). A new `KeycloakService.getTokenClaims()` now returns the Keycloak adapter's own library-verified `tokenParsed`, and `isAuthorized`, `isAdmin`, `getWelcomeMessage`, `getIdpFromToken`, and `getUserIdentity` all read claims through it instead. `isAuthenticated` already relied on the adapter's `authenticated` flag, so authentication and authorization/identity decisions are now aligned on the same library-verified session state. `JwtUtil.decodeToken` itself is left unchanged as a general-purpose utility (out of scope per spec) but is no longer used on the real-auth claim path.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| `auth-002-token-claims.feature` (@R-12.1) | Yes | Covered by focused Karma/Jasmine tests in `src/app/services/keycloak.service.spec.ts` asserting `getTokenClaims()`/`tokenParsed` is used and `JwtUtil.decodeToken` is not called for `isAuthorized`, `isAdmin`, `getWelcomeMessage`, `getIdpFromToken`, and `getUserIdentity`. |
+
+## Design system & accessibility
+
+| Check | Result |
+| --- | --- |
+| DS components used (list) | Not applicable — no UI changes. |
+| Tokens used (not hard-coded colour) | Not applicable — no style changes. |
+| BC Sans imported | Not applicable — unchanged. |
+| Manual a11y notes | Not applicable — service logic only. |
+
+## Public-service minimums
+
+Checklist IDs addressed this PR: Not applicable — no user interface changes.
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Unit | `yarn test-ci --include src/app/services/keycloak.service.spec.ts --include src/app/shared/utils/jwt-utils.spec.ts` | Passed: 18 SUCCESS |
+| Acceptance / feature | `spec/features/auth-002-token-claims.feature` | Implemented by unit coverage for `@R-12.1`. |
+| A11y automation | Not run | Not applicable — no UI changes. |
+
+## Risks & follow-ups
+
+- `JwtUtil.decodeToken` itself still performs no signature verification; it remains as a utility but is no longer used to drive role/IDP/identity decisions on the real Keycloak auth path (accepted gap per spec: implementing cryptographic verification inside `JwtUtil` is out of scope, since the Keycloak adapter already verifies the session).
+- If a `localMockAuth` path is added later, it may still need a decode step (e.g. for a fake token) separate from the real-auth `tokenParsed` path documented here.
+
+## Review receipt (checkpoint 3)
+
+Same shape as `REVIEW.md` — required before merge. Do not replace with a free-form sign-off.
+
+**Checked:** `isAuthorized`, `isAdmin`, `getWelcomeMessage`, `getIdpFromToken`, and `getUserIdentity` all route through `KeycloakService.getTokenClaims()` (`tokenParsed`); `JwtUtil.decodeToken` is no longer imported/used in `keycloak.service.ts`; unit tests assert `decodeToken` spy is not called for each rewired helper; `auth-002-token-claims.feature` @R-12.1.
+
+**Could not check:** End-to-end behaviour against a live Keycloak realm (no IdP available in this environment); relied on unit-level adapter mocks (`tokenParsed`) instead.
+
+**Residual risk:** `JwtUtil.decodeToken` remains unverified and is still exported for any future caller; no lint rule prevents re-introducing it on the real-auth path. Server-side/API authorization remains the enforcement boundary regardless of client-side claim source.
+
+- Reviewer: _______________ Date: _______________
