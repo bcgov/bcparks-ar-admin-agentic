@@ -1,38 +1,35 @@
-# Plan — Keycloak PKCE S256 (AUTH-001)
+# Plan — Prod certificate ARN from vars (SECRET-001)
 
-> Architecture and delivery for issue [#62](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/62) / RA AUTH-001.  
+> Architecture and delivery for issue [#67](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/67) / RA SECRET-001.  
 > Checkpoint 1 (spec) is merged. This document is **checkpoint 2**.
 
 ## Summary
 
-Change Keycloak adapter `init({})` to `init({ pkceMethod: 'S256' })` in `src/app/services/keycloak.service.ts`. Add unit coverage asserting init options. Must change `src/` (refuse evidence-only). Append evidence.
+In `.github/workflows/lza-deploy-admin-prod.yaml`, replace the hardcoded `DomainCertificateArn="arn:aws:acm:..."` parameter override with `DomainCertificateArn=${{ vars.DOMAIN_CERTIFICATE_ARN }}`. Must change `.github/workflows/`. Do not print the ARN in evidence. Document ops residual: set the GitHub Environment variable before the next prod deploy.
 
 ## Architecture
 
 ```text
-KeycloakService.init()
-  when KEYCLOAK_ENABLED:
-    new Keycloak(config)
-    keycloakAuth.init({ pkceMethod: 'S256' })  // was {}
-keycloak.service.spec.ts
-  asserts init called with pkceMethod S256
+lza-deploy-admin-prod.yaml
+  SAM Deploy --parameter-overrides
+    DomainCertificateArn=${{ vars.DOMAIN_CERTIFICATE_ARN }}
+GitHub Environment (prod / lza-prod)
+  vars.DOMAIN_CERTIFICATE_ARN  (human-set residual)
 ```
 
 ## Key decisions
 
 | Decision | Choice | Rationale |
 | --- | --- | --- |
-| API | `pkceMethod: 'S256'` on init | keycloak-js v25; matches assessment |
-| Tests | Unit spy on init | No live IdP in CI |
-| Mock auth | Do not invent full localMockAuth | Out of AUTH-001 scope; constitution residual |
-| Evidence | append AUTH-001 | Preserve receipts |
+| Source | `vars.DOMAIN_CERTIFICATE_ARN` | Matches assessment Expected |
+| Evidence | No ARN reprint | Avoid re-leaking |
+| Ops var | Residual, not blocking code merge | Code fix is complete when workflow references vars |
 
 ## Tasks
 
-1. Update `keycloak.service.ts` init options to include PKCE S256
-2. Add/update unit test(s) for init options
-3. Append `docs/pr-evidence.md`
-4. Checkpoint 3 + merge (must change `src/`)
+1. Replace literal DomainCertificateArn in prod LZA workflow with vars reference
+2. Append evidence (no ARN value)
+3. Checkpoint 3 + merge (must change `.github/workflows/`)
 
 ## Approval (checkpoint 2)
 
