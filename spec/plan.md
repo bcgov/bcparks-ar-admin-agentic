@@ -1,3 +1,3 @@
-# Plan — DEP-002 remove jquery
+# Plan — DEP-003 moment→luxon
 
-Remove jquery from package.json and angular.json global scripts. Update lockfile. Append evidence.
+Replace moment in activity.service.ts and utils.ts with luxon equivalents. Remove moment from package.json. Tests + evidence.
