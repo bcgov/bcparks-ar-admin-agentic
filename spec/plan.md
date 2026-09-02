@@ -1,26 +1,18 @@
-# Plan — LOG-004 LoggerService default when logLevel missing
+# Plan — LOG-005 sanitized error logging
 
-> Checkpoint 2 for issue [#75](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/75).
+> Checkpoint 2 for issue [#76](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/76).
 
 ## Approach
 
-1. Change `LoggerService` so the effective level falls back to `LogLevel.Warn` when `ConfigService.logLevel` is `undefined`/`null` (do not keep `Off` as the silent default).
-2. Emit a one-time `console.warn` advising operators to set `logLevel` explicitly for debug.
-3. Add/extend unit tests in `logger.service.spec.ts` covering @R-17.1 and @R-17.2.
+1. `ConfigService`: inject `Injector`; on remote config failure call `LoggerService.error()` with message string only (lazy resolve to avoid circular DI).
+2. `main.ts`: replace `console.error(err)` with message-only `console.error(err?.message ?? String(err))`.
+3. Update `config.service.spec.ts` for LoggerService.error spy on failure path.
 4. Append `docs/pr-evidence.md`.
 
 ## Out of scope
 
-- Deploy pipeline logLevel values (CONFIG-006 — already shipped)
-- Structured JSON logs (LOG-006)
-- Server-side shipping (LOG-007)
-
-## Risks
-
-- More console noise in misconfigured envs (intentional)
-- Tests that assumed Off-when-unset need updating
+- Structured JSON (LOG-006), global ErrorHandler (LOG-008), SIEM (LOG-007)
 
 ## Verification
 
-- Unit tests for missing logLevel → Warn; one-time warn message
-- Append evidence; must touch `src/`
+- Unit tests @R-18.1; static review main.ts @R-18.2; must touch `src/`
