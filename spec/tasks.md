@@ -1,7 +1,7 @@
-# Tasks — VULN-001
+# Tasks — AUTH-004
 
-> Issue [#82](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/82)
+> Issue [#83](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/83)
 
-- [x] **TASK-001** — Text binding not innerHtml (@R-24.1)
-- [x] **TASK-002** — Malicious name rendered as text (@R-24.2)
-- [x] **TASK-003** — Append docs/pr-evidence.md
+- [ ] **TASK-001** — Redirect to /login on refresh failure (@R-25.1)
+- [ ] **TASK-002** — Unit test keycloak.service.spec.ts
+- [ ] **TASK-003** — Append docs/pr-evidence.md

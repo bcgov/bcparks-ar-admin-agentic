@@ -1,9 +1,7 @@
-# Plan — VULN-001 Historical pill XSS
+# Plan — AUTH-004 token refresh failure redirect
 
-> Checkpoint 2 for issue [#82](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/82).
+> Checkpoint 2 for issue [#83](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/83).
 
 ## Approach
 
-1. getHighlightedMatch returns plain text segments (no HTML wrappers).
-2. Replace [innerHtml] with text interpolation; keep highlight class on middle span.
-3. Unit tests for malicious input; append evidence.
+On onTokenExpired, if updateToken rejects: log error and window.location.assign('/login'). Unit test with mocked updateToken failure. Append evidence.
