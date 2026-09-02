@@ -34,7 +34,7 @@ Generated: 2026-08-12 · Reset for agentic-b: 2026-08-31 · Raw findings: **55**
 | CONFIG-006 | Medium | CONFIGURATION | shared-infrastructure | logLevel = 0 (LogLevel.All) Hardcoded in All Deployment Pipelines I... | yes | shipped #73 |
 | CRYPTO-001 | Medium | CRYPTOGRAPHY | cloudfront-cdn | CloudFront viewer TLS minimum version permits deprecated TLS 1.0 an... | yes | shipped #74 |
 | LOG-004 | Medium | SECURITY_LOGGING | shared-infrastructure | LoggerService defaults to LogLevel.Off — all logging silenced if lo... | yes | shipped #75 |
-| LOG-005 | Medium | SECURITY_LOGGING | shared-infrastructure | Raw error objects logged directly to console — potential stack trac... | yes | #76 |
+| LOG-005 | Medium | SECURITY_LOGGING | shared-infrastructure | Raw error objects logged directly to console — potential stack trac... | yes | shipped #76 |
 | LOG-006 | Medium | SECURITY_LOGGING | shared-infrastructure | No structured log format — all output is unstructured plain text | yes | #77 |
 | LOG-007 | Medium | SECURITY_LOGGING | shared-infrastructure | All application logging is browser-console only — no server-side pe... | yes | #78 |
 | SECRET-002 | Medium | SECRETS | cloudfront-cdn | Non-Production AWS Account IDs Hardcoded Across CI/CD Workflows, Sc... | yes | #79 |
