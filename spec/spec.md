@@ -7,51 +7,46 @@
 
 ## Active slice
 
-### CONFIG-002 — Content-Security-Policy on CloudFront responses
+### AUTH-001 — PKCE (S256) on Keycloak OIDC init
 
-- **Issue:** [#63](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/63)
-- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `CONFIG-002`
-- **Feature:** `features/config-002-cloudfront-csp.feature`
+- **Issue:** [#62](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/62)
+- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `AUTH-001`
+- **Feature:** `features/auth-001-pkce.feature`
 
 #### Problem
 
-No Content-Security-Policy is emitted on CloudFront responses, and `src/index.html` has no CSP meta fallback. Without CSP the browser cannot restrict script sources, object sources, or frame ancestors. The SPA authenticates via loginproxy.gov.bc.ca (Keycloak) and calls attendance API hosts — those must be allowlisted for connect/frame without opening script execution to arbitrary origins.
+Keycloak client is initialised with an empty options object — no PKCE method. For a public browser OIDC client, OAuth 2.0 Security BCP requires PKCE so a stolen authorization code cannot be exchanged for tokens independently.
 
 #### Outcome
 
-The shared custom response headers policy (all three cache behaviours) sets a **sourced Content-Security-Policy** that at minimum:
-
-1. Limits **script-src** to same origin (`'self'`) — Keycloak JS is bundled from the app origin
-2. Allows **connect-src** / **frame-src** (and form-action as needed) for loginproxy and attendance/API hosts used by the app
-3. Sets **object-src 'none'** and **frame-ancestors 'none'**
-4. Preserves HSTS, CORS, and CONFIG-004 browser headers (XFO / nosniff / Referrer / Permissions-Policy)
+When Keycloak is enabled and the adapter is initialised for a real session, init options include **PKCE method S256**. Staff login success path is otherwise unchanged. Unit/service tests prove the init options without a live IdP.
 
 #### Users & personas
 
 | Persona | Goal |
 | --- | --- |
-| Security reviewer | Confirm CSP on every behaviour with loginproxy allowlisted |
-| Parks staff | Login and API calls still work under CSP |
-| Implementer | Template-only change + evidence |
+| Parks staff | Login still works |
+| Security reviewer | Confirm S256 PKCE on real init |
+| Developer (local) | Unit tests cover init options |
 
 #### Scope
 
 **In scope**
 
-- Add `ContentSecurityPolicy` to existing `CloudFrontResponseHeadersPolicy` in `template.yaml`
-- Keep all three behaviours on that policy
-- Evidence append; must change `template.yaml`
+- Pass `pkceMethod: 'S256'` (or equivalent) on Keycloak adapter init for real auth
+- Unit/service test(s) asserting init options
+- Evidence append; must change `src/` (refuse evidence-only)
 
 **Out of scope**
 
-- Adding a CSP `<meta>` tag in `index.html` if the response header covers all behaviours (header is preferred; meta only if needed as residual)
-- Changing HSTS / CORS / CONFIG-004 headers beyond preserving them
-- Live login/API smoke after deploy (residual)
+- Implementing a full `?localMockAuth=1` feature if not already present (constitution J7 documents intent; this finding is PKCE only — do not silently expand)
+- IdP / loginproxy client configuration changes (residual smoke after merge)
+- Logout, refresh, or interceptor changes
 
 #### Open questions
 
-- **style-src 'unsafe-inline':** Angular/Bootstrap may require it for this brownfield app — acceptable if documented in evidence; prefer `'self'` plus `'unsafe-inline'` over wide-open style sources.
-- **Exact host patterns:** Prefer `loginproxy.gov.bc.ca` / `*.loginproxy.gov.bc.ca`, `*.execute-api.ca-central-1.amazonaws.com`, `*.bcparks.ca` to match production IdP and API shapes.
+- **IdP client support:** Assume loginproxy clients already allow PKCE (standard for public clients). Post-merge IDIR smoke is residual human check.
+- **keycloak-js API:** Prefer documented `pkceMethod: 'S256'` on `init()` for the version in package.json.
 
 #### Sign-off (checkpoint 1)
 
@@ -65,16 +60,11 @@ The shared custom response headers policy (all three cache behaviours) sets a **
 
 ## Completed slices (recent)
 
-### CONFIG-004 — Browser security headers (frame / MIME / referrer / permissions)
+### CONFIG-002 — Content-Security-Policy on CloudFront responses
 
-- **Issue:** [#104](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/104) (shipped)
-- **Feature:** `features/config-004-cloudfront-security-headers.feature`
+- **Issue:** [#63](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/63) (shipped)
+- **Feature:** `features/config-002-cloudfront-csp.feature`
 
-### CONFIG-003 — CloudFront HSTS on all cache behaviours
-
-- **Issue:** [#64](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/64) (shipped)
-- **Feature:** `features/config-003-cloudfront-hsts.feature`
-
-### CRYPTO-001 / LOG-002 / TEST-001 / LOG-003 / LOG-001 / AUTHZ-001
+### CONFIG-004 / CONFIG-003 / CRYPTO-001 / LOG-002 / TEST-001 / LOG-003 / LOG-001 / AUTHZ-001
 
 - Shipped — see rematch wiki
