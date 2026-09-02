@@ -121,13 +121,19 @@ describe('ConfigService', () => {
     TestBed.overrideProvider(HttpClient, { useValue: mockHttpClientFailedThrow });
     service = TestBed.inject(ConfigService);
 
-    const consoleError = spyOn(console, 'error');
+    // Errors caught during config init are routed through LoggerService,
+    // which logs via console.log (not console.error) with a sanitised
+    // message rather than the raw error object.
+    const consoleLog = spyOn(console, 'log');
 
     expect(service).toBeTruthy();
     expect(service.config).toEqual({});
 
     await service.init();
 
-    expect(consoleError).toHaveBeenCalled();
+    expect(consoleLog).toHaveBeenCalled();
+    const loggedMessage = consoleLog.calls.mostRecent().args[0];
+    expect(loggedMessage).toContain('Error getting remote configuration');
+    expect(loggedMessage).toContain('woops');
   });
 });

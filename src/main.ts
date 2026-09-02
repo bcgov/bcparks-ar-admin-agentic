@@ -9,4 +9,7 @@ if (environment.production) {
 }
 
 platformBrowserDynamic().bootstrapModule(AppModule)
-  .catch(err => console.error(err));
+  // Log only the sanitised error message on bootstrap failure. The raw
+  // error object can include Angular component/module names and stack
+  // traces, which we don't want exposed via the browser console.
+  .catch(err => console.error('Error bootstrapping application:', err?.message ?? String(err)));

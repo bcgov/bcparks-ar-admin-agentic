@@ -1079,3 +1079,67 @@ N/A — no UI change.
 **Residual risk:** None identified beyond the accepted, explicitly out-of-scope gaps noted above.
 
 - Reviewer: _______________ Date: _______________
+
+---
+
+# PR evidence — [RA LOG-005] Raw error objects logged directly to console — potential stack trace exposure
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-log-005-sanitize-error-logging |
+| Spec refs | spec/features/log-005-sanitize-error-logging.feature, spec/spec.md (LOG-005), spec/plan.md, spec/tasks.md |
+| Constitution articles touched | N/A — logging behaviour only, no UI/DS component changes |
+| Tasks | TASK-001, TASK-002, TASK-003, TASK-004 (spec/tasks.md) |
+| Authoring agent | GitHub Copilot coding agent |
+| Generated | 2026-09-02T20:49:40.932Z |
+
+## Intent
+
+`ConfigService.init()` previously called `console.error('Error getting remote configuration:', e)`
+with the raw exception object, which can leak failed request URLs and JavaScript stack traces to
+anyone with browser DevTools open. `main.ts`'s Angular bootstrap `.catch(err => console.error(err))`
+had the same problem. Both paths now log only a sanitised message string: `ConfigService` routes
+its error through `LoggerService.error()` (resolved lazily via `Injector` to avoid a constructor-time
+circular dependency, since `LoggerService` itself depends on `ConfigService` for its log level), and
+`main.ts` logs `err?.message ?? String(err)` instead of the raw error object.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| `log-005-sanitize-error-logging.feature` `@R-18.1` | Yes | `ConfigService.init()` catch block now builds a `message` string (`e.message` when available, else `String(e)`) and calls `this.injector.get(LoggerService).error(...)` with that string only; the raw `e` object is never passed to `console.error`. |
+| `log-005-sanitize-error-logging.feature` `@R-18.2` | Yes | `main.ts` bootstrap `.catch()` now logs `err?.message ?? String(err)` via `console.error`, not the full error object. |
+
+## Design system & accessibility
+
+N/A — this change is limited to `src/app/services/config.service.ts` and `src/main.ts` (non-UI); no templates, styles, or DS components are touched.
+
+## Public-service minimums
+
+N/A — no UI change.
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Unit | `npx ng test --watch=false --browsers=ChromeHeadlessNoSandbox --include='**/config.service.spec.ts'` | PASS — 5/5 (updated "should be created and throw" spec to assert the sanitised message is logged via `LoggerService`/`console.log`, not the raw error via `console.error`) |
+| Unit (regression) | `npx ng test --watch=false --browsers=ChromeHeadlessNoSandbox --include='**/logger.service.spec.ts'` | PASS — 3/3 unaffected |
+| Unit (full suite) | `npx ng test --watch=false --browsers=ChromeHeadlessNoSandbox` | PASS — 234/234 |
+| Acceptance / feature | spec/features/log-005-sanitize-error-logging.feature | Mapped 1:1 to the two unit test assertions above (Karma/Jasmine is the project's existing test runner; no separate Gherkin executor is wired up in this repo) |
+| Manual | Reviewed `main.ts` diff — bootstrap catch only ever logs `err?.message ?? String(err)` | Confirmed no raw error object reaches `console.error` |
+
+## Risks & follow-ups
+
+- Structured JSON log format (LOG-006), a global `ErrorHandler` (LOG-008), and shipping sanitised
+  bootstrap errors to a server-side monitoring endpoint (LOG-007) remain out of scope for this slice,
+  as noted in `spec/spec.md`.
+
+## Review receipt (checkpoint 3)
+
+**Checked:** `src/app/services/config.service.ts` and `src/main.ts` diffs; `config.service.spec.ts` updated spec passes locally against Karma/ChromeHeadless; full existing unit test suite (234/234) passes with no regressions; manual read-through confirming no raw error/exception object is passed to `console.error`/`LoggerService.error` on either path.
+
+**Could not check:** End-to-end verification against a real deployed environment or a genuine Angular bootstrap failure (no CI/deploy environment available in this sandbox).
+
+**Residual risk:** None identified beyond the accepted, explicitly out-of-scope follow-ups noted above (LOG-006, LOG-007, LOG-008).
+
+- Reviewer: _______________ Date: _______________
