@@ -31,6 +31,7 @@ Run the **same 45 recommended** rapid-assessment findings as `agentic-b`, end-to
 | 2026-09-02 | 5 | Plan #116 merged before `tasks.md` commit; follow-up #118 + merge conflict on #117 vs main | Orchestrator raced CI; document: land tasks in same commit as plan |
 | 2026-09-02 | 7 | Closed conflicting human PR [#125](https://github.com/bcgov/bcparks-ar-admin-agentic/pull/125) (full security headers) | Out of CONFIG-003 rematch scope; prefer Copilot [#124](https://github.com/bcgov/bcparks-ar-admin-agentic/pull/124) |
 | 2026-09-02 | 8 | CONFIG-004 shipped via Copilot [#128](https://github.com/bcgov/bcparks-ar-admin-agentic/pull/128) | Extended HSTS policy with XFO/nosniff/Referrer/Permissions-Policy; CSP deferred to CONFIG-002 |
+| 2026-09-02 | 9 | CONFIG-002 shipped via Copilot [#131](https://github.com/bcgov/bcparks-ar-admin-agentic/pull/131) | CSP on shared CloudFront policy; style-src unsafe-inline brownfield residual |
 | _(more during run)_ | | | |
 
 ## Metrics reviews
