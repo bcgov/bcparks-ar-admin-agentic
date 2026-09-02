@@ -7,19 +7,19 @@
 
 ## Active slice
 
-### BW-002 — export-variance typo fix
+### DEP-001 — remove unused chart.js
 
-- **Issue:** [#91](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/91)
-- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `BW-002`
-- **Feature:** `features/bw-002-export-variance-typo.feature`
+- **Issue:** [#92](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/92)
+- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `DEP-001`
+- **Feature:** `features/dep-001-remove-chartjs.feature`
 
 #### Problem
 
-ExportService uses typo 'expor-variance' causing variance status check to fail silently.
+chart.js is declared but never imported in source.
 
 #### Outcome
 
-Endpoint key is 'export-variance'; variance job status is retrieved correctly.
+chart.js removed from runtime dependencies; lockfile updated.
 
 #### Users & personas
 
