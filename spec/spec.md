@@ -7,45 +7,45 @@
 
 ## Active slice
 
-### SECRET-001 — Production certificate ARN not hardcoded in CI
+### AUTH-002 — Role/IDP claims from library-verified Keycloak session
 
-- **Issue:** [#67](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/67)
-- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `SECRET-001`
-- **Feature:** `features/secret-001-prod-certificate-arn.feature`
+- **Issue:** [#69](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/69)
+- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `AUTH-002`
+- **Feature:** `features/auth-002-token-claims.feature`
 
 #### Problem
 
-The production deploy workflow embeds a full ACM certificate ARN (including the production AWS account ID) in the repository. That enables infrastructure enumeration and related attacks. The ARN must not be a committed literal.
+`JwtUtil.decodeToken()` only Base64-decodes the JWT payload — no signature verification. `isAuthorized()`, `isAdmin()`, `getWelcomeMessage()`, and `getIdpFromToken()` (and similar helpers) use that unverified decode, while `isAuthenticated()` trusts the Keycloak adapter. Library auth state and custom claim reads can diverge.
 
 #### Outcome
 
-The LZA production deploy workflow supplies **DomainCertificateArn** from a GitHub Actions environment variable (`vars.DOMAIN_CERTIFICATE_ARN`), not a literal ACM ARN in the workflow file. Evidence must not reprint the secret ARN value.
+For a real Keycloak session, role / IDP / welcome / identity helpers read claims from the **Keycloak adapter’s verified parsed token** (`tokenParsed` or equivalent), not via `JwtUtil.decodeToken` on that path. Unit tests prove the helpers use library claims. Client-side controls remain defence-in-depth (API still enforces authz).
 
 #### Users & personas
 
 | Persona | Goal |
 | --- | --- |
-| Security reviewer | Confirm no literal ACM ARN / account id in workflow |
-| Platform operator | Set `DOMAIN_CERTIFICATE_ARN` on the prod GitHub Environment before next deploy |
-| Implementer | Workflow-only change + evidence |
+| Parks staff | Roles/welcome message still work after login |
+| Security reviewer | Claim reads aligned with Keycloak session |
+| Developer | Unit tests without live IdP |
 
 #### Scope
 
 **In scope**
 
-- Replace hardcoded `DomainCertificateArn=...` in `.github/workflows/lza-deploy-admin-prod.yaml` with `${{ vars.DOMAIN_CERTIFICATE_ARN }}`
-- Evidence append; must change `.github/workflows/` (refuse evidence-only)
-- Document that the GitHub Environment variable must exist before the next prod deploy (ops residual, not a scope narrowing of the code fix)
+- Route Keycloak-path claim consumers (`isAuthorized`, `isAdmin`, `getWelcomeMessage`, `getIdpFromToken`, and any other `JwtUtil.decodeToken` callers in `KeycloakService` used for authz/identity) through adapter `tokenParsed`
+- Unit tests covering claim source
+- Evidence append; must change `src/`
 
 **Out of scope**
 
-- Non-prod workflows / other hardcoded account identifiers (separate SECRET-* findings)
-- Actually setting the GitHub Environment variable in this PR (human/ops; call out residual)
-- Printing the ARN in evidence
+- Implementing cryptographic JWT verification inside `JwtUtil` itself (prefer Keycloak library verification)
+- Inventing full `localMockAuth` (constitution residual; if added later, mock path may decode a fake token)
+- Server-side authorization changes (companion API)
 
 #### Open questions
 
-- **Environment name:** Confirm the workflow’s GitHub Environment (e.g. `lza-prod`) is where `DOMAIN_CERTIFICATE_ARN` will be set — note in evidence if the workflow already uses an environment block.
+- **Helper consolidation:** Prefer a single `getTokenClaims()` (or equivalent) used by all KeycloakService claim readers to avoid missing a call site.
 
 #### Sign-off (checkpoint 1)
 
@@ -59,11 +59,11 @@ The LZA production deploy workflow supplies **DomainCertificateArn** from a GitH
 
 ## Completed slices (recent)
 
-### AUTH-001 — PKCE (S256) on Keycloak OIDC init
+### SECRET-001 — Production certificate ARN not hardcoded in CI
 
-- **Issue:** [#62](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/62) (shipped)
-- **Feature:** `features/auth-001-pkce.feature`
+- **Issue:** [#67](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/67) (shipped)
+- **Feature:** `features/secret-001-prod-certificate-arn.feature`
 
-### CONFIG-002 / CONFIG-004 / CONFIG-003 / CRYPTO-001 / LOG-* / TEST-001 / AUTHZ-001
+### AUTH-001 / CONFIG-* / CRYPTO-001 / LOG-* / TEST-001 / AUTHZ-001
 
 - Shipped — see rematch wiki
