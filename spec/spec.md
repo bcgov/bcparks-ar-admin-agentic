@@ -7,45 +7,53 @@
 
 ## Active slice
 
-### CONFIG-003 — CloudFront HSTS on all cache behaviours
+### CONFIG-004 — Browser security headers (frame / MIME / referrer / permissions)
 
-- **Issue:** [#64](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/64)
-- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `CONFIG-003`
-- **Feature:** `features/config-003-cloudfront-hsts.feature`
+- **Issue:** [#104](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/104)
+- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `CONFIG-004`
+- **Feature:** `features/config-004-cloudfront-security-headers.feature`
 
 #### Problem
 
-None of the CloudFront cache behaviours emit `Strict-Transport-Security`. HTTPS redirects alone do not give browsers a durable HTTPS requirement, leaving first-contact / cache-expiry SSL-stripping risk and blocking HSTS preload readiness.
+CloudFront responses lack baseline browser protections: no X-Frame-Options (clickjacking risk for authenticated admin UI), no X-Content-Type-Options: nosniff (MIME confusion on static assets), no Referrer-Policy (origin URL leakage to third parties), and no Permissions-Policy (unused browser capabilities unrestricted). The finding originally noted managed SimpleCORS alone; CONFIG-003 already replaced that with a custom HSTS+CORS policy — this slice extends that same custom policy.
 
 #### Outcome
 
-A custom CloudFront response headers policy sets **HSTS** (`max-age` ≥ 31536000, `includeSubDomains`) and is attached to **all three** cache behaviours. CORS behaviour equivalent to the previous managed SimpleCORS policy is preserved. Other security headers (CSP, XFO, Referrer-Policy, Permissions-Policy) remain for CONFIG-002 / CONFIG-004.
+The shared custom response headers policy, attached to **all three** cache behaviours, sets:
+
+1. **X-Frame-Options:** DENY (no framing)
+2. **X-Content-Type-Options:** nosniff
+3. **Referrer-Policy:** strict-origin-when-cross-origin
+4. **Permissions-Policy:** disables unused capabilities (at minimum camera, microphone, geolocation, payment, usb, interest-cohort)
+
+HSTS and CORS from CONFIG-003 remain. Content-Security-Policy remains for CONFIG-002 (not silently narrowed here — CSP is a separate finding).
 
 #### Users & personas
 
 | Persona | Goal |
 | --- | --- |
-| Security reviewer | Confirm HSTS on every behaviour |
-| Parks staff | Modern browsers remember HTTPS |
+| Security reviewer | Confirm four headers on every behaviour |
+| Parks staff | Admin UI not framable / MIME-sniffable |
 | Implementer | Template-only change + evidence |
 
 #### Scope
 
 **In scope**
 
-- Custom `AWS::CloudFront::ResponseHeadersPolicy` with HSTS (+ CORS parity with SimpleCORS)
-- Wire all three cache behaviours to that policy (replace managed SimpleCORS id)
+- Extend existing custom `AWS::CloudFront::ResponseHeadersPolicy` with FrameOptions, ContentTypeOptions, ReferrerPolicy, and Permissions-Policy (custom header if not a native SecurityHeadersConfig property)
+- Keep all three behaviours on that policy
 - Evidence append; must change `template.yaml`
 
 **Out of scope**
 
-- CSP (CONFIG-002), XFO / nosniff / Referrer / Permissions-Policy (CONFIG-004)
-- HSTS preload list submission (ops residual)
-- Live header smoke (residual after deploy)
+- Content-Security-Policy (CONFIG-002)
+- Changing HSTS max-age / preload or CORS parity from CONFIG-003 beyond preserving them
+- Live header smoke after deploy (residual)
+- Submitting HSTS preload list (ops residual)
 
 #### Open questions
 
-- **Preload directive:** Assessment mentions preload list readiness. CloudFront `StrictTransportSecurity` may support `Preload`. Prefer enabling preload when the property exists; if not available in the resource schema used here, document residual and still ship max-age + includeSubDomains.
+- **Permissions-Policy value:** Prefer a restrictive deny-list for unused capabilities (camera, microphone, geolocation, payment, usb, interest-cohort). If CloudFront schema requires CustomHeadersConfig for Permissions-Policy, that is acceptable. Document the exact value in evidence.
 
 #### Sign-off (checkpoint 1)
 
@@ -58,6 +66,11 @@ A custom CloudFront response headers policy sets **HSTS** (`max-age` ≥ 3153600
 ---
 
 ## Completed slices (recent)
+
+### CONFIG-003 — CloudFront HSTS on all cache behaviours
+
+- **Issue:** [#64](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/64) (shipped)
+- **Feature:** `features/config-003-cloudfront-hsts.feature`
 
 ### CRYPTO-001 — CloudFront viewer TLS minimum (TLS 1.2+)
 
@@ -77,12 +90,3 @@ A custom CloudFront response headers policy sets **HSTS** (`max-age` ≥ 3153600
 ### LOG-003 / LOG-001 / AUTHZ-001
 
 - Shipped — see prior rematch rows
-
----
-
-## Completed slices
-
-### AUTHZ-001 — Admin route guard path matching
-
-- **Issue:** [#55](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/55) (shipped)
-- **Feature:** `features/authz-001-admin-route-guard.feature`
