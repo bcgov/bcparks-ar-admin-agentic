@@ -7,53 +7,45 @@
 
 ## Active slice
 
-### LOG-002 — Keycloak authentication lifecycle log levels
+### CRYPTO-001 — CloudFront viewer TLS minimum (TLS 1.2+)
 
-- **Issue:** [#66](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/66)
-- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `LOG-002`
-- **Feature:** `features/log-002-keycloak-lifecycle-log-levels.feature`
+- **Issue:** [#74](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/74)
+- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `CRYPTO-001` (merged severity with duplicate `CONFIG-001` — treat as High priority)
+- **Feature:** `features/crypto-001-cloudfront-tls-minimum.feature`
 
 #### Problem
 
-Keycloak authentication lifecycle callbacks (`onAuthSuccess`, `onAuthError`, `onAuthRefreshSuccess`, `onAuthRefreshError`, `onAuthLogout`) are logged only at **debug**. In realistic deployments (logger default off / above debug), failed authentication, refresh failures, and logout leave no client-side trail. Messages also omit any non-secret identity context.
+The CDN viewer certificate allows TLS 1.0 / 1.1 (`MinimumProtocolVersion: TLSv1`). Those protocols are deprecated and unsafe for a public-sector admin UI edge.
 
 #### Outcome
 
-1. `onAuthError`, `onAuthRefreshError`, and `onAuthLogout` emit **warn- or error-level** logs (not debug).
-2. Those logs include a **non-secret identity hint** when available (e.g. user id and/or email from token claims — never access/refresh tokens or passwords).
-3. Automated tests document the chosen levels and redaction.
-4. Assessment also Expected a **persistent server-side audit endpoint** to receive these events — that remains **residual** (tracked under LOG-007); this slice does not invent a new backend.
-
-Success callbacks (`onAuthSuccess` / `onAuthRefreshSuccess`) may remain at debug.
+Viewer TLS minimum is raised to **TLSv1.2_2021** (preferred) or at least **TLSv1.2_2019**, so TLS 1.0/1.1 are not permitted. Assessment Expected is met by the template change; live handshake smoke may be residual after deploy.
 
 #### Users & personas
 
 | Persona | Goal |
 | --- | --- |
-| Security / ops reviewer | See auth failures and logout in client logs when debug is off |
-| Parks staff | No user-visible change |
-| Implementer | Clear levels + identity rules; no token leakage |
+| Security reviewer | Confirm edge refuses deprecated TLS |
+| Parks staff | Modern browsers unaffected |
+| Implementer | One-line (or small) template change + evidence |
 
 #### Scope
 
 **In scope**
 
-- Raise log level for `onAuthError`, `onAuthRefreshError`, `onAuthLogout` in the Keycloak service
-- Include non-secret identity when available (reuse existing identity helper if present)
-- Unit tests for `@R-05.1`–`@R-05.4`
-- Append `docs/pr-evidence.md` for LOG-002; must change `src/`
+- Update CloudFront `ViewerCertificate.MinimumProtocolVersion` in `template.yaml` to `TLSv1.2_2021` (or `TLSv1.2_2019` minimum)
+- Document in evidence; must change infra template (not evidence-only)
+- Static verification of the template value (`@R-06.1`)
 
 **Out of scope**
 
-- Server-side / SIEM shipping or new audit HTTP endpoint (LOG-007)
-- Changing LoggerService default level (LOG-004)
-- AuthGuard denial logging (LOG-003 — shipped)
-- Implementing logout UX (AUTH-003)
+- Origin SSL protocol changes (already TLS 1.2)
+- Other security headers (CONFIG-002/003/004)
+- Live production deploy smoke (residual note OK)
 
 #### Open questions
 
-- **Server-side audit endpoint:** Assessment Expected includes persistent server-side shipping. **Decision for this slice:** client-side warn/error + identity only; document LOG-007 residual in evidence (do not silently drop — call it residual).
-- **Warn vs error:** Prefer `warn` for expected logout and `error`/`warn` for auth/refresh failures; implementer may use warn for all three if simpler — tests accept warn or error.
+- None blocking. Prefer `TLSv1.2_2021` to match assessment recommendation.
 
 #### Sign-off (checkpoint 1)
 
@@ -66,6 +58,11 @@ Success callbacks (`onAuthSuccess` / `onAuthRefreshSuccess`) may remain at debug
 ---
 
 ## Completed slices (recent)
+
+### LOG-002 — Keycloak authentication lifecycle log levels
+
+- **Issue:** [#66](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/66) (shipped)
+- **Feature:** `features/log-002-keycloak-lifecycle-log-levels.feature`
 
 ### TEST-001 — HTTP token interceptor unit coverage
 
