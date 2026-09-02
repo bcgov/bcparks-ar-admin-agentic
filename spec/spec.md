@@ -7,19 +7,19 @@
 
 ## Active slice
 
-### LOG-006 — Structured JSON log format
+### LOG-007 — Browser-console logging limitation documented
 
-- **Issue:** [#77](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/77)
-- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `LOG-006`
-- **Feature:** `features/log-006-structured-log-format.feature`
+- **Issue:** [#78](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/78)
+- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `LOG-007`
+- **Feature:** `features/log-007-browser-console-logging.feature`
 
 #### Problem
 
-LoggerService emits unstructured plain-text log lines, which are hard to parse, correlate, or alert on automatically.
+All application logging is browser-console only with no documented persistence or forward path, so operators cannot tell whether SIEM gaps are intentional.
 
 #### Outcome
 
-Log entries are emitted as JSON objects with level, timestamp, message, and placeholder identity/correlation fields. Warnings and errors set securityEvent true.
+Logging architecture is documented as console-only today, with an optional future LOG_SHIPPING_ENDPOINT hook described but not implemented. LoggerService carries matching constants/JSDoc so the constraint is visible in src/.
 
 #### Users & personas
 
@@ -32,14 +32,14 @@ Log entries are emitted as JSON objects with level, timestamp, message, and plac
 
 **In scope**
 
-- Replace plain-text formatter with JSON serialization in LoggerService
-- Unit tests for @R-19.1 / @R-19.2
-- Append evidence; must change `src/`
+- Add docs/logging-architecture.md (console-only + forward path)
+- Add LoggerService constants/JSDoc referencing the doc (must touch src/)
+- Append evidence
 
 **Out of scope**
 
-- SIEM / server-side shipping (LOG-007)
-- Wiring real userId/sessionId from Keycloak
+- Implementing HTTP log shipping or SIEM SDKs
+- Backend audit endpoint
 
 #### Open questions
 
@@ -57,6 +57,6 @@ Log entries are emitted as JSON objects with level, timestamp, message, and plac
 
 ## Completed slices (recent)
 
-### LOG-005 — Sanitize error logging
+### LOG-006 — Structured JSON log format
 
-- **Issue:** [#76](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/76) (shipped)
+- **Issue:** [#77](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/77) (shipped)
