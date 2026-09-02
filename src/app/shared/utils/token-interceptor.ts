@@ -22,8 +22,9 @@ export class TokenInterceptor implements HttpInterceptor {
 
   /**
    * Main request intercept handler to automatically add the bearer auth token to every request.
-   * If the auth token expires mid-request, the requests 403 response will be caught, the auth token will be
-   * refreshed, and the request will be re-tried.
+   * If the auth token expires mid-request, the requests 401 response will be caught, the auth token will be
+   * refreshed, and the request will be re-tried. A 403 response indicates the caller is authenticated but
+   * lacks permission, so it is surfaced directly without triggering a token refresh.
    *
    * @param {HttpRequest<any>} request
    * @param {HttpHandler} next
@@ -35,7 +36,7 @@ export class TokenInterceptor implements HttpInterceptor {
 
     return next.handle(request).pipe(
       catchError(error => {
-        if (error.status === 403) {
+        if (error.status === 401) {
           return this.refreshToken().pipe(
             switchMap(() => {
               request = this.addAuthHeader(request);
