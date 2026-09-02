@@ -1,3 +1,47 @@
+# PR evidence — [RA CONFIG-005] Enable automatic Trivy security scan triggers
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-config-005-trivy-triggers |
+| Spec refs | spec/features/config-005-trivy-triggers.feature |
+| Tasks | CONFIG-005 entries in `spec/tasks.md` |
+| Authoring agent | GitHub Copilot Coding Agent |
+
+## Intent
+
+The Analysis workflow now runs its existing Trivy vulnerability, secret, and configuration scan on pushes to `main`, pull requests, and a weekly schedule, while retaining manual dispatch.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| `config-005-trivy-triggers.feature` `@R-15.1` | Yes | Active `push` (main), `pull_request`, and weekly `schedule` triggers are declared in `.github/workflows/analysis.yaml`. |
+| `config-005-trivy-triggers.feature` `@R-15.2` | Yes | Existing Trivy configuration retains `vuln,secret,config` scanners. |
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Static | `.github/workflows/analysis.yaml` | Passed — workflow trigger and Trivy configuration inspection confirms the required active triggers and scanners. |
+| Acceptance / feature | `spec/features/config-005-trivy-triggers.feature` | Satisfied by the static workflow inspection above. |
+
+## Risks & follow-ups
+
+- GitHub repository branch protection may still need a maintainer to mark the Analysis workflow as a required status check; branch protection is explicitly out of scope.
+- The existing one-minute Trivy timeout is unchanged; a timeout after automatic activation remains a residual operational risk.
+
+## Review receipt (checkpoint 3)
+
+**Checked:** CONFIG-005 `@R-15.1`–`@R-15.2`; `spec/spec.md`; `spec/tasks.md`; `.github/workflows/analysis.yaml`.
+
+**Could not check:** A live GitHub Actions run; workflow execution requires the remote GitHub environment.
+
+**Residual risk:** Required-status branch protection and post-deployment scan verification remain maintainer/CI environment actions; the existing Trivy timeout remains unchanged.
+
+- Reviewer: _______________ Date: _______________
+
+---
+
 # PR evidence — [RA AUTHZ-001] Admin route guard ignores query string
 
 | Field | Value |
