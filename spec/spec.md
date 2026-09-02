@@ -7,19 +7,19 @@
 
 ## Active slice
 
-### AUTH-007 — Bearer host allowlist
+### AUTHZ-003 — hide manage-subareas nav
 
-- **Issue:** [#86](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/86)
-- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `AUTH-007`
-- **Feature:** `features/auth-007-interceptor-allowlist.feature`
+- **Issue:** [#87](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/87)
+- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `AUTHZ-003`
+- **Feature:** `features/authz-003-header-manage-subareas.feature`
 
 #### Problem
 
-Bearer token injected into every outbound request with no host allowlist.
+manage-subareas navigation link visible in header for non-admin users.
 
 #### Outcome
 
-Authorization header is added only when request host matches API_LOCATION origin.
+Header hides manage-subareas unless keycloakService.isAllowed('manage-subareas').
 
 #### Users & personas
 
