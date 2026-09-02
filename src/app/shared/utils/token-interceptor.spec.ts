@@ -11,6 +11,7 @@ import { TestBed } from '@angular/core/testing';
 import { of, Subject, throwError } from 'rxjs';
 
 import { KeycloakService } from 'src/app/services/keycloak.service';
+import { ConfigService } from 'src/app/services/config.service';
 import { TokenInterceptor } from './token-interceptor';
 
 describe('TokenInterceptor', () => {
@@ -18,10 +19,14 @@ describe('TokenInterceptor', () => {
   let httpTestingController: HttpTestingController;
   let token: string;
   let refreshToken: jasmine.Spy;
+  let config: { API_LOCATION?: string };
 
   beforeEach(() => {
     token = '';
     refreshToken = jasmine.createSpy('refreshToken').and.returnValue(of(null));
+    config = {
+      API_LOCATION: window.location.origin,
+    };
 
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
@@ -38,6 +43,12 @@ describe('TokenInterceptor', () => {
             refreshToken,
           },
         },
+        {
+          provide: ConfigService,
+          useValue: {
+            config,
+          },
+        },
       ],
     });
 
@@ -51,10 +62,13 @@ describe('TokenInterceptor', () => {
 
   it('adds the bearer token to authenticated requests', () => {
     token = 'test-token';
+    config.API_LOCATION = 'https://api.example.test';
 
-    http.get('/authenticated').subscribe();
+    http.get('https://api.example.test/authenticated').subscribe();
 
-    const request = httpTestingController.expectOne('/authenticated');
+    const request = httpTestingController.expectOne(
+      'https://api.example.test/authenticated'
+    );
     expect(request.request.headers.get('Authorization')).toBe(
       `${['B', 'e', 'a', 'r', 'e', 'r'].join('')} ${token}`
     );
@@ -62,10 +76,37 @@ describe('TokenInterceptor', () => {
   });
 
   it('does not add a usable bearer token when unauthenticated', () => {
-    http.get('/unauthenticated').subscribe();
+    config.API_LOCATION = 'https://api.example.test';
 
-    const request = httpTestingController.expectOne('/unauthenticated');
+    http.get('https://api.example.test/unauthenticated').subscribe();
+
+    const request = httpTestingController.expectOne(
+      'https://api.example.test/unauthenticated'
+    );
     expect(request.request.headers.get('Authorization')).toBe('Bearer ');
+    request.flush({});
+  });
+
+  it('does not add the bearer token to requests for other origins', () => {
+    token = 'test-token';
+
+    http.get('https://third-party.example.test/resource').subscribe();
+
+    const request = httpTestingController.expectOne(
+      'https://third-party.example.test/resource'
+    );
+    expect(request.request.headers.has('Authorization')).toBeFalse();
+    request.flush({});
+  });
+
+  it('does not add the bearer token without a configured API location', () => {
+    token = 'test-token';
+    config.API_LOCATION = undefined;
+
+    http.get('/resource').subscribe();
+
+    const request = httpTestingController.expectOne('/resource');
+    expect(request.request.headers.has('Authorization')).toBeFalse();
     request.flush({});
   });
 

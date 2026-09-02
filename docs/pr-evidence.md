@@ -1741,3 +1741,66 @@ Same shape as `REVIEW.md` — required before merge. Do not replace with a free-
 **Residual risk:** None identified beyond existing AUTH-series gaps (AUTH-007 request host allowlisting), which remain out of scope for this PR.
 
 - Reviewer: _______________ Date: _______________
+
+---
+
+# PR evidence — [RA AUTH-007] ****** host allowlist
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-auth-007-fix-auth-header-injection |
+| Spec refs | `spec/features/auth-007-interceptor-allowlist.feature` |
+| Constitution articles touched | P3, P5, P7, J3, J5 |
+| Tasks | AUTH-007 TASK-001–TASK-003 in `spec/tasks.md` |
+| Authoring agent | GitHub Copilot Coding Agent |
+| Generated | 2026-09-02T22:37:45.928Z |
+
+## Intent
+
+The interceptor now adds a bearer token only when the request origin matches the configured `API_LOCATION` origin. Requests to other origins, and requests when the API location is missing or invalid, receive no injected authorization header.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| `auth-007-interceptor-allowlist.feature` `@R-28.1` | Yes | API-origin requests receive the bearer header. |
+| `auth-007-interceptor-allowlist.feature` `@R-28.2` | Yes | Different-origin requests do not receive an Authorization header. |
+
+
+## Design system & accessibility
+
+| Check | Result |
+| --- | --- |
+| DS components used (list) | Not applicable — no UI changes. |
+| Tokens used (not hard-coded colour) | Not applicable — no style changes. |
+| BC Sans imported | Not applicable — no UI changes. |
+| Manual a11y notes | Not applicable — request interceptor only. |
+
+## Public-service minimums
+
+Checklist IDs addressed this PR: Not applicable — no UI changes.
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Unit | `yarn test-ci --include src/app/shared/utils/token-interceptor.spec.ts` | Passed: 9 SUCCESS. |
+| Lint | `yarn lint` | Passed: 0 errors; 59 pre-existing standalone-component warnings. |
+| Acceptance / feature | `spec/features/auth-007-interceptor-allowlist.feature` | Covered by the focused unit tests. |
+| A11y automation | Not run | Not applicable — no UI changes. |
+
+## Risks & follow-ups
+
+- API configuration must continue to identify the intended backend origin; a missing or malformed location fails closed and omits the token.
+
+## Review receipt (checkpoint 3)
+
+Same shape as `REVIEW.md` — required before merge. Do not replace with a free-form sign-off.
+
+**Checked:** AUTH-007 `@R-28.1`–`@R-28.2`; `spec/spec.md`; `spec/tasks.md`; focused interceptor unit tests; lint.
+
+**Could not check:** Live browser requests to deployed API and third-party services; tests use `HttpClientTestingModule` and a mocked Keycloak service.
+
+**Residual risk:** No accepted security gap for AUTH-007. Authorization is intentionally omitted if `API_LOCATION` cannot be parsed.
+
+- Reviewer: _______________ Date: _______________

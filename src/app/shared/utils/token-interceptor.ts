@@ -2,6 +2,7 @@ import { HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http'
 import { Injectable } from '@angular/core';
 import { Observable, Subject, throwError } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
+import { ConfigService } from 'src/app/services/config.service';
 import { KeycloakService } from 'src/app/services/keycloak.service';
 
 /**
@@ -18,7 +19,10 @@ export class TokenInterceptor implements HttpInterceptor {
   private tokenRefreshedSource = new Subject();
   private tokenRefreshed$ = this.tokenRefreshedSource.asObservable();
 
-  constructor(private auth: KeycloakService) { }
+  constructor(
+    private auth: KeycloakService,
+    private configService: ConfigService
+  ) { }
 
   /**
    * Main request intercept handler to automatically add the bearer auth token to every request.
@@ -61,6 +65,10 @@ export class TokenInterceptor implements HttpInterceptor {
    * @memberof TokenInterceptor
    */
   private addAuthHeader(request: HttpRequest<any>): HttpRequest<any> {
+    if (!this.isApiRequest(request)) {
+      return request;
+    }
+
     const authToken: string = this.auth.getToken() || '';
 
     request = request.clone({
@@ -68,6 +76,25 @@ export class TokenInterceptor implements HttpInterceptor {
     });
 
     return request;
+  }
+
+  private isApiRequest(request: HttpRequest<any>): boolean {
+    try {
+      const apiLocation = this.configService.config['API_LOCATION'];
+      if (typeof apiLocation !== 'string' || apiLocation.length === 0) {
+        return false;
+      }
+
+      const apiOrigin = new URL(
+        apiLocation,
+        window.location.origin
+      ).origin;
+      const requestOrigin = new URL(request.url, window.location.origin).origin;
+
+      return requestOrigin === apiOrigin;
+    } catch {
+      return false;
+    }
   }
 
   /**
