@@ -159,6 +159,18 @@ describe('KeycloakService', () => {
     expect(keycloak.isAdmin()).toEqual(false);
   });
 
+  it('isAdmin returns false and does not throw when roles property is missing on attendance-and-revenue', () => {
+    const keycloak = TestBed.get(KeycloakService);
+    spyOn(keycloak, 'getToken').and.returnValue('not-empty');
+    spyOn(keycloak, 'getTokenClaims').and.returnValue({
+      resource_access: {
+        'attendance-and-revenue': {},
+      },
+    });
+    expect(() => keycloak.isAdmin()).not.toThrow();
+    expect(keycloak.isAdmin()).toEqual(false);
+  });
+
   it('isAuthorized reads roles from tokenParsed, not JwtUtil.decodeToken', () => {
     const decodeTokenSpy = spyOn(JwtUtil, 'decodeToken');
     const keycloak = TestBed.get(KeycloakService);
