@@ -1,7 +1,7 @@
-# Tasks — AUTH-006
+# Tasks — AUTH-007
 
-> Issue [#85](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/85)
+> Issue [#86](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/86)
 
-- [x] **TASK-001** — Refresh on 401 not 403
-- [x] **TASK-002** — Update token-interceptor.spec.ts
-- [x] **TASK-003** — Append evidence
+- [ ] **TASK-001** — Allowlist by API_LOCATION origin
+- [ ] **TASK-002** — Unit tests matching/external hosts
+- [ ] **TASK-003** — Append evidence
