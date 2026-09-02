@@ -1,43 +1,58 @@
-# Plan — AuthGuard authorization failure logging (LOG-003)
+# Plan — Token interceptor unit coverage (TEST-001)
 
-> Architecture and delivery for issue #57 / RA LOG-003.
+> Architecture and delivery for issue [#68](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/68) / RA TEST-001.  
+> Checkpoint 1 (spec) is merged. This document is **checkpoint 2**.
 
 ## Summary
 
-Emit **warn**-level authorization-failure logs from `AuthGuard` when an authenticated user is denied (not authorized for the app, or missing a capability for an admin route). Do **not** log tokens, full config, or secrets. Extend unit tests for `@R-03.1`–`@R-03.4`. Append evidence for LOG-003.
+Add `src/app/shared/utils/token-interceptor.spec.ts` covering **current** `TokenInterceptor` behaviour for `@R-04.1`–`@R-04.6`. Do **not** change production interceptor logic (no 401 handling, no host allowlist, no logout-on-refresh-failure). Append evidence for TEST-001; must touch `src/`.
 
 ## Architecture
 
 ```text
-AuthGuard.canActivate
-  → denial path (unauthorized / capability)
-  → LoggerService.warn (or equivalent) with route path + reason code
-  → redirect as today
+token-interceptor.spec.ts
+  mock KeycloakService { getToken(), refreshToken() }
+  TokenInterceptor.intercept(req, next)
+    addAuthHeader → Authorization: Bearer <token or ''>
+    403 → refreshToken() → retry with header
+    other errors → throwError (no refresh)
+    concurrent 403 → wait on tokenRefreshed$ (single refresh)
 ```
 
-Prefer existing `LoggerService` if present; otherwise a minimal structured warn that does not dump Keycloak objects.
+Prefer `HttpClientTestingModule` / `HttpTestingController` (or Angular `provideHttpClient` + testing helpers) with `HTTP_INTERCEPTORS` registering `TokenInterceptor`.
 
 ## Key decisions
 
 | Decision | Choice | Rationale |
 | --- | --- | --- |
-| Log level | warn | Assessment / security-relevant without error noise for expected denials |
-| Payload | path + denial reason (e.g. `not-authorized`, `capability:lock-records`) | Auditable; no tokens |
-| Scope | AuthGuard only | Matches finding; header/nav logging out of scope |
-| Evidence | `--append --finding LOG-003` | Preserve prior receipts |
+| Production code | Tests only | Finding is missing coverage, not a logic bug |
+| Empty token | Still `Bearer ` (empty) | Current `getToken() \|\| ''`; assert no *usable* token (`@R-04.2`) |
+| 401 | Pass through | AUTH-006 follow-up |
+| Host allowlist | None | AUTH-007 follow-up |
+| Refresh failure | Propagate error; no logout | Current `throwError`; AUTH-003/004 residual for assessment Expected (4) |
+| Evidence | `--append --finding TEST-001` | Preserve prior receipts |
+
+## Security & privacy
+
+- Tests must not log real tokens. Use fixtures like `test-token`.
+- Residual: interceptor still attaches Bearer to every host (AUTH-007), refreshes on 403 not 401 (AUTH-006), and does not logout on refresh failure (AUTH-003/004). Record in evidence.
 
 ## Test approach
 
-- Spies on logger in `auth.guard.spec.ts`
-- CI lint/test
-- Must change `src/`
+| Scenario | Assertion |
+| --- | --- |
+| `@R-04.1` Bearer attached | `Authorization` is `Bearer test-token` when `getToken()` returns `test-token` |
+| `@R-04.2` Missing token | Header has no non-empty Bearer token value (empty suffix OK) |
+| `@R-04.3` 403 success | `refreshToken` called; retry has Bearer header |
+| `@R-04.4` Refresh fail | Error propagated; no logout API called |
+| `@R-04.5` Non-403 | e.g. 500 or 401 → error propagated; `refreshToken` not called |
+| `@R-04.6` Concurrent 403 | `refreshToken` called once |
 
 ## Tasks
 
-1. Inject/use logger on AuthGuard denial paths
-2. Unit tests `@R-03.1`–`@R-03.4`
-3. Append `docs/pr-evidence.md` for LOG-003
-4. Checkpoint 3 + merge
+1. Add `token-interceptor.spec.ts` covering `@R-04.1`–`@R-04.6`
+2. Append `docs/pr-evidence.md` for TEST-001 (note Expected (2)/(4) residuals)
+3. Checkpoint 3 + merge (must change `src/`)
 
 ## Approval (checkpoint 2)
 
