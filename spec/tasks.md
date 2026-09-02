@@ -1,7 +1,7 @@
-# Tasks — AUTHZ-003
+# Tasks — AUTHZ-004
 
-> Issue [#87](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/87)
+> Issue [#88](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/88)
 
-- [x] **TASK-001** — Hide manage-subareas for non-admin
-- [x] **TASK-002** — Unit tests
-- [x] **TASK-003** — Append evidence
+- [ ] **TASK-001** — Use Constants.ApplicationRoles.ADMIN
+- [ ] **TASK-002** — Unit tests
+- [ ] **TASK-003** — Append evidence
