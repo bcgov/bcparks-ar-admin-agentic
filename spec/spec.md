@@ -7,19 +7,19 @@
 
 ## Active slice
 
-### SECRET-003 — Route53 hosted zone ID not hardcoded
+### TEST-003 — E2E scaffold and smoke coverage
 
-- **Issue:** [#80](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/80)
-- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `SECRET-003`
-- **Feature:** `features/secret-003-route53-zone-id.feature`
+- **Issue:** [#81](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/81)
+- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `TEST-003`
+- **Feature:** `features/test-003-e2e-scaffold.feature`
 
 #### Problem
 
-Route53 hosted zone ID is hardcoded in the pre-migration certificate setup script.
+No end-to-end or security-focused integration tests exist.
 
 #### Outcome
 
-Zone ID comes from ROUTE53_ZONE_ID env var or dynamic AWS lookup for bcparks.ca — no literal zone ID in source.
+Playwright is present with a smoke test for the app shell and documentation of planned auth-boundary tests. Full Keycloak OIDC automation is deferred.
 
 #### Users & personas
 
@@ -32,12 +32,13 @@ Zone ID comes from ROUTE53_ZONE_ID env var or dynamic AWS lookup for bcparks.ca 
 
 **In scope**
 
-- pre-migration-certificate-setup.sh resolution helper
-- Append evidence; must change scripts under repo
+- @playwright/test, playwright.config, e2e smoke, docs/e2e-testing.md, yarn e2e script
+- Append evidence; must change package/src/e2e paths
 
 **Out of scope**
 
-- Changing post-deploy scripts already using dynamic lookup
+- Full Keycloak OIDC automation
+- Making e2e a required CI gate
 
 #### Open questions
 
@@ -55,4 +56,4 @@ Zone ID comes from ROUTE53_ZONE_ID env var or dynamic AWS lookup for bcparks.ca 
 
 ## Completed slices (recent)
 
-### SECRET-002 shipped — see rematch wiki
+### SECRET-003 shipped — see rematch wiki
