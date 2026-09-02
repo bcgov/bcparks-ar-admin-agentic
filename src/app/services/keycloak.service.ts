@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Constants } from '../shared/utils/constants';
-import { JwtUtil } from '../shared/utils/jwt-utils';
 import { ConfigService } from './config.service';
 import { LoggerService } from './logger.service';
 import { ToastService } from './toast.service';
@@ -118,6 +117,20 @@ export class KeycloakService {
   }
 
   /**
+   * Returns the parsed claims from the Keycloak adapter's library-verified
+   * token for the current real auth session. This must be used (instead of
+   * `JwtUtil.decodeToken`) for any role/IDP/identity decision on the real
+   * Keycloak auth path, since `tokenParsed` reflects the adapter's own
+   * signature-verified session state.
+   *
+   * @returns {any} the parsed token claims, or undefined when unavailable.
+   * @memberof KeycloakService
+   */
+  getTokenClaims(): any {
+    return this.keycloakAuth && this.keycloakAuth.tokenParsed;
+  }
+
+  /**
    * Check if the current user is logged in and has admin access.
    *
    * @returns {boolean} true if the user has access, false otherwise.
@@ -130,7 +143,7 @@ export class KeycloakService {
       return false;
     }
 
-    const jwt = JwtUtil.decodeToken(token);
+    const jwt = this.getTokenClaims();
 
     if (
       !(
@@ -177,7 +190,7 @@ export class KeycloakService {
       return false;
     }
 
-    const jwt = JwtUtil.decodeToken(token);
+    const jwt = this.getTokenClaims();
     return jwt?.resource_access?.['attendance-and-revenue']?.roles.includes(
       'sysadmin'
     );
@@ -231,7 +244,7 @@ export class KeycloakService {
       return '';
     }
 
-    const jwt = JwtUtil.decodeToken(token);
+    const jwt = this.getTokenClaims();
 
     if (!jwt || !jwt.name) {
       return '';
@@ -276,7 +289,7 @@ export class KeycloakService {
       return '';
     }
 
-    const jwt = JwtUtil.decodeToken(token);
+    const jwt = this.getTokenClaims();
 
     // idir users have an idir_userid property
     if (jwt.idir_userid !== undefined) {
@@ -308,7 +321,7 @@ export class KeycloakService {
       return { userId: '', email: '' };
     }
 
-    const jwt = JwtUtil.decodeToken(token);
+    const jwt = this.getTokenClaims();
 
     return {
       userId: jwt?.sub ?? '',
