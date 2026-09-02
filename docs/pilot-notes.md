@@ -40,11 +40,15 @@ Run the **same 45 recommended** rapid-assessment findings as `agentic-b`, end-to
 | 2026-09-02 | 14 | Spec [#146](https://github.com/bcgov/bcparks-ar-admin-agentic/pull/146) backfilled after plan raced ahead of CP1 | Orchestrator `gh pr create` failed to capture SPEC number; land CP1 before ready-for-agent |
 | 2026-09-02 | 15 | CONFIG-005 shipped via Copilot [#149](https://github.com/bcgov/bcparks-ar-admin-agentic/pull/149) | Trivy push/PR/schedule triggers enabled |
 | 2026-09-02 | 15 | Fixed `collect-metrics.mjs` missing `collectPrStats` function header (syntax error) | Metrics 1/3 workflow failed; same bug in patterns/tier2-v3 |
-| _(more during run)_ | | | |
+| 2026-09-02 | 17 | Drop Copilot `package-lock.json` only — never restore `yarn.lock` from main | Restoring main lock stripped Playwright entries |
+| 2026-09-02 | 23 | Pin `@playwright/test@1.51.0` for Node 18 CI | Copilot chose 1.62 (Node ≥20) |
+| 2026-09-02 | 23 | Resolve merge conflicts on Copilot branch before TEST-003 merge | Main advanced during long Copilot wait |
+| 2026-09-02 | 25 | Nudge Copilot to append `pr-evidence.md` on AUTH-004 | First commit was src-only |
+| 2026-09-02 | 16–30 | Batch runner for spec→CP1→plan→CP2→Copilot→CP3 | Throughput for remaining medium/low slices |
 
 ## Metrics reviews
 
 | Milestone | Target | Issue |
 | --- | ---: | --- |
 | 1/3 | after ~15 shipped | [#150](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/150) run [33678529733](https://github.com/bcgov/bcparks-ar-admin-agentic/actions/runs/33678529733) |
-| 2/3 | after ~30 shipped | TBD |
+| 2/3 | after ~30 shipped | [#196](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/196) run [33693029812](https://github.com/bcgov/bcparks-ar-admin-agentic/actions/runs/33693029812) |
