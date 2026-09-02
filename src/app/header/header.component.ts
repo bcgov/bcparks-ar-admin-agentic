@@ -33,9 +33,12 @@ export class HeaderComponent implements OnDestroy {
       if (obj.path === 'export-reports') {
         return keycloakService.isAllowed('export-reports');
       } else if (obj.path === 'lock-records') {
-        return keycloakService.isAllowed('lock-records')
-      }
-        {
+        return keycloakService.isAllowed('lock-records');
+      } else if (obj.path === 'review-data') {
+        return keycloakService.isAllowed('review-data');
+      } else if (obj.path === 'manage-subareas') {
+        return keycloakService.isAllowed('manage-subareas');
+      } else {
         return obj.path !== '**' && obj.path !== 'unauthorized';
       }
     });

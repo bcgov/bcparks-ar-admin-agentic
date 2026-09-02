@@ -1804,3 +1804,66 @@ Same shape as `REVIEW.md` — required before merge. Do not replace with a free-
 **Residual risk:** No accepted security gap for AUTH-007. Authorization is intentionally omitted if `API_LOCATION` cannot be parsed.
 
 - Reviewer: _______________ Date: _______________
+
+---
+
+# PR evidence — [RA AUTHZ-003] manage-subareas navigation link visible in header for non-admin users
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-authz-003-manage-subareas-navigation-fix |
+| Spec refs | `spec/features/authz-003-header-manage-subareas.feature` |
+| Constitution articles touched | P3, P5, P7 |
+| Tasks | AUTHZ-003 TASK-001–TASK-003 in `spec/tasks.md` |
+| Authoring agent | GitHub Copilot Coding Agent |
+| Generated | 2026-09-02T22:47:44.595Z |
+
+## Intent
+
+`HeaderComponent` built its navigation list by filtering the router config, but only checked `isAllowed()` for `export-reports` and `lock-records`; every other route (including `manage-subareas` and `review-data`) fell through to the default branch and was shown to any authenticated user. Combined with AUTHZ-001, this let a non-admin user see and click a link to an admin-only route. The filter now checks `isAllowed('manage-subareas')` and `isAllowed('review-data')` explicitly, matching the existing pattern already used in `SidebarComponent` and enforced server/guard-side by `AuthGuard`.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| `authz-003-header-manage-subareas.feature` `@R-29.1` | Yes | `manage-subareas` is excluded from `HeaderComponent.routes` when `isAllowed('manage-subareas')` returns false. |
+| `authz-003-header-manage-subareas.feature` `@R-29.2` | Yes | `manage-subareas` is included in `HeaderComponent.routes` when `isAllowed('manage-subareas')` returns true. |
+
+## Design system & accessibility
+
+| Check | Result |
+| --- | --- |
+| DS components used (list) | Not applicable — no new UI markup; existing header template is unchanged. |
+| Tokens used (not hard-coded colour) | Not applicable — no style changes. |
+| BC Sans imported | Not applicable — unchanged. |
+| Manual a11y notes | Not applicable — this fix only removes a link that should not have been visible; no new interactive elements. |
+
+## Public-service minimums
+
+Checklist IDs addressed this PR: Not applicable — no new user interface elements.
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Unit | `ng test --watch=false --include='**/header.component.spec.ts'` | Passed: 4 SUCCESS (includes 2 new tests covering `manage-subareas` inclusion/exclusion). |
+| Unit | `ng test --watch=false --include='**/sidebar.component.spec.ts'` | Passed: 3 SUCCESS (unchanged, regression check). |
+| Acceptance / feature | `spec/features/authz-003-header-manage-subareas.feature` | Implemented by the new unit coverage for `@R-29.1` and `@R-29.2`. |
+| A11y automation | Not run | Not applicable — no UI changes. |
+
+## Risks & follow-ups
+
+- The header still shows other admin-gated routes only through `isAllowed()` string matching against route `path`; if a future route is added without a corresponding `isAllowed()` branch it will again fall through to the permissive default. Consider refactoring to a data-driven `data.roles`/`data.permission` config on each route to close this class of gap for good — out of scope for this narrow fix.
+- `review-data` had the same latent gap as `manage-subareas`; it is fixed here too since it shares the identical code path and risk, keeping `HeaderComponent` consistent with `SidebarComponent`.
+
+## Review receipt (checkpoint 3)
+
+Same shape as `REVIEW.md` — required before merge. Do not replace with a free-form sign-off.
+
+**Checked:** AUTHZ-003 `@R-29.1`–`@R-29.2`; `spec/tasks.md` TASK-001–TASK-003; targeted `header.component.spec.ts` and `sidebar.component.spec.ts` Karma/Jasmine suites; manual code review comparing `HeaderComponent` against the already-correct `SidebarComponent` filter and the `AuthGuard` allow-list.
+
+**Could not check:** A live Keycloak realm with non-admin vs admin roles exercised through the deployed UI; the fix is verified only through unit tests using `RouterTestingModule` and a mocked `KeycloakService`.
+
+**Residual risk:** None identified for AUTHZ-003. The broader design gap (permissive default for routes without an explicit `isAllowed()` branch) is noted above as a follow-up but not fixed in this narrow slice, consistent with keeping the change surgical.
+
+- Reviewer: _______________ Date: _______________
