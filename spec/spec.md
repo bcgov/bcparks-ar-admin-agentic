@@ -7,19 +7,19 @@
 
 ## Active slice
 
-### TEST-003 — E2E scaffold and smoke coverage
+### VULN-001 — Historical pill XSS via innerHtml
 
-- **Issue:** [#81](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/81)
-- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `TEST-003`
-- **Feature:** `features/test-003-e2e-scaffold.feature`
+- **Issue:** [#82](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/82)
+- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `VULN-001`
+- **Feature:** `features/vuln-001-historical-pill-xss.feature`
 
 #### Problem
 
-No end-to-end or security-focused integration tests exist.
+HistoricalPillComponent builds HTML strings and binds them with [innerHtml], enabling stored XSS from sub-area names.
 
 #### Outcome
 
-Playwright is present with a smoke test for the app shell and documentation of planned auth-boundary tests. Full Keycloak OIDC automation is deferred.
+Highlighting uses plain-text segments with text interpolation (no innerHtml for user-supplied names). Malicious markup displays as text.
 
 #### Users & personas
 
@@ -32,13 +32,12 @@ Playwright is present with a smoke test for the app shell and documentation of p
 
 **In scope**
 
-- @playwright/test, playwright.config, e2e smoke, docs/e2e-testing.md, yarn e2e script
-- Append evidence; must change package/src/e2e paths
+- HistoricalPillComponent template + getHighlightedMatch
+- Unit tests; append evidence; must change src/
 
 **Out of scope**
 
-- Full Keycloak OIDC automation
-- Making e2e a required CI gate
+- Server-side validation of sub-area names
 
 #### Open questions
 
@@ -56,4 +55,4 @@ Playwright is present with a smoke test for the app shell and documentation of p
 
 ## Completed slices (recent)
 
-### SECRET-003 shipped — see rematch wiki
+### TEST-003 shipped — see rematch wiki
