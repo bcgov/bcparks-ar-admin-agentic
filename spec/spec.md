@@ -7,44 +7,42 @@
 
 ## Active slice
 
-### AUTHZ-001 — Admin route guard must ignore query string / fragment
+### LOG-001 — Do not dump full configuration to the browser console
 
-- **Issue:** [#55](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/55)
-- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `AUTHZ-001`
-- **Feature:** `features/authz-001-admin-route-guard.feature`
+- **Issue:** [#56](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/56)
+- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `LOG-001`
+- **Feature:** `features/log-001-no-config-console-dump.feature`
 
 #### Problem
 
-Staff who are authenticated but **not** allowed certain admin capabilities can still open admin-only screens by adding a query string (or fragment) to the URL. The client route guard compares the full URL string to a bare path, so `/lock-records?x=1` fails the equality check and the denial never runs.
+On startup the admin UI writes the full runtime configuration object to the browser console. That can expose environment endpoints and other operational detail to anyone with DevTools on a shared or shoulder-surfed workstation.
 
 #### Outcome
 
-Admin-only routes are enforced on the **path** (query and fragment ignored for the capability check). Non-admins are sent home whether or not they append `?…` / `#…`. Admins who hold the capability still reach the screen with query params intact for legitimate filters.
+The full configuration object is **not** written to `console.log` (or equivalent console dump) during normal config initialization. Staff can still use the app; operators rely on intentional, redacted logging if needed later.
 
 #### Users & personas
 
 | Persona | Goal |
 | --- | --- |
-| Parks staff (non-admin) | Use day-to-day A&R screens without seeing or opening admin-only tools |
-| Parks admin | Open Lock Records / Manage Subareas / Export Reports, including with filters in the query string |
-| Security reviewer | Confirm client-side route protection cannot be bypassed by URL tinkering |
+| Parks staff | Use the app without leaking ops config via the console |
+| Security reviewer | Confirm config dump is gone from the init path |
 
 #### Scope
 
 **In scope**
 
-- Fix capability checks for admin-only routes so path matching ignores query string and fragment
-- Cover bypass and allow paths with automated scenarios in `authz-001-admin-route-guard.feature` (unit-level verification)
+- Remove or replace the configuration console dump in the config initialization path
+- Automated proof that the dump no longer occurs (unit test)
 
 **Out of scope**
 
-- Server-side authorization (API must remain authoritative)
-- Changing which roles map to each capability
-- Header nav visibility (separate finding AUTHZ-003)
+- Broader logging framework redesign (other LOG-* findings)
+- Changing where config is loaded from
 
 #### Open questions
 
-- None blocking — path-only match is the agreed fix shape from the assessment.
+- None blocking.
 
 #### Sign-off (checkpoint 1)
 
@@ -58,4 +56,7 @@ Admin-only routes are enforced on the **path** (query and fragment ignored for t
 
 ## Completed slices
 
-_None yet._
+### AUTHZ-001 — Admin route guard path matching
+
+- **Issue:** [#55](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/55) (shipped)
+- **Feature:** `features/authz-001-admin-route-guard.feature`
