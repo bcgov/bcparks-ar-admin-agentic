@@ -307,7 +307,7 @@ Same shape as `REVIEW.md` — required before merge. Do not replace with a free-
 | --- | --- |
 | PR / branch | copilot/ra-log-002-elevate-logging-levels |
 | Spec refs | spec/features/authz-001-admin-route-guard.feature, spec/features/example-happy-path.feature, spec/features/log-001-no-config-console-dump.feature, spec/features/log-002-keycloak-lifecycle-log-levels.feature, spec/features/log-003-authz-failure-logging.feature, spec/features/test-001-token-interceptor.feature |
-| Constitution articles touched | P1–P8 (confirm) |
+| Constitution articles touched | P3, P5, P6, J3, J5 |
 | Tasks | see spec/tasks.md |
 | Authoring agent | GitHub Copilot Coding Agent |
 | Generated | 2026-09-02T18:07:27.923Z |
@@ -629,5 +629,72 @@ Same shape as `REVIEW.md` — required before merge. Do not replace with a free-
 **Could not check:** A live Keycloak/loginproxy authorization-code exchange against a deployed client; it requires environment credentials and client configuration outside this repository.
 
 **Residual risk:** The deployed Keycloak client must support S256 PKCE; validate this with an IDIR login smoke test after deployment.
+
+- Reviewer: _______________ Date: _______________
+
+---
+
+# PR evidence — [RA SECRET-001] Production certificate ARN from GitHub Environment variable
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-secret-001-remove-hardcoded-arn-again |
+| Spec refs | spec/features/auth-001-pkce.feature, spec/features/authz-001-admin-route-guard.feature, spec/features/config-002-cloudfront-csp.feature, spec/features/config-003-cloudfront-hsts.feature, spec/features/config-004-cloudfront-security-headers.feature, spec/features/crypto-001-cloudfront-tls-minimum.feature, spec/features/example-happy-path.feature, spec/features/log-001-no-config-console-dump.feature, spec/features/log-002-keycloak-lifecycle-log-levels.feature, spec/features/log-003-authz-failure-logging.feature, spec/features/secret-001-prod-certificate-arn.feature, spec/features/test-001-token-interceptor.feature |
+| Constitution articles touched | P1–P8 (confirm) |
+| Tasks | see spec/tasks.md |
+| Authoring agent | GitHub Copilot Coding Agent |
+| Generated | 2026-09-02T19:14:46.684Z |
+
+## Intent
+
+The production SAM deployment now receives the ACM certificate ARN from the
+`DOMAIN_CERTIFICATE_ARN` GitHub Actions environment variable instead of a
+committed literal. This keeps the production AWS account identifier out of the
+public workflow source.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| `secret-001-prod-certificate-arn.feature` | Yes | `DomainCertificateArn` references `vars.DOMAIN_CERTIFICATE_ARN`; no literal ACM ARN remains in the production workflow. |
+| Other indexed features | Not applicable | Unchanged and out of scope for SECRET-001. |
+
+
+## Design system & accessibility
+
+| Check | Result |
+| --- | --- |
+| DS components used (list) | Not applicable — no UI changes. |
+| Tokens used (not hard-coded colour) | Not applicable — no style changes. |
+| BC Sans imported | Not applicable — unchanged. |
+| Manual a11y notes | Not applicable — no rendered UI change. |
+
+## Public-service minimums
+
+Checklist IDs addressed this PR: Not applicable — no user interface changes.
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Static acceptance check | `spec/features/secret-001-prod-certificate-arn.feature`; workflow inspection with `rg` | Passed — variable reference is present and no literal ACM ARN/account ID remains. |
+| Unit / A11y automation | Not run | No application or rendered UI changes. |
+
+## Risks & follow-ups
+
+- The platform operator must set `DOMAIN_CERTIFICATE_ARN` on the `lza-prod` GitHub Environment before the next production deployment.
+
+## Review receipt (checkpoint 3)
+
+Same shape as `REVIEW.md` — required before merge. Do not replace with a free-form sign-off.
+
+**Checked:** SECRET-001 `@R-11.1`; `spec/spec.md`; `spec/plan.md`;
+`spec/tasks.md`; `.github/workflows/lza-deploy-admin-prod.yaml`.
+
+**Could not check:** The configured GitHub Environment variable value and a
+live production deployment; both require platform operator access.
+
+**Residual risk:** The production deployment will fail until the platform
+operator sets `DOMAIN_CERTIFICATE_ARN` on the `lza-prod` environment.
 
 - Reviewer: _______________ Date: _______________
