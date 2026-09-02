@@ -7,19 +7,19 @@
 
 ## Active slice
 
-### AUTHZ-005 — isAdmin optional chaining
+### BW-001 — Lock records unlock workflow
 
-- **Issue:** [#89](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/89)
-- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `AUTHZ-005`
-- **Feature:** `features/authz-005-isadmin-optional-chaining.feature`
+- **Issue:** [#90](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/90)
+- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `BW-001`
+- **Feature:** `features/bw-001-lock-records-unlock.feature`
 
 #### Problem
 
-isAdmin() optional chain stops before .includes(); atypical JWT without roles throws TypeError.
+LockRecordsComponent always passes lock=true; no UI path to unlock a fiscal year.
 
 #### Outcome
 
-isAdmin() returns false safely when roles is missing; no TypeError propagates to canActivate().
+Admins can unlock a fiscal year via the UI; lock=false is invoked on unlock.
 
 #### Users & personas
 
