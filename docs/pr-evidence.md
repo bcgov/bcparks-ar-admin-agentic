@@ -2162,3 +2162,64 @@ Same shape as `REVIEW.md` — required before merge. Do not replace with a free-
 **Residual risk:** None identified for DEP-001. No gap accepted.
 
 - Reviewer: _______________ Date: _______________
+
+---
+
+# PR evidence — [RA DEP-002] Remove unused jquery
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-dep-002-remove-unused-jquery |
+| Spec refs | spec/features/dep-002-remove-jquery.feature |
+| Constitution articles touched | P5 (spec traceability), P7 (test integrity) |
+| Tasks | DEP-002 entries in `spec/tasks.md` |
+| Authoring agent | GitHub Copilot Coding Agent |
+| Generated | 2026-09-02T23:39:50.703Z |
+
+## Intent
+
+Removed the direct jquery runtime dependency and both Angular global-script entries. Bootstrap 5 remains loaded without jquery, as supported by Bootstrap 5.3.3.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| `dep-002-remove-jquery.feature` `@R-35.1` | Yes | jquery is absent from both build and test `angular.json` global `scripts` arrays. |
+| `dep-002-remove-jquery.feature` `@R-35.2` | Yes | jquery is absent from `package.json` runtime dependencies. |
+
+## Design system & accessibility
+
+| Check | Result |
+| --- | --- |
+| DS components used (list) | Not applicable — no UI changes. |
+| Tokens used (not hard-coded colour) | Not applicable — no style changes. |
+| BC Sans imported | Unchanged. |
+| Manual a11y notes | Not applicable — dependency/configuration removal only. |
+
+## Public-service minimums
+
+Checklist IDs addressed this PR: Not applicable — no user interface changes.
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Static infrastructure proof | Node JSON assertion over `package.json` and all `angular.json` `scripts` arrays | Passed — no jquery dependency or global script remains. |
+| Build | `yarn build` | Passed — application builds with jquery removed from global scripts. |
+| Lint | `yarn lint` | Passed with 0 errors; 59 pre-existing standalone-component warnings remain. |
+| Unit | `yarn test-ci` | Passed — 255/255 Karma specs. |
+| Acceptance / feature | `spec/features/dep-002-remove-jquery.feature` | Satisfied by the static infrastructure proof for `@R-35.1` and `@R-35.2`. |
+
+## Risks & follow-ups
+
+- jquery remains in `yarn.lock` only as a transitive dependency of `@digitalspace/bcparks-bootstrap-theme`; it is neither a direct runtime dependency nor included in the browser bundle. This is an accepted, documented gap because removing that package's declared dependency is outside DEP-002 scope.
+
+## Review receipt (checkpoint 3)
+
+**Checked:** DEP-002 `@R-35.1`, `@R-35.2`; `spec/spec.md`; `spec/tasks.md`; `package.json`; build and test global scripts in `angular.json`; `yarn.lock`.
+
+**Could not check:** None.
+
+**Residual risk:** jquery remains transitively resolved for the BC Parks theme but is not browser-loaded. No other gap accepted.
+
+- Reviewer: _______________ Date: _______________

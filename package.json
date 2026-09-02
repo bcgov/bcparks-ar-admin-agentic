@@ -34,7 +34,6 @@
     "@typescript-eslint/types": "^8.0.0",
     "bootstrap-icons": "^1.11.3",
     "guid-typescript": "^1.0.9",
-    "jquery": "^3.6.0",
     "keycloak-angular": "^19.0.2",
     "keycloak-js": "25.0.6",
     "luxon": "^3.3.0",
