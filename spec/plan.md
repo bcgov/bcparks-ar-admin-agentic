@@ -1,19 +1,15 @@
-# Plan — LOG-007 browser-console logging limitation
+# Plan — SECRET-002 non-prod AWS account IDs
 
-> Checkpoint 2 for issue [#78](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/78).
+> Checkpoint 2 for issue [#79](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/79).
 
 ## Approach
 
-1. Add `docs/logging-architecture.md` documenting console-only output and no SIEM yet.
-2. Document forward path: optional `window.__env.LOG_SHIPPING_ENDPOINT` — not implemented.
-3. Add exported constants + JSDoc on LoggerService referencing the doc (required `src/` touch for rematch gate).
-4. Append evidence.
+1. Dev/test LZA workflows: DomainCertificateArn from `${{ vars.DOMAIN_CERTIFICATE_ARN }}`.
+2. template.yaml: remove DomainCertificateArn Default containing account ID.
+3. vars.json: remove committed DomainCertificateArn if present.
+4. Setup scripts: require AWS_ACCOUNT_ID / AWS_PROFILE_LZA / related env vars — no literal account IDs.
+5. Append evidence.
 
-## Out of scope
+## Risk
 
-- HTTP log shipping, CloudWatch RUM, backend audit API
-
-## Verification
-
-- Doc asserts console-only + forward-path keyword (@R-20.1/@R-20.2)
-- Must change `src/` (not evidence/docs-only)
+Deploy fails until vars set per env (same as SECRET-001).
