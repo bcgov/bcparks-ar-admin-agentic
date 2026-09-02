@@ -158,6 +158,12 @@ describe('KeycloakService', () => {
       loggerService.warn.calls.reset();
     }
 
+    it('initializes Keycloak with PKCE S256', async () => {
+      await keycloak.init();
+
+      expect(keycloakAuth.init).toHaveBeenCalledWith({ pkceMethod: 'S256' });
+    });
+
     it('logs auth errors above debug with a non-secret identity hint', async () => {
       await initWithDecodedIdentity();
 

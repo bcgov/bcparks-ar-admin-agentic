@@ -569,3 +569,65 @@ Same shape as `REVIEW.md` — required before merge. Do not replace with a free-
 **Residual risk:** Post-deploy header and authentication/API smoke testing is deferred; the brownfield `style-src 'unsafe-inline'` allowance remains documented above.
 
 - Reviewer: _______________ Date: _______________
+
+---
+
+# PR evidence — [RA AUTH-001] PKCE S256 on Keycloak OIDC init
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-auth-001-fix-pkce-configuration |
+| Spec refs | spec/features/auth-001-pkce.feature, spec/features/authz-001-admin-route-guard.feature, spec/features/config-002-cloudfront-csp.feature, spec/features/config-003-cloudfront-hsts.feature, spec/features/config-004-cloudfront-security-headers.feature, spec/features/crypto-001-cloudfront-tls-minimum.feature, spec/features/example-happy-path.feature, spec/features/log-001-no-config-console-dump.feature, spec/features/log-002-keycloak-lifecycle-log-levels.feature, spec/features/log-003-authz-failure-logging.feature, spec/features/test-001-token-interceptor.feature |
+| Constitution articles touched | P5, P6, P7, J2, J5 |
+| Tasks | see spec/tasks.md |
+| Authoring agent | GitHub Copilot Coding Agent |
+| Generated | 2026-09-02T19:08:08.445Z |
+
+## Intent
+
+Keycloak initialization for real enabled sessions now explicitly uses PKCE with S256. The login flow is otherwise unchanged, while authorization codes are bound to the browser-generated PKCE verifier.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| `auth-001-pkce.feature` | Yes | `@R-10.1` is covered by `KeycloakService` unit coverage that asserts `init` receives exactly `{ pkceMethod: 'S256' }` when Keycloak is enabled. |
+| Other indexed features | Not applicable | Unchanged and out of scope for AUTH-001. |
+
+
+## Design system & accessibility
+
+| Check | Result |
+| --- | --- |
+| DS components used (list) | Not applicable — no UI changes. |
+| Tokens used (not hard-coded colour) | Not applicable — no style changes. |
+| BC Sans imported | Not applicable — unchanged. |
+| Manual a11y notes | Not applicable — authentication adapter configuration only. |
+
+## Public-service minimums
+
+Checklist IDs addressed this PR: Not applicable — no user interface changes.
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Unit | `yarn test-ci --include=src/app/services/keycloak.service.spec.ts` | Passed — 11 tests, including the new assertion for PKCE S256 init options. |
+| Acceptance / feature | `spec/features/auth-001-pkce.feature` | `@R-10.1` satisfied by the focused Keycloak service test. |
+| A11y automation | Not run | Not applicable — no rendered UI change. |
+
+## Risks & follow-ups
+
+- Keycloak realm/client configuration is outside this repository. A post-deploy login smoke test must confirm the deployed client accepts S256 PKCE.
+
+## Review receipt (checkpoint 3)
+
+Same shape as `REVIEW.md` — required before merge. Do not replace with a free-form sign-off.
+
+**Checked:** AUTH-001 `@R-10.1`; `spec/spec.md`; `spec/tasks.md`; `src/app/services/keycloak.service.ts`; focused Keycloak service unit tests.
+
+**Could not check:** A live Keycloak/loginproxy authorization-code exchange against a deployed client; it requires environment credentials and client configuration outside this repository.
+
+**Residual risk:** The deployed Keycloak client must support S256 PKCE; validate this with an IDIR login smoke test after deployment.
+
+- Reviewer: _______________ Date: _______________

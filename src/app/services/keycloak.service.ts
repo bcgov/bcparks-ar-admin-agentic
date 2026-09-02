@@ -84,7 +84,7 @@ export class KeycloakService {
 
         // Initialize.
         this.keycloakAuth
-          .init({})
+          .init({ pkceMethod: 'S256' })
           .then((auth) => {
             this.loggerService.debug(`KC Refresh Success?:${this.keycloakAuth.authServerUrl}`);
             this.loggerService.log(`KC Success: ${auth}`);
