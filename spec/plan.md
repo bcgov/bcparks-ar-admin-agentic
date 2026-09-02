@@ -1,3 +1,3 @@
-# Plan — DEP-001 remove chart.js
+# Plan — DEP-002 remove jquery
 
-Remove chart.js from package.json dependencies. Run yarn install. Append evidence.
+Remove jquery from package.json and angular.json global scripts. Update lockfile. Append evidence.

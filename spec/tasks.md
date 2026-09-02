@@ -1,7 +1,8 @@
-# Tasks — DEP-001
+# Tasks — DEP-002
 
-> Issue [#92](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/92)
+> Issue [#93](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/93)
 
-- [x] **TASK-001** — Remove chart.js from package.json
-- [x] **TASK-002** — Update yarn.lock
-- [x] **TASK-003** — Append evidence
+- [ ] **TASK-001** — Remove jquery dependency
+- [ ] **TASK-002** — Remove angular.json script entry
+- [ ] **TASK-003** — Update yarn.lock
+- [ ] **TASK-004** — Append evidence
