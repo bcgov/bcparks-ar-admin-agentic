@@ -1,7 +1,7 @@
-# Tasks — AUTH-002 (active)
+# Tasks — AUTH-003 (active)
 
-- [x] Add `getTokenClaims()` (or equivalent) on `KeycloakService` returning `keycloakAuth.tokenParsed` for real sessions
-- [x] Rewire `isAuthorized`, `isAdmin`, `getWelcomeMessage`, `getIdpFromToken`, and other KeycloakService authz/identity helpers to use it (not `JwtUtil.decodeToken` on the real-auth path)
-- [x] Add/update unit tests asserting tokenParsed is used and JwtUtil.decodeToken is not used on that path
-- [x] Append `docs/pr-evidence.md` for AUTH-002 (do not overwrite prior slices)
+- [ ] Add `KeycloakService.logout()` calling `keycloakAuth.logout` with a redirect URI; unit-test it
+- [ ] Add authenticated header “Log out” control that invokes `KeycloakService.logout`; test as practical
+- [ ] Update AuthGuard comment(s) that claim there is no logout
+- [ ] Append `docs/pr-evidence.md` for AUTH-003
 - [ ] Checkpoint 3 + merge (must change `src/`; refuse evidence-only)

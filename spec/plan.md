@@ -1,35 +1,25 @@
-# Plan — Token claims from Keycloak session (AUTH-002)
+# Plan — User-initiated logout (AUTH-003)
 
-> Architecture and delivery for issue [#69](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/69) / RA AUTH-002.  
-> Checkpoint 1 (spec) is merged. This document is **checkpoint 2**.
+> Issue [#70](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/70) / RA AUTH-003. Checkpoint 2.
 
 ## Summary
 
-Introduce a KeycloakService helper (e.g. `getTokenClaims()`) that returns `keycloakAuth.tokenParsed` for real sessions. Route `isAuthorized`, `isAdmin`, `getWelcomeMessage`, `getIdpFromToken`, and any other KeycloakService JwtUtil.decodeToken call sites for authz/identity through that helper. Unit tests assert tokenParsed is used and JwtUtil.decodeToken is not invoked on the real-auth path. Must change `src/`.
+Add `KeycloakService.logout()` calling `keycloakAuth.logout({ redirectUri })` with app origin/base. Wire header “Log out” when authenticated. Update AuthGuard “we don’t have a logout” comment. Unit tests for service (+ header). Must change `src/`.
 
 ## Architecture
 
 ```text
-KeycloakService.getTokenClaims()
-  -> keycloakAuth.tokenParsed
-isAuthorized / isAdmin / getWelcomeMessage / getIdpFromToken / …
-  -> getTokenClaims()   // was JwtUtil.decodeToken(getToken())
+Header "Log out" -> KeycloakService.logout()
+  -> keycloakAuth.logout({ redirectUri: <origin/base> })
+AuthGuard comments updated
 ```
-
-## Key decisions
-
-| Decision | Choice | Rationale |
-| --- | --- | --- |
-| Source of truth | Keycloak `tokenParsed` | Library-verified with session |
-| JwtUtil | Leave utility; stop using on real-auth claim path | Matches assessment intent |
-| Tests | Unit spies | No live IdP |
 
 ## Tasks
 
-1. Add getTokenClaims (or equivalent); rewire KeycloakService claim consumers
-2. Unit tests for claim source on real-auth path
-3. Append evidence
-4. Checkpoint 3 + merge (must change `src/`)
+1. Implement KeycloakService.logout + tests
+2. Header Log out control + tests as practical
+3. Update AuthGuard comment
+4. Append evidence; CP3 merge
 
 ## Approval (checkpoint 2)
 
