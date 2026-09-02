@@ -1,33 +1,26 @@
-# Plan — CONFIG-006 deployment pipeline log levels
+# Plan — LOG-004 LoggerService default when logLevel missing
 
-> Checkpoint 2 for issue [#73](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/73).
+> Checkpoint 2 for issue [#75](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/75).
 
 ## Approach
 
-Replace hardcoded `window.__env.logLevel = 0` in all three LZA deploy workflows with environment-appropriate values from `LogLevel` enum:
-
-| Pipeline | Environment | New logLevel | Enum name |
-| --- | --- | --- | --- |
-| `lza-deploy-admin-prod.yaml` | lza-prod | 4 | Error |
-| `lza-deploy-admin-test.yaml` | lza-test | 3 | Warn |
-| `lza-deploy-admin-dev.yaml` | lza-dev | 2 | Info |
-
-Add inline YAML comments referencing `LogLevel` enum in `logger.service.ts` for maintainers.
+1. Change `LoggerService` so the effective level falls back to `LogLevel.Warn` when `ConfigService.logLevel` is `undefined`/`null` (do not keep `Off` as the silent default).
+2. Emit a one-time `console.warn` advising operators to set `logLevel` explicitly for debug.
+3. Add/extend unit tests in `logger.service.spec.ts` covering @R-17.1 and @R-17.2.
+4. Append `docs/pr-evidence.md`.
 
 ## Out of scope
 
-- Runtime log level switching (requires redeploy)
-- Removing LoggerService console output entirely
-- SIEM integration
-- Changing local `src/env.js` (optional residual)
+- Deploy pipeline logLevel values (CONFIG-006 — already shipped)
+- Structured JSON logs (LOG-006)
+- Server-side shipping (LOG-007)
 
 ## Risks
 
-- Operators debugging prod issues lose debug-level console output (intentional; use lower envs)
-- LOG-001 already prevents config dump at logLevel 0; this removes the All level trigger in deploys
+- More console noise in misconfigured envs (intentional)
+- Tests that assumed Off-when-unset need updating
 
 ## Verification
 
-- Grep deploy workflows for `logLevel = 0` → zero matches
-- Static assert prod/test/dev values match @R-16.1 and @R-16.2
-- Append `docs/pr-evidence.md` (must touch `.github/workflows/`)
+- Unit tests for missing logLevel → Warn; one-time warn message
+- Append evidence; must touch `src/`
