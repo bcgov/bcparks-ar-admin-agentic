@@ -7,19 +7,19 @@
 
 ## Active slice
 
-### VULN-001 — Historical pill XSS via innerHtml
+### AUTH-004 — Token refresh failure redirects to login
 
-- **Issue:** [#82](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/82)
-- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `VULN-001`
-- **Feature:** `features/vuln-001-historical-pill-xss.feature`
+- **Issue:** [#83](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/83)
+- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `AUTH-004`
+- **Feature:** `features/auth-004-token-refresh-redirect.feature`
 
 #### Problem
 
-HistoricalPillComponent builds HTML strings and binds them with [innerHtml], enabling stored XSS from sub-area names.
+Silent token-refresh failure only logs; users can remain in a broken authenticated-looking state.
 
 #### Outcome
 
-Highlighting uses plain-text segments with text interpolation (no innerHtml for user-supplied names). Malicious markup displays as text.
+When updateToken fails after onTokenExpired, the app navigates to /login.
 
 #### Users & personas
 
@@ -32,12 +32,12 @@ Highlighting uses plain-text segments with text interpolation (no innerHtml for 
 
 **In scope**
 
-- HistoricalPillComponent template + getHighlightedMatch
+- KeycloakService onTokenExpired failure path using window.location.assign('/login')
 - Unit tests; append evidence; must change src/
 
 **Out of scope**
 
-- Server-side validation of sub-area names
+- Interceptor 401 semantics (AUTH-006)
 
 #### Open questions
 
@@ -55,4 +55,4 @@ Highlighting uses plain-text segments with text interpolation (no innerHtml for 
 
 ## Completed slices (recent)
 
-### TEST-003 shipped — see rematch wiki
+### VULN-001 shipped — see rematch wiki
