@@ -2402,3 +2402,108 @@ Same shape as `REVIEW.md` — required before merge. Do not replace with a free-
 **Residual risk:** Other interpolated debug messages outside the three LOG-009 task services remain tracked separately.
 
 - Reviewer: _______________ Date: _______________
+
+---
+
+# PR evidence — [RA SECRET-004] Remove hardcoded API Gateway ID
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-secret-004-remove-default-api-gateway-id |
+| Spec refs | spec/features/auth-001-pkce.feature, spec/features/auth-002-token-claims.feature, spec/features/auth-003-logout.feature, spec/features/auth-004-token-refresh-redirect.feature, spec/features/auth-005-keycloak-client-id.feature, spec/features/auth-006-interceptor-401.feature, spec/features/auth-007-interceptor-allowlist.feature, spec/features/authz-001-admin-route-guard.feature, spec/features/authz-002-admin-only-routes.feature, spec/features/authz-003-header-manage-subareas.feature, spec/features/authz-004-isadmin-role-constant.feature, spec/features/authz-005-isadmin-optional-chaining.feature, spec/features/bw-001-lock-records-unlock.feature, spec/features/bw-002-export-variance-typo.feature, spec/features/config-002-cloudfront-csp.feature, spec/features/config-003-cloudfront-hsts.feature, spec/features/config-004-cloudfront-security-headers.feature, spec/features/config-005-trivy-triggers.feature, spec/features/config-006-deploy-log-level.feature, spec/features/crypto-001-cloudfront-tls-minimum.feature, spec/features/dep-001-remove-chartjs.feature, spec/features/dep-002-remove-jquery.feature, spec/features/dep-003-moment-to-luxon.feature, spec/features/example-happy-path.feature, spec/features/log-001-no-config-console-dump.feature, spec/features/log-002-keycloak-lifecycle-log-levels.feature, spec/features/log-003-authz-failure-logging.feature, spec/features/log-004-logger-default-level.feature, spec/features/log-005-sanitize-error-logging.feature, spec/features/log-006-structured-log-format.feature, spec/features/log-007-browser-console-logging.feature, spec/features/log-008-global-error-handler.feature, spec/features/log-009-sanitize-debug-logs.feature, spec/features/secret-001-prod-certificate-arn.feature, spec/features/secret-002-nonprod-account-ids.feature, spec/features/secret-003-route53-zone-id.feature, spec/features/secret-004-api-gateway-id.feature, spec/features/test-001-token-interceptor.feature, spec/features/test-003-e2e-scaffold.feature, spec/features/vuln-001-historical-pill-xss.feature |
+| Constitution articles touched | P1–P8 (confirm) |
+| Tasks | see spec/tasks.md |
+| Authoring agent | unspecified |
+| Generated | 2026-09-03T00:25:07.329Z |
+
+## Intent
+
+The API Gateway instance ID is no longer committed as a SAM template default
+or local deployment variable. Deploy workflows continue to provide it at
+deployment time through the `AR_API_ID` GitHub Actions variable.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| `auth-001-pkce.feature` | TODO | |
+| `auth-002-token-claims.feature` | TODO | |
+| `auth-003-logout.feature` | TODO | |
+| `auth-004-token-refresh-redirect.feature` | TODO | |
+| `auth-005-keycloak-client-id.feature` | TODO | |
+| `auth-006-interceptor-401.feature` | TODO | |
+| `auth-007-interceptor-allowlist.feature` | TODO | |
+| `authz-001-admin-route-guard.feature` | TODO | |
+| `authz-002-admin-only-routes.feature` | TODO | |
+| `authz-003-header-manage-subareas.feature` | TODO | |
+| `authz-004-isadmin-role-constant.feature` | TODO | |
+| `authz-005-isadmin-optional-chaining.feature` | TODO | |
+| `bw-001-lock-records-unlock.feature` | TODO | |
+| `bw-002-export-variance-typo.feature` | TODO | |
+| `config-002-cloudfront-csp.feature` | TODO | |
+| `config-003-cloudfront-hsts.feature` | TODO | |
+| `config-004-cloudfront-security-headers.feature` | TODO | |
+| `config-005-trivy-triggers.feature` | TODO | |
+| `config-006-deploy-log-level.feature` | TODO | |
+| `crypto-001-cloudfront-tls-minimum.feature` | TODO | |
+| `dep-001-remove-chartjs.feature` | TODO | |
+| `dep-002-remove-jquery.feature` | TODO | |
+| `dep-003-moment-to-luxon.feature` | TODO | |
+| `example-happy-path.feature` | TODO | |
+| `log-001-no-config-console-dump.feature` | TODO | |
+| `log-002-keycloak-lifecycle-log-levels.feature` | TODO | |
+| `log-003-authz-failure-logging.feature` | TODO | |
+| `log-004-logger-default-level.feature` | TODO | |
+| `log-005-sanitize-error-logging.feature` | TODO | |
+| `log-006-structured-log-format.feature` | TODO | |
+| `log-007-browser-console-logging.feature` | TODO | |
+| `log-008-global-error-handler.feature` | TODO | |
+| `log-009-sanitize-debug-logs.feature` | TODO | |
+| `secret-001-prod-certificate-arn.feature` | TODO | |
+| `secret-002-nonprod-account-ids.feature` | TODO | |
+| `secret-003-route53-zone-id.feature` | TODO | |
+| `secret-004-api-gateway-id.feature` | Yes | `@R-39.1` and `@R-39.2` verified with focused static checks. |
+| `test-001-token-interceptor.feature` | TODO | |
+| `test-003-e2e-scaffold.feature` | TODO | |
+| `vuln-001-historical-pill-xss.feature` | TODO | |
+
+
+## Design system & accessibility
+
+| Check | Result |
+| --- | --- |
+| DS components used (list) | Not applicable — infrastructure configuration only. |
+| Tokens used (not hard-coded colour) | Not applicable — infrastructure configuration only. |
+| BC Sans imported | Not applicable — infrastructure configuration only. |
+| Manual a11y notes | Not applicable — infrastructure configuration only. |
+
+## Public-service minimums
+
+Checklist IDs addressed this PR: Not applicable — no UI changes.
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Static validation | `git grep` checks for defaults, vars entry, and workflow overrides | Passed |
+| Acceptance / feature | spec/features/secret-004-api-gateway-id.feature | Satisfied for `@R-39.1` and `@R-39.2`. |
+| A11y automation | Not run | Not applicable — no UI changes. |
+
+## Risks & follow-ups
+
+- API Gateway IDs remain deployment secrets/configuration and must be present in the CI environment for deployment.
+
+## Review receipt (checkpoint 3)
+
+Same shape as `REVIEW.md` — required before merge. Do not replace with a free-form sign-off.
+
+**Checked:** SECRET-004 `@R-39.1`–`@R-39.2`; `spec/spec.md`; `spec/plan.md`;
+`spec/tasks.md`; `template.yaml`; `vars.json`; all three LZA deployment workflows.
+
+**Could not check:** Deployment against AWS because no deployment credentials are
+available in this environment.
+
+**Residual risk:** A deployment with a missing `AR_API_ID` will fail rather than
+silently selecting the former development API.
+
+- Reviewer: _______________ Date: _______________

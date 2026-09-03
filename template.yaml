@@ -28,7 +28,6 @@ Parameters:
     Description: Cloudfront distribution origin path.
   ApiGatewayId:
     Type: String
-    Default: qdp6hi0i78
     Description: ID for rest API.
   ApiStage:
     Type: String
