@@ -7,19 +7,19 @@
 
 ## Active slice
 
-### LOG-008 — global ErrorHandler
+### LOG-009 — sanitize debug log identifiers
 
-- **Issue:** [#95](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/95)
-- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `LOG-008`
-- **Feature:** `features/log-008-global-error-handler.feature`
+- **Issue:** [#96](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/96)
+- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `LOG-009`
+- **Feature:** `features/log-009-sanitize-debug-logs.feature`
 
 #### Problem
 
-No custom Angular ErrorHandler; unhandled errors only hit console.error.
+Debug logs interpolate ORCS codes, sub-area IDs, and fiscal values exposing internal identifiers.
 
 #### Outcome
 
-AppErrorHandler registered; unhandled errors logged via LoggerService with sanitized output.
+Debug messages use generic labels; identifiers gated behind explicit developer flag or removed.
 
 #### Users & personas
 
@@ -38,7 +38,6 @@ AppErrorHandler registered; unhandled errors logged via LoggerService with sanit
 
 **Out of scope**
 
-- Remote monitoring endpoint / SIEM integration
 - Unrelated findings
 
 #### Open questions
