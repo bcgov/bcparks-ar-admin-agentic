@@ -2282,3 +2282,62 @@ Checklist IDs addressed this PR: Not applicable — no user interface changes.
 **Residual risk:** None — moment has no remaining runtime usages or dependency declarations.
 
 - Reviewer: _______________ Date: _______________
+
+---
+
+# PR evidence — [RA LOG-008] No global Angular ErrorHandler registered — unhandled errors go only to console
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-log-008-implement-custom-error-handler |
+| Spec refs | spec/features/log-008-global-error-handler.feature |
+| Constitution articles touched | P5 (spec traceability), P7 (test integrity) |
+| Tasks | LOG-008 entries in `spec/tasks.md` |
+| Authoring agent | GitHub Copilot Coding Agent |
+| Generated | 2026-09-03T00:00:39.959Z |
+
+## Intent
+
+Implemented `AppErrorHandler` to catch uncaught runtime exceptions and forward them to `LoggerService.error(...)` without rethrowing. Registered `{ provide: ErrorHandler, useClass: AppErrorHandler }` in `AppModule` providers array.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| `log-008-global-error-handler.feature` `@R-37.1` | Yes | `ErrorHandler` is registered with `useClass: AppErrorHandler` in `AppModule.providers`. |
+| `log-008-global-error-handler.feature` `@R-37.2` | Yes | Unhandled errors are caught by `AppErrorHandler` and forwarded to `LoggerService.error(...)` without rethrowing. |
+
+## Design system & accessibility
+
+| Check | Result |
+| --- | --- |
+| DS components used (list) | N/A — no UI changes; service layer and module provider configuration. |
+| Tokens used (not hard-coded colour) | N/A |
+| BC Sans imported | Unchanged. |
+| Manual a11y notes | N/A — error handler logic only, no user interface elements modified. |
+
+## Public-service minimums
+
+Checklist IDs addressed this PR: N/A (service and module provider configuration only; no UI markup modified)
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Unit | `npx ng test --watch=false --browsers=ChromeHeadlessNoSandbox --include='src/app/services/app-error-handler.service.spec.ts'` | Passed — 5/5 specs in `app-error-handler.service.spec.ts`. |
+| Lint | `npx ng lint` | Passed — 0 errors. |
+| Acceptance / feature | `spec/features/log-008-global-error-handler.feature` | Satisfied by unit tests for `@R-37.1` and `@R-37.2`. |
+
+## Risks & follow-ups
+
+- Remote log shipping / server-side monitoring endpoint is out of scope for this slice per `spec/tasks.md` assessment gap acceptance. Unhandled errors are structured and logged to console via `LoggerService`.
+
+## Review receipt (checkpoint 3)
+
+**Checked:** LOG-008 `@R-37.1`, `@R-37.2`; `spec/spec.md`; `spec/tasks.md`; `src/app/services/app-error-handler.service.ts`; `src/app/app.module.ts`; `src/app/services/app-error-handler.service.spec.ts`.
+
+**Could not check:** Server-side remote log monitoring endpoint (out of scope for this slice).
+
+**Residual risk:** Unhandled errors are output locally via LoggerService structured console log until server-side log ingestion endpoint is integrated.
+
+- Reviewer: _______________ Date: _______________
