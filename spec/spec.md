@@ -7,19 +7,19 @@
 
 ## Active slice
 
-### LOG-009 — sanitize debug log identifiers
+### SECRET-004 — remove hardcoded API Gateway ID
 
-- **Issue:** [#96](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/96)
-- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `LOG-009`
-- **Feature:** `features/log-009-sanitize-debug-logs.feature`
+- **Issue:** [#97](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/97)
+- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `SECRET-004`
+- **Feature:** `features/secret-004-api-gateway-id.feature`
 
 #### Problem
 
-Debug logs interpolate ORCS codes, sub-area IDs, and fiscal values exposing internal identifiers.
+Development API Gateway instance ID hardcoded in template.yaml Default and vars.json.
 
 #### Outcome
 
-Debug messages use generic labels; identifiers gated behind explicit developer flag or removed.
+No Default for ApiGatewayId; value supplied at deploy via CI vars only.
 
 #### Users & personas
 
