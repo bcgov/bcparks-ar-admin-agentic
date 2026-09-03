@@ -1,10 +1,8 @@
-# Tasks — LOG-008
+# Tasks — LOG-009
 
-> Issue [#95](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/95)
+> Issue [#96](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/96)
 
-- [x] **TASK-001** — Implement AppErrorHandler
-- [x] **TASK-002** — Register in AppModule
-- [x] **TASK-003** — Unit tests
-- [x] **TASK-004** — Append evidence
-
-Assessment gap accepted: no server-side monitoring endpoint in this brownfield slice.
+- [ ] **TASK-001** — Sanitize activity.service debug
+- [ ] **TASK-002** — Sanitize sub-area.service debug
+- [ ] **TASK-003** — Sanitize fiscal-year-lock.service debug
+- [ ] **TASK-004** — Append evidence

@@ -1,3 +1,3 @@
-# Plan — LOG-008 global ErrorHandler
+# Plan — LOG-009 sanitize debug logs
 
-Create AppErrorHandler forwarding to LoggerService (no remote endpoint in this slice — assessment gap: console/structured log only). Register in app.module providers. Tests + evidence.
+Replace identifier interpolation in activity.service, sub-area.service, fiscal-year-lock.service debug calls. Tests + evidence.
