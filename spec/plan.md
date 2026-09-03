@@ -1,3 +1,3 @@
-# Plan — TEST-005 deploy test gate
+# Plan — TEST-006 coverage thresholds
 
-Add yarn test-ci step before build in dev/test/prod deploy workflows. Evidence.
+Add coverageThresholds to angular.json test config. Extend karma.conf.js with lcovonly and html reporters. Evidence.
