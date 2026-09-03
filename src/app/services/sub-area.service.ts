@@ -30,7 +30,7 @@ export class SubAreaService {
     let errorSubject = '';
     try {
       errorSubject = 'sub-area';
-      this.loggerService.debug(`Park GET: ${orcs} ${subAreaId}`);
+      this.loggerService.debug('Park GET');
       res = await firstValueFrom(
         this.apiService.get('park', { orcs: orcs, subAreaId: subAreaId })
       );
@@ -81,12 +81,12 @@ export class SubAreaService {
     let errorSubject = 'regions';
     try {
       if (regionId) {
-        this.loggerService.debug(`Region GET: ${regionId}`);
+        this.loggerService.debug('Region GET');
         this.loadingService.addToFetchList(Constants.dataIds.CURRENT_REGION);
         res = await firstValueFrom(this.apiService.get('regions', { regionId: regionId }));
         this.dataService.setItemValue(Constants.dataIds.CURRENT_REGION, res);
       } else {
-        this.loggerService.debug(`Region GET: all`);
+        this.loggerService.debug('Region GET');
         this.loadingService.addToFetchList(Constants.dataIds.REGION_LIST);
         res = await firstValueFrom(this.apiService.get('regions'));
         this.dataService.setItemValue(Constants.dataIds.REGION_LIST, res);
@@ -164,7 +164,7 @@ export class SubAreaService {
     let errorSubject = '';
     this.loadingService.addToFetchList(Constants.dataIds.CURRENT_SUBAREA_LIST);
     try {
-      this.loggerService.debug(`${orcs} - subareas GET: ${orcs}`);
+      this.loggerService.debug('Subareas GET');
       res = await firstValueFrom(this.apiService.get('park', { orcs: orcs }));
       this.dataService.setItemValue(Constants.dataIds.CURRENT_SUBAREA_LIST, res);
     } catch (error) {
