@@ -2907,3 +2907,45 @@ Same shape as `REVIEW.md` — required before merge. Do not replace with a free-
 **Residual risk:** Query keys are still expected to be application-controlled identifiers. Future dynamic keys should be encoded or constructed with `HttpParams`.
 
 - Reviewer: _______________ Date: _______________
+
+---
+
+# PR evidence — [RA VULN-003] Validate signedURL scheme before window.open
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-vuln-003-validate-signed-url-scheme |
+| Spec refs | spec/features/vuln-003-signed-url-validation.feature |
+| Tasks | VULN-003 entries in spec/tasks.md |
+| Authoring agent | GitHub Copilot Coding Agent |
+
+## Intent
+
+`ExportReportsComponent.downloadReport()` now validates that `signedURL` parses as an `https:` URL before calling `window.open()`. Any non-`https` scheme (including `javascript:`, `http:`, or a malformed value) is rejected and `window.open` is not invoked, closing the defence-in-depth gap flagged by rapid assessment finding VULN-003.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| `vuln-003-signed-url-validation.feature` `@R-45.1` | Yes | New `isSafeDownloadUrl()` helper parses `signedURL` with the `URL` constructor and rejects anything whose `protocol` is not `https:`; `downloadReport()` calls `window.open` only when the helper returns `true`. |
+| `vuln-003-signed-url-validation.feature` `@R-45.2` | Yes | Valid `https://...` signed URLs still open via `window.open(this.signedURL, '_blank')`, matching prior behaviour for legitimate backend responses. |
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Unit | `CHROME_BIN=/usr/bin/chromium npx ng test --watch=false --browsers=ChromeHeadlessNoSandbox --include='src/app/export-reports/export-reports.component.spec.ts'` | 5/5 SUCCESS — updated "should download the report when signedURL uses https" test and new "should not download the report when signedURL is not https" test (covers `javascript:` and `http:` schemes) both pass. |
+
+## Risks & follow-ups
+
+- The helper resolves relative URLs against `window.location.origin` before checking the scheme; the backend is expected to always return an absolute `https://` signed URL, so this only affects the unlikely case of a relative path being returned.
+
+## Review receipt (checkpoint 3)
+
+**Checked:** VULN-003 `@R-45.1`–`@R-45.2`; `spec/spec.md`; `spec/tasks.md`; `spec/features/vuln-003-signed-url-validation.feature`; `ExportReportsComponent.downloadReport()` and its unit tests.
+
+**Could not check:** A live backend-signed URL response; this is a client-side defence-in-depth guard verified via unit tests only.
+
+**Residual risk:** Low — legitimate signed URLs are always expected to be `https://`, so no functional regression is expected; a tampered/non-https response is now silently dropped rather than surfaced to the user, which is acceptable for this finding's scope.
+
+- Reviewer: _______________ Date: _______________
