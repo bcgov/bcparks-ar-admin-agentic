@@ -55,7 +55,7 @@ Generated: 2026-08-12 · Reset for agentic-b: 2026-08-31 · Raw findings: **55**
 | DEP-003 | Low | DEPENDENCIES | api-client-services | `moment@2.30.1` maintenance-mode legacy library used alongside `luxon` | yes | shipped #94 |
 | LOG-008 | Low | SECURITY_LOGGING | angular-spa-shell | No global Angular ErrorHandler registered — unhandled errors go onl... | yes | shipped #95 |
 | LOG-009 | Low | SECURITY_LOGGING | api-client-services | Internal system identifiers included in debug log messages | yes | shipped #96 |
-| SECRET-004 | Low | SECRETS | aws-api-gateway | API Gateway Instance ID Hardcoded in SAM Template Default and Deplo... | yes | #97 |
+| SECRET-004 | Low | SECRETS | aws-api-gateway | API Gateway Instance ID Hardcoded in SAM Template Default and Deplo... | yes | shipped #97 |
 | SECRET-005 | Low | SECRETS | keycloak-idp | Keycloak Client ID and Development Server URLs Committed in Tracked... | yes | #98 |
 | TEST-004 | Low | TESTING | shared-infrastructure | Core services data.service, event.service, auto-fetch.service, side... | yes | #99 |
 | TEST-005 | Low | TESTING | angular-spa-shell | Deployment pipelines execute build and deploy without running tests | yes | #100 |
