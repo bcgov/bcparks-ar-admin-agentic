@@ -29,8 +29,20 @@ module.exports = function (config) {
       dir: require('path').join(__dirname, './coverage/bcparks-ar-admin'),
       subdir: '.',
       reporters: [
-        { type: 'text' }
-      ]
+        { type: 'text' },
+        { type: 'lcovonly' },
+        { type: 'html' }
+      ],
+      // Fails the run if coverage drops below these thresholds so
+      // regressions are caught in CI instead of degrading silently.
+      check: {
+        global: {
+          statements: 60,
+          branches: 50,
+          functions: 60,
+          lines: 60
+        }
+      }
     },
     reporters: ['progress', 'kjhtml'],
     port: 9876,

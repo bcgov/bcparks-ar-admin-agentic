@@ -2747,3 +2747,119 @@ Same shape as `REVIEW.md` — required before merge. Do not replace with a free-
 **Residual risk:** Low — change only reorders/adds a step using an existing, already-used `test-ci` script; no application code was modified.
 
 - Reviewer: _______________ Date: _______________
+
+---
+
+# PR evidence — [RA TEST-006] Coverage thresholds and reporters
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-test-006-add-coverage-thresholds |
+| Spec refs | spec/features/auth-001-pkce.feature, spec/features/auth-002-token-claims.feature, spec/features/auth-003-logout.feature, spec/features/auth-004-token-refresh-redirect.feature, spec/features/auth-005-keycloak-client-id.feature, spec/features/auth-006-interceptor-401.feature, spec/features/auth-007-interceptor-allowlist.feature, spec/features/authz-001-admin-route-guard.feature, spec/features/authz-002-admin-only-routes.feature, spec/features/authz-003-header-manage-subareas.feature, spec/features/authz-004-isadmin-role-constant.feature, spec/features/authz-005-isadmin-optional-chaining.feature, spec/features/bw-001-lock-records-unlock.feature, spec/features/bw-002-export-variance-typo.feature, spec/features/config-002-cloudfront-csp.feature, spec/features/config-003-cloudfront-hsts.feature, spec/features/config-004-cloudfront-security-headers.feature, spec/features/config-005-trivy-triggers.feature, spec/features/config-006-deploy-log-level.feature, spec/features/crypto-001-cloudfront-tls-minimum.feature, spec/features/dep-001-remove-chartjs.feature, spec/features/dep-002-remove-jquery.feature, spec/features/dep-003-moment-to-luxon.feature, spec/features/example-happy-path.feature, spec/features/log-001-no-config-console-dump.feature, spec/features/log-002-keycloak-lifecycle-log-levels.feature, spec/features/log-003-authz-failure-logging.feature, spec/features/log-004-logger-default-level.feature, spec/features/log-005-sanitize-error-logging.feature, spec/features/log-006-structured-log-format.feature, spec/features/log-007-browser-console-logging.feature, spec/features/log-008-global-error-handler.feature, spec/features/log-009-sanitize-debug-logs.feature, spec/features/secret-001-prod-certificate-arn.feature, spec/features/secret-002-nonprod-account-ids.feature, spec/features/secret-003-route53-zone-id.feature, spec/features/secret-004-api-gateway-id.feature, spec/features/secret-005-env-js-gitignore.feature, spec/features/test-001-token-interceptor.feature, spec/features/test-003-e2e-scaffold.feature, spec/features/test-004-core-services-tests.feature, spec/features/test-005-deploy-test-gate.feature, spec/features/test-006-coverage-thresholds.feature, spec/features/vuln-001-historical-pill-xss.feature |
+| Constitution articles touched | P1–P8 (confirm) |
+| Tasks | see spec/tasks.md |
+| Authoring agent | unspecified |
+| Generated | 2026-09-03T00:55:06.329Z |
+
+## Intent
+
+Add a coverage gate to the Karma/Jasmine unit test run so CI fails when overall
+statement/branch/function/line coverage drops below fixed minimums, and add
+`lcovonly`/`html` coverage reporters (alongside the existing `text` reporter) so
+coverage trends can be tracked over time. No application code changed.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| `auth-001-pkce.feature` | TODO | |
+| `auth-002-token-claims.feature` | TODO | |
+| `auth-003-logout.feature` | TODO | |
+| `auth-004-token-refresh-redirect.feature` | TODO | |
+| `auth-005-keycloak-client-id.feature` | TODO | |
+| `auth-006-interceptor-401.feature` | TODO | |
+| `auth-007-interceptor-allowlist.feature` | TODO | |
+| `authz-001-admin-route-guard.feature` | TODO | |
+| `authz-002-admin-only-routes.feature` | TODO | |
+| `authz-003-header-manage-subareas.feature` | TODO | |
+| `authz-004-isadmin-role-constant.feature` | TODO | |
+| `authz-005-isadmin-optional-chaining.feature` | TODO | |
+| `bw-001-lock-records-unlock.feature` | TODO | |
+| `bw-002-export-variance-typo.feature` | TODO | |
+| `config-002-cloudfront-csp.feature` | TODO | |
+| `config-003-cloudfront-hsts.feature` | TODO | |
+| `config-004-cloudfront-security-headers.feature` | TODO | |
+| `config-005-trivy-triggers.feature` | TODO | |
+| `config-006-deploy-log-level.feature` | TODO | |
+| `crypto-001-cloudfront-tls-minimum.feature` | TODO | |
+| `dep-001-remove-chartjs.feature` | TODO | |
+| `dep-002-remove-jquery.feature` | TODO | |
+| `dep-003-moment-to-luxon.feature` | TODO | |
+| `example-happy-path.feature` | TODO | |
+| `log-001-no-config-console-dump.feature` | TODO | |
+| `log-002-keycloak-lifecycle-log-levels.feature` | TODO | |
+| `log-003-authz-failure-logging.feature` | TODO | |
+| `log-004-logger-default-level.feature` | TODO | |
+| `log-005-sanitize-error-logging.feature` | TODO | |
+| `log-006-structured-log-format.feature` | TODO | |
+| `log-007-browser-console-logging.feature` | TODO | |
+| `log-008-global-error-handler.feature` | TODO | |
+| `log-009-sanitize-debug-logs.feature` | TODO | |
+| `secret-001-prod-certificate-arn.feature` | TODO | |
+| `secret-002-nonprod-account-ids.feature` | TODO | |
+| `secret-003-route53-zone-id.feature` | TODO | |
+| `secret-004-api-gateway-id.feature` | TODO | |
+| `secret-005-env-js-gitignore.feature` | TODO | |
+| `test-001-token-interceptor.feature` | TODO | |
+| `test-003-e2e-scaffold.feature` | TODO | |
+| `test-004-core-services-tests.feature` | TODO | |
+| `test-005-deploy-test-gate.feature` | TODO | |
+| `test-006-coverage-thresholds.feature` | Partial | @R-43.1: `angular.json` (Karma builder options, `additionalProperties: false`) does not accept an arbitrary `coverageThresholds` key — adding it fails schema validation and breaks `ng test` entirely (verified). Enforced equivalent thresholds instead via Karma's native `coverageReporter.check.global` in `karma.conf.js` (statements 60 / branches 50 / functions 60 / lines 60), which is the mechanism `karma-coverage` actually uses to fail the run below a threshold. @R-43.2: added `lcovonly` and `html` reporters alongside `text` in `karma.conf.js`. |
+| `vuln-001-historical-pill-xss.feature` | TODO | |
+
+
+## Design system & accessibility
+
+| Check | Result |
+| --- | --- |
+| DS components used (list) | N/A — build/test tooling change only, no UI |
+| Tokens used (not hard-coded colour) | N/A |
+| BC Sans imported | N/A |
+| Manual a11y notes | N/A — no UI change |
+
+## Public-service minimums
+
+Checklist IDs addressed this PR: N/A — build/test tooling change, no public-facing UI
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Unit | `CHROME_BIN=/usr/bin/chromium npx ng test --watch=false --code-coverage` | Pass — 270/270 specs, overall coverage 75.56%/56.58%/75.08%/75.39% (statements/branches/functions/lines), all above the new 60/50/60/60 thresholds; exit code 0 |
+| Threshold gate sanity check | Same command with `statements` threshold temporarily raised to 99 | Fails as expected — `ERROR [coverage]: ... Coverage for statements (75.56%) does not meet global threshold (99%)`, exit code 1; threshold reverted to 60 afterwards |
+| Reporter output | Inspected `coverage/bcparks-ar-admin/` after a run | `lcov.info` and `index.html` (+ per-file HTML pages) generated alongside the existing text summary |
+| Acceptance / feature | spec/features/test-006-coverage-thresholds.feature | See Spec traceability note above (R-43.1 implemented via karma.conf.js instead of angular.json due to schema constraint; R-43.2 satisfied as specified) |
+| A11y automation | N/A | |
+
+## Risks & follow-ups
+
+- The `check.global` thresholds in `karma.conf.js` apply to aggregate coverage
+  only; per-file thresholds are not enforced, so a badly-covered new file can
+  still land as long as overall totals stay above the minimums.
+- `angular.json`'s Karma builder schema (`additionalProperties: false`) rejects
+  a top-level `coverageThresholds` key, so the literal wording in the issue/spec
+  scenario could not be implemented as written without breaking `ng test`; the
+  functionally equivalent `karma.conf.js` `coverageReporter.check` gate was used
+  instead. Flagging for reviewer awareness.
+
+## Review receipt (checkpoint 3)
+
+Same shape as `REVIEW.md` — required before merge. Do not replace with a free-form sign-off.
+
+**Checked:** R-43.2 (spec/features/test-006-coverage-thresholds.feature) — confirmed `lcovonly` and `html` reporters were added to `karma.conf.js` and produce `lcov.info` / HTML output on a real test run; confirmed a coverage gate now fails the run (exit code 1) when coverage is below threshold and passes (exit code 0) at the current 60/50/60/60 minimums.
+
+**Could not check:** R-43.1 as literally written — `angular.json`'s Karma builder schema forbids an unrecognized `coverageThresholds` key (verified this breaks `ng test` with a schema validation error); implemented the equivalent gate in `karma.conf.js` instead.
+
+**Residual risk:** Low — thresholds are aggregate/global only, not per-file; a reviewer should confirm the alternate implementation location (`karma.conf.js` vs `angular.json`) satisfies the intent of R-43.1.
+
+- Reviewer: _______________ Date: _______________
