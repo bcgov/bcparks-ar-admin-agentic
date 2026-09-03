@@ -7,19 +7,19 @@
 
 ## Active slice
 
-### SECRET-005 — gitignore tracked env.js
+### TEST-004 — core services unit tests
 
-- **Issue:** [#98](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/98)
-- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `SECRET-005`
-- **Feature:** `features/secret-005-env-js-gitignore.feature`
+- **Issue:** [#99](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/99)
+- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `TEST-004`
+- **Feature:** `features/test-004-core-services-tests.feature`
 
 #### Problem
 
-src/env.js with Keycloak client ID and dev URLs is committed despite template pattern.
+Six core services lack unit test coverage including DataService state bus.
 
 #### Outcome
 
-src/env.js in .gitignore; only env.js.template tracked; setup documented.
+DataService and AutoFetchService have unit tests covering key observable paths.
 
 #### Users & personas
 
@@ -38,6 +38,7 @@ src/env.js in .gitignore; only env.js.template tracked; setup documented.
 
 **Out of scope**
 
+- event/sidebar/toast/breadcrumb specs (follow-up)
 - Unrelated findings
 
 #### Open questions
