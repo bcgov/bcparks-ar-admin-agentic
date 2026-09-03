@@ -7,19 +7,19 @@
 
 ## Active slice
 
-### TEST-006 — coverage thresholds
+### VULN-002 — encode query string values
 
-- **Issue:** [#101](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/101)
-- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `TEST-006`
-- **Feature:** `features/test-006-coverage-thresholds.feature`
+- **Issue:** [#102](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/102)
+- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `VULN-002`
+- **Feature:** `features/vuln-002-query-encoding.feature`
 
 #### Problem
 
-codeCoverage enabled but no coverageThresholds; only text reporter.
+generateQueryString concatenates values without encodeURIComponent.
 
 #### Outcome
 
-coverageThresholds in angular.json; karma emits lcov/html reporters.
+All query parameter values pass through encodeURIComponent before append.
 
 #### Users & personas
 
