@@ -60,7 +60,7 @@ Generated: 2026-08-12 · Reset for agentic-b: 2026-08-31 · Raw findings: **55**
 | TEST-004 | Low | TESTING | shared-infrastructure | Core services data.service, event.service, auto-fetch.service, side... | yes | shipped #99 |
 | TEST-005 | Low | TESTING | angular-spa-shell | Deployment pipelines execute build and deploy without running tests | yes | shipped #100 |
 | TEST-006 | Low | TESTING | angular-spa-shell | No code coverage threshold configured — coverage can degrade withou... | yes | shipped #101 |
-| VULN-002 | Low | INJECTION | api-client-services | URL query string constructed without encodeURIComponent() in ApiSer... | yes | #102 |
+| VULN-002 | Low | INJECTION | api-client-services | URL query string constructed without encodeURIComponent() in ApiSer... | yes | shipped #102 |
 | VULN-003 | Low | INJECTION | export-reports-module | window.open() called with backend-supplied signedURL without URL sc... | yes | #103 |
 | BW-004 | Informational | AUTHORIZATION | enter-data-module | Activity form loads park/sub-area data from URL query params withou... | optional | pending |
 | BW-005 | Informational | CONFIGURATION | shared-infrastructure | AutoFetch background polling interval hardcoded — not drawn from Co... | optional | pending |
