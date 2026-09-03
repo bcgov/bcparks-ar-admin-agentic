@@ -1,4 +1,4 @@
-import { ApplicationRef, NgModule, inject, provideAppInitializer } from '@angular/core';
+import { ApplicationRef, ErrorHandler, NgModule, inject, provideAppInitializer } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -7,6 +7,7 @@ import { CommonModule } from '@angular/common';
 import { ConfigService } from './services/config.service';
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { LoggerService } from './services/logger.service';
+import { AppErrorHandler } from './services/app-error-handler.service';
 import { DataService } from './services/data.service';
 import { EventService } from './services/event.service';
 import { ToastService } from './services/toast.service';
@@ -76,6 +77,10 @@ export function initConfig(
             provide: HTTP_INTERCEPTORS,
             useClass: TokenInterceptor,
             multi: true,
+        },
+        {
+            provide: ErrorHandler,
+            useClass: AppErrorHandler,
         },
         ConfigService,
         KeycloakService,
