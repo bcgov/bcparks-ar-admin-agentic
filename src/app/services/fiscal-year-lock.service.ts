@@ -32,7 +32,7 @@ export class FiscalYearLockService {
     try {
       errorSubject = 'lock-records-fiscal-years-data';
       if (year) {
-        this.loggerService.debug(`fiscalYearEnd GET: ${year}`);
+        this.loggerService.debug('Fiscal year end GET');
         res = await firstValueFrom(
           this.apiService.get('fiscalYearEnd', { fiscalYearEnd: year })
         );
@@ -84,7 +84,7 @@ export class FiscalYearLockService {
     }
     try {
       errorSubject = `lock-records-${subPath}-fiscal-year`;
-      this.loggerService.debug(`fiscalYearEnd POST: ${year} ${subPath}`);
+      this.loggerService.debug('Fiscal year end POST');
       res = await firstValueFrom(
         this.apiService.post(`fiscalYearEnd/${subPath}`, null, {
           fiscalYearEnd: year,
@@ -98,7 +98,7 @@ export class FiscalYearLockService {
         ToastTypes.SUCCESS
       );
     } catch (e) {
-      this.loggerService.debug(`${e}`);
+      this.loggerService.debug('Fiscal year lock failed');
       this.toastService.addMessage(
         `Something went wrong during fiscal year ${subPath}`,
         `Error: ${errorSubject}`,

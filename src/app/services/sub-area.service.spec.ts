@@ -68,6 +68,7 @@ describe('SubAreaService', () => {
     expect(loadingServiceAddSpy).toHaveBeenCalledWith(2);
     expect(loadingServiceRemoveSpy).toHaveBeenCalledWith(2);
     expect(loggerServiceDebugSpy).toHaveBeenCalledTimes(1);
+    expect(loggerServiceDebugSpy).toHaveBeenCalledWith('Park GET');
     expect(loggerServiceErrorSpy).toHaveBeenCalledTimes(1);
 
     expect(apiServiceSpy).toHaveBeenCalledWith('park', {
@@ -90,6 +91,7 @@ describe('SubAreaService', () => {
     let res = await subareaService.fetchSubareasByOrcs('0001');
     expect(res).toEqual({data: ['valid_Data']});
     expect(setDataServiceSpy).toHaveBeenCalledTimes(1);
+    expect(loggerServiceDebugSpy).toHaveBeenCalledWith('Subareas GET');
   
   })
 

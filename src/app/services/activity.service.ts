@@ -36,9 +36,7 @@ export class ActivityService {
     try {
       // we're getting a single item
       errorSubject = 'sub-area-activity';
-      this.loggerService.debug(
-        `Subarea GET: ${orcs} ${subAreaId} ${activity} ${date}`
-      );
+      this.loggerService.debug('Subarea GET');
 
       res = await firstValueFrom(
         this.apiService.get('activity', {

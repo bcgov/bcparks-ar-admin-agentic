@@ -2341,3 +2341,64 @@ Checklist IDs addressed this PR: N/A (service and module provider configuration 
 **Residual risk:** Unhandled errors are output locally via LoggerService structured console log until server-side log ingestion endpoint is integrated.
 
 - Reviewer: _______________ Date: _______________
+
+---
+
+# PR evidence — [RA LOG-009] Sanitize debug log identifiers
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-log-009-remove-identifiers-debug-logs |
+| Spec refs | spec/features/log-009-sanitize-debug-logs.feature |
+| Constitution articles touched | P3, P5, P7 |
+| Tasks | LOG-009 entries in spec/tasks.md |
+| Authoring agent | GitHub Copilot Coding Agent |
+| Generated | 2026-09-03T00:06:59.705Z |
+
+## Intent
+
+Debug messages in the activity, sub-area, and fiscal-year lock services now use generic event labels and no longer expose ORCS codes, sub-area IDs, region IDs, activity types, dates, or fiscal years in the browser console.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| `log-009-sanitize-debug-logs.feature` | Yes | `@R-38.1` and `@R-38.2` are covered by focused service tests and static review of all affected debug messages. |
+
+
+## Design system & accessibility
+
+| Check | Result |
+| --- | --- |
+| DS components used (list) | Not applicable — no UI changes. |
+| Tokens used (not hard-coded colour) | Not applicable — no style changes. |
+| BC Sans imported | Not applicable — no UI changes. |
+| Manual a11y notes | Not applicable — service logging only. |
+
+## Public-service minimums
+
+Checklist IDs addressed this PR: Not applicable — no UI changes.
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Unit | `yarn test-ci --include src/app/services/activity.service.spec.ts --include src/app/services/sub-area.service.spec.ts --include src/app/services/fiscal-year-lock.service.spec.ts` | Passed: 13 SUCCESS |
+| Acceptance / feature | `spec/features/log-009-sanitize-debug-logs.feature` | Implemented by focused unit tests and static review for `@R-38.1`–`@R-38.2`. |
+| A11y automation | Not run | Not applicable — no UI changes. |
+
+## Risks & follow-ups
+
+- No developer-mode flag was added; the affected messages now omit identifiers entirely.
+
+## Review receipt (checkpoint 3)
+
+Same shape as `REVIEW.md` — required before merge. Do not replace with a free-form sign-off.
+
+**Checked:** LOG-009 `@R-38.1`–`@R-38.2`; `spec/tasks.md`; affected service unit tests; all interpolated debug messages in the three scoped services.
+
+**Could not check:** Live browser console output against a deployed environment.
+
+**Residual risk:** Other interpolated debug messages outside the three LOG-009 task services remain tracked separately.
+
+- Reviewer: _______________ Date: _______________

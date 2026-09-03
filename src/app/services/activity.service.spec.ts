@@ -67,6 +67,7 @@ describe('ActivityService', () => {
     expect(loadingServiceAddSpy).toHaveBeenCalledWith(1);
     expect(loadingServiceRemoveSpy).toHaveBeenCalledWith(1);
     expect(loggerServiceDebugSpy).toHaveBeenCalledTimes(1);
+    expect(loggerServiceDebugSpy).toHaveBeenCalledWith('Subarea GET');
     expect(loggerServiceErrorSpy).toHaveBeenCalledTimes(1);
 
     expect(apiServiceSpy).toHaveBeenCalledWith('activity', {
