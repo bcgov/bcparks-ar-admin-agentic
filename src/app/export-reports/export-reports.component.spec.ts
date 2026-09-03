@@ -56,14 +56,28 @@ describe('ExportReportsComponent', () => {
     expect(component.status).toEqual('Requesting job');
   });
 
-  it('should download the report', async () => {
+  it('should download the report when signedURL uses https', async () => {
     let spy = spyOn(window, 'open');
 
     expect(component).toBeTruthy();
 
-    component.signedURL = '/some-location';
+    component.signedURL = 'https://example.com/some-location';
     component.downloadReport();
     expect(spy).toHaveBeenCalledWith(component.signedURL, '_blank');
+  });
+
+  it('should not download the report when signedURL is not https', async () => {
+    let spy = spyOn(window, 'open');
+
+    expect(component).toBeTruthy();
+
+    component.signedURL = 'javascript:alert(1)';
+    component.downloadReport();
+    expect(spy).not.toHaveBeenCalled();
+
+    component.signedURL = 'http://example.com/some-location';
+    component.downloadReport();
+    expect(spy).not.toHaveBeenCalled();
   });
 
   it('should set the export message and date generated', async () => {
