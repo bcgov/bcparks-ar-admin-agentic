@@ -1,8 +1,8 @@
-# Tasks — SECRET-004
+# Tasks — SECRET-005
 
-> Issue [#97](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/97)
+> Issue [#98](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/98)
 
-- [ ] **TASK-001** — Remove template.yaml Default
-- [ ] **TASK-002** — Remove vars.json entry
-- [ ] **TASK-003** — Verify workflow parameter-overrides
+- [ ] **TASK-001** — Add src/env.js to .gitignore
+- [ ] **TASK-002** — Remove env.js from version control
+- [ ] **TASK-003** — Document local setup
 - [ ] **TASK-004** — Append evidence
