@@ -2507,3 +2507,66 @@ available in this environment.
 silently selecting the former development API.
 
 - Reviewer: _______________ Date: _______________
+
+---
+
+# PR evidence — [RA SECRET-005] Keep runtime env.js out of version control
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-secret-005-add-env-js-to-gitignore |
+| Spec refs | spec/spec.md; spec/features/secret-005-env-js-gitignore.feature |
+| Constitution articles touched | P3, P5, J3, J5 |
+| Tasks | spec/tasks.md TASK-001 through TASK-004 |
+| Authoring agent | Copilot coding agent |
+| Generated | 2026-09-03T00:29:48.790Z |
+
+## Intent
+
+Keep environment-specific `src/env.js` out of version control while preserving `src/env.js.template` as the local configuration starting point. README now tells developers to generate `src/env.js` from the template and notes that shared LZA deployments generate `dist/env.js` from GitHub environment secrets and variables.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| `secret-005-env-js-gitignore.feature` @R-40.1 | Yes | `.gitignore` includes `src/env.js`; targeted validation uses `git check-ignore src/env.js`. |
+| `secret-005-env-js-gitignore.feature` @R-40.2 | Yes | `src/env.js.template` remains tracked for developers to copy locally. |
+
+## Design system & accessibility
+
+| Check | Result |
+| --- | --- |
+| DS components used (list) | Not applicable; no UI changes. |
+| Tokens used (not hard-coded colour) | Not applicable; no styling changes. |
+| BC Sans imported | Not applicable; no UI changes. |
+| Manual a11y notes | Not applicable; configuration/docs-only change. |
+
+## Public-service minimums
+
+Checklist IDs addressed this PR: Not applicable; no user-facing UI change.
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Targeted config | `git check-ignore src/env.js` | Passed (`src/env.js` is ignored). |
+| Targeted tracking | `git ls-files --error-unmatch src/env.js.template` and `! git ls-files --error-unmatch src/env.js` | Passed (template tracked; `src/env.js` not tracked). |
+| Build | `yarn build` | Passed; existing Sass deprecation/selector warnings only. |
+| Full app tests | Not run | No application code changed; targeted git/build validation used. |
+| A11y automation | Not run | No UI changes. |
+
+## Risks & follow-ups
+
+- Local developers must copy `src/env.js.template` to `src/env.js` before running the app if they do not already have a local file.
+
+## Review receipt (checkpoint 3)
+
+Same shape as `REVIEW.md` — required before merge. Do not replace with a free-form sign-off.
+
+**Checked:** SECRET-005 @R-40.1 and @R-40.2 targeted repository checks.
+
+**Could not check:** Human review/sign-off; live Keycloak/API runtime smoke test not run for config tracking change.
+
+**Residual risk:** Existing template values remain public by design for SPA runtime configuration; environment-specific generated `src/env.js` is now ignored.
+
+- Reviewer: _______________ Date: _______________
