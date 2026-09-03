@@ -7,19 +7,19 @@
 
 ## Active slice
 
-### TEST-004 — core services unit tests
+### TEST-005 — test gate in deploy workflows
 
-- **Issue:** [#99](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/99)
-- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `TEST-004`
-- **Feature:** `features/test-004-core-services-tests.feature`
+- **Issue:** [#100](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/100)
+- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `TEST-005`
+- **Feature:** `features/test-005-deploy-test-gate.feature`
 
 #### Problem
 
-Six core services lack unit test coverage including DataService state bus.
+LZA deploy workflows build and deploy without running yarn test-ci.
 
 #### Outcome
 
-DataService and AutoFetchService have unit tests covering key observable paths.
+All three lza-deploy workflows run yarn test-ci before build.
 
 #### Users & personas
 
@@ -38,7 +38,6 @@ DataService and AutoFetchService have unit tests covering key observable paths.
 
 **Out of scope**
 
-- event/sidebar/toast/breadcrumb specs (follow-up)
 - Unrelated findings
 
 #### Open questions
