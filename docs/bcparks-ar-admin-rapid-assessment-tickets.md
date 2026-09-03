@@ -53,7 +53,7 @@ Generated: 2026-08-12 · Reset for agentic-b: 2026-08-31 · Raw findings: **55**
 | DEP-001 | Low | DEPENDENCIES | angular-spa-shell | `chart.js@4.4.1` declared as runtime dependency but never imported ... | yes | shipped #92 |
 | DEP-002 | Low | DEPENDENCIES | angular-spa-shell | `jquery@3.7.1` loaded globally but unused by Bootstrap 5 (unused, ~... | yes | shipped #93 |
 | DEP-003 | Low | DEPENDENCIES | api-client-services | `moment@2.30.1` maintenance-mode legacy library used alongside `luxon` | yes | shipped #94 |
-| LOG-008 | Low | SECURITY_LOGGING | angular-spa-shell | No global Angular ErrorHandler registered — unhandled errors go onl... | yes | #95 |
+| LOG-008 | Low | SECURITY_LOGGING | angular-spa-shell | No global Angular ErrorHandler registered — unhandled errors go onl... | yes | shipped #95 |
 | LOG-009 | Low | SECURITY_LOGGING | api-client-services | Internal system identifiers included in debug log messages | yes | #96 |
 | SECRET-004 | Low | SECRETS | aws-api-gateway | API Gateway Instance ID Hardcoded in SAM Template Default and Deplo... | yes | #97 |
 | SECRET-005 | Low | SECRETS | keycloak-idp | Keycloak Client ID and Development Server URLs Committed in Tracked... | yes | #98 |
