@@ -1,7 +1,8 @@
-# Tasks — VULN-002
+# Tasks — VULN-003
 
-> Issue [#102](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/102)
+> Issue [#103](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/103)
 
-- [x] **TASK-001** — Encode values in generateQueryString
-- [x] **TASK-002** — Unit tests
-- [x] **TASK-003** — Append evidence
+- [ ] **TASK-001** — Implement URL validation helper
+- [ ] **TASK-002** — Guard downloadReport
+- [ ] **TASK-003** — Component tests
+- [ ] **TASK-004** — Append evidence
