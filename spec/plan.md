@@ -1,3 +1,3 @@
-# Plan — LOG-009 sanitize debug logs
+# Plan — SECRET-004 API Gateway ID
 
-Replace identifier interpolation in activity.service, sub-area.service, fiscal-year-lock.service debug calls. Tests + evidence.
+Remove Default from template.yaml ApiGatewayId parameter. Remove from vars.json. Ensure deploy workflows pass ${{ vars.AR_API_ID }} or equivalent. Evidence.
