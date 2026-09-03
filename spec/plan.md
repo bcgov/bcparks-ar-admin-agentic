@@ -1,3 +1,3 @@
-# Plan — VULN-002 query encoding
+# Plan — VULN-003 signedURL validation
 
-Apply encodeURIComponent to values in generateQueryString. Unit tests with special characters. Evidence.
+Add isSafeDownloadUrl (https: only) guard before window.open in export-reports.component. Tests + evidence.
