@@ -1,7 +1,7 @@
-# Tasks — TEST-005
+# Tasks — TEST-006
 
-> Issue [#100](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/100)
+> Issue [#101](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/101)
 
-- [ ] **TASK-001** — Add test-ci to lza-deploy-admin-dev.yaml
-- [ ] **TASK-002** — Add test-ci to test and prod workflows
+- [ ] **TASK-001** — Add coverageThresholds
+- [ ] **TASK-002** — Update karma reporters
 - [ ] **TASK-003** — Append evidence
