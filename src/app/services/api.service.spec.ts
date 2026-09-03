@@ -20,7 +20,7 @@ describe('ApiService', () => {
     post: () => {
       return {};
     },
-    get: () => {
+    get: (_url?: string) => {
       return {};
     }
   }
@@ -55,5 +55,20 @@ describe('ApiService', () => {
     const getResponse = await service.get('pk') as any;
     expect(postResponse).toEqual({});
     expect(getResponse).toEqual({});
+  });
+
+  it('encodes query parameter values without changing numeric or enum values', async () => {
+    spyOn(mockHttpClient, 'get').and.returnValue({});
+    await service.init();
+
+    await service.get('pk', {
+      search: 'a&b=c#d% e',
+      fiscalYear: 2026,
+      status: 'ACTIVE'
+    });
+
+    expect(mockHttpClient.get).toHaveBeenCalledWith(
+      '/here/there/pk?search=a%26b%3Dc%23d%25%20e&fiscalYear=2026&status=ACTIVE'
+    );
   });
 });

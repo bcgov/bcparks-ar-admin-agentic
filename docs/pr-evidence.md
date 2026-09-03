@@ -2863,3 +2863,47 @@ Same shape as `REVIEW.md` — required before merge. Do not replace with a free-
 **Residual risk:** Low — thresholds are aggregate/global only, not per-file; a reviewer should confirm the alternate implementation location (`karma.conf.js` vs `angular.json`) satisfies the intent of R-43.1.
 
 - Reviewer: _______________ Date: _______________
+
+---
+
+# PR evidence — [RA VULN-002] Encode API query parameter values
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-vuln-002-fix-query-string-encoding |
+| Spec refs | spec/features/vuln-002-query-encoding.feature |
+| Tasks | VULN-002 entries in spec/tasks.md |
+| Authoring agent | GitHub Copilot Coding Agent |
+
+## Intent
+
+`ApiService` percent-encodes every query parameter value before including it in a request URL. Numeric and enum parameters preserve their existing API representation.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| `vuln-002-query-encoding.feature` `@R-44.1` | Yes | Values are passed to `encodeURIComponent`; a focused unit test covers `&`, `=`, `#`, `%`, and spaces. |
+| `vuln-002-query-encoding.feature` `@R-44.2` | Yes | The same unit test verifies numeric and enum values remain valid query values. |
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Unit | `yarn test-ci --include src/app/services/api.service.spec.ts` | Specs passed: 2 SUCCESS; focused process exit is expected to fail only on unrelated global coverage thresholds. |
+| Unit | `yarn test-ci` | Passed. |
+| Lint | `yarn lint` | Passed with 0 errors and 59 existing unrelated warnings. |
+
+## Risks & follow-ups
+
+- Query parameter keys are unchanged; this finding requires encoding values only.
+
+## Review receipt (checkpoint 3)
+
+**Checked:** VULN-002 `@R-44.1`–`@R-44.2`; `spec/tasks.md`; ApiService unit tests; full unit suite; lint.
+
+**Could not check:** Live API requests; this local environment has no configured API service.
+
+**Residual risk:** Query keys are still expected to be application-controlled identifiers. Future dynamic keys should be encoded or constructed with `HttpParams`.
+
+- Reviewer: _______________ Date: _______________
