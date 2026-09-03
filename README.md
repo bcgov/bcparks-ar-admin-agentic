@@ -21,9 +21,12 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 
 ```
 yarn install
+cp src/env.js.template src/env.js
 yarn start
 ```
 Navigate to http://localhost:4200/. The application will automatically reload if you change any of the source files.
+
+`src/env.js` is local runtime configuration and is intentionally ignored by git. Generate it from `src/env.js.template`, then adjust local API and Keycloak values as needed. Shared LZA deployments generate `dist/env.js` during CI/CD from GitHub environment secrets and variables (`KEYCLOAK_CLIENT_ID`, `KEYCLOAK_URL`, `KEYCLOAK_REALM`, API paths), so do not commit environment-specific `src/env.js` values.
 
 ## Development server
 
