@@ -2570,3 +2570,70 @@ Same shape as `REVIEW.md` — required before merge. Do not replace with a free-
 **Residual risk:** Existing template values remain public by design for SPA runtime configuration; environment-specific generated `src/env.js` is now ignored.
 
 - Reviewer: _______________ Date: _______________
+
+---
+
+# PR evidence — [RA TEST-004] Core service unit tests
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-test-004-add-tests-for-services |
+| Spec refs | `spec/spec.md`; `spec/features/test-004-core-services-tests.feature` |
+| Constitution articles touched | P5, P7, J5 |
+| Tasks | `spec/tasks.md` TASK-001 through TASK-003 |
+| Authoring agent | GitHub Copilot Coding Agent |
+| Generated | 2026-09-03T00:36:48.579Z |
+
+## Intent
+
+Add focused unit coverage for the reactive DataService state bus and AutoFetchService
+orchestration. The signed scope explicitly defers event, sidebar, toast, and breadcrumb
+service specifications.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| `test-004-core-services-tests.feature` @R-41.1 | Yes | DataService tests cover missing-item initialization, setting/getting values, and watched streams. |
+| `test-004-core-services-tests.feature` @R-41.2 | Yes | AutoFetchService tests cover queue dispatch, unmatched IDs, immediate dispatch, and interval dispatch/logging. |
+
+
+## Design system & accessibility
+
+| Check | Result |
+| --- | --- |
+| DS components used (list) | Not applicable — unit tests only. |
+| Tokens used (not hard-coded colour) | Not applicable — no UI changes. |
+| BC Sans imported | Not applicable — no UI changes. |
+| Manual a11y notes | Not applicable — no UI changes. |
+
+## Public-service minimums
+
+Checklist IDs addressed this PR: Not applicable — no user interface changes.
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Unit | `yarn test-ci --include='src/app/services/data.service.spec.ts' --include='src/app/services/auto-fetch.service.spec.ts'` | Passed: 6 SUCCESS. |
+| Acceptance / feature | `spec/features/test-004-core-services-tests.feature` | Satisfied for `@R-41.1` and `@R-41.2`. |
+| A11y automation | Not run | Not applicable — no UI changes. |
+
+## Risks & follow-ups
+
+- The remaining event, sidebar, toast, and breadcrumb service specifications remain
+  explicitly deferred by the signed TEST-004 scope.
+
+## Review receipt (checkpoint 3)
+
+Same shape as `REVIEW.md` — required before merge. Do not replace with a free-form sign-off.
+
+**Checked:** TEST-004 `@R-41.1` and `@R-41.2`; focused Karma/Jasmine suite; `spec/spec.md`;
+`spec/tasks.md`.
+
+**Could not check:** Full test suite and human review/sign-off.
+
+**Residual risk:** Deferred service specs retain their existing coverage gap; this PR adds
+only the DataService and AutoFetchService scope approved for TEST-004.
+
+- Reviewer: _______________ Date: _______________
