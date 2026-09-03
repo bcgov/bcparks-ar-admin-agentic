@@ -7,19 +7,19 @@
 
 ## Active slice
 
-### TEST-005 — test gate in deploy workflows
+### TEST-006 — coverage thresholds
 
-- **Issue:** [#100](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/100)
-- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `TEST-005`
-- **Feature:** `features/test-005-deploy-test-gate.feature`
+- **Issue:** [#101](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/101)
+- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `TEST-006`
+- **Feature:** `features/test-006-coverage-thresholds.feature`
 
 #### Problem
 
-LZA deploy workflows build and deploy without running yarn test-ci.
+codeCoverage enabled but no coverageThresholds; only text reporter.
 
 #### Outcome
 
-All three lza-deploy workflows run yarn test-ci before build.
+coverageThresholds in angular.json; karma emits lcov/html reporters.
 
 #### Users & personas
 
