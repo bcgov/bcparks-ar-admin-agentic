@@ -7,19 +7,19 @@
 
 ## Active slice
 
-### VULN-002 — encode query string values
+### VULN-003 — validate signedURL before window.open
 
-- **Issue:** [#102](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/102)
-- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `VULN-002`
-- **Feature:** `features/vuln-002-query-encoding.feature`
+- **Issue:** [#103](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/103)
+- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `VULN-003`
+- **Feature:** `features/vuln-003-signed-url-validation.feature`
 
 #### Problem
 
-generateQueryString concatenates values without encodeURIComponent.
+downloadReport opens backend signedURL without https scheme validation.
 
 #### Outcome
 
-All query parameter values pass through encodeURIComponent before append.
+window.open only proceeds when URL passes https allowlist validation.
 
 #### Users & personas
 
