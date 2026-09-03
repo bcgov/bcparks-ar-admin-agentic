@@ -45,6 +45,7 @@ Run the **same 45 recommended** rapid-assessment findings as `agentic-b`, end-to
 | 2026-09-02 | 23 | Resolve merge conflicts on Copilot branch before TEST-003 merge | Main advanced during long Copilot wait |
 | 2026-09-02 | 25 | Nudge Copilot to append `pr-evidence.md` on AUTH-004 | First commit was src-only |
 | 2026-09-02 | 16–30 | Batch runner for spec→CP1→plan→CP2→Copilot→CP3 | Throughput for remaining medium/low slices |
+| 2026-09-03 | 45 | VULN-003 Copilot #242; rematch complete | Last recommended finding shipped |
 
 ## Metrics reviews
 
