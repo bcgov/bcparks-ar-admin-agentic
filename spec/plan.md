@@ -1,3 +1,3 @@
-# Plan — TEST-006 coverage thresholds
+# Plan — VULN-002 query encoding
 
-Add coverageThresholds to angular.json test config. Extend karma.conf.js with lcovonly and html reporters. Evidence.
+Apply encodeURIComponent to values in generateQueryString. Unit tests with special characters. Evidence.

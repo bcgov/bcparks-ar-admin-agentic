@@ -1,7 +1,7 @@
-# Tasks — TEST-006
+# Tasks — VULN-002
 
-> Issue [#101](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/101)
+> Issue [#102](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/102)
 
-- [x] **TASK-001** — Add coverageThresholds
-- [x] **TASK-002** — Update karma reporters
-- [x] **TASK-003** — Append evidence
+- [ ] **TASK-001** — Encode values in generateQueryString
+- [ ] **TASK-002** — Unit tests
+- [ ] **TASK-003** — Append evidence
