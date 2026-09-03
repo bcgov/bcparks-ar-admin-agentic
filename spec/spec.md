@@ -7,19 +7,19 @@
 
 ## Active slice
 
-### SECRET-004 — remove hardcoded API Gateway ID
+### SECRET-005 — gitignore tracked env.js
 
-- **Issue:** [#97](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/97)
-- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `SECRET-004`
-- **Feature:** `features/secret-004-api-gateway-id.feature`
+- **Issue:** [#98](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/98)
+- **Finding:** Rapid assessment `ra-2026-07-21T171227Z` · `SECRET-005`
+- **Feature:** `features/secret-005-env-js-gitignore.feature`
 
 #### Problem
 
-Development API Gateway instance ID hardcoded in template.yaml Default and vars.json.
+src/env.js with Keycloak client ID and dev URLs is committed despite template pattern.
 
 #### Outcome
 
-No Default for ApiGatewayId; value supplied at deploy via CI vars only.
+src/env.js in .gitignore; only env.js.template tracked; setup documented.
 
 #### Users & personas
 
