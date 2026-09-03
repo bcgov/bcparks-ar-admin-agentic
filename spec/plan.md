@@ -1,3 +1,3 @@
-# Plan — TEST-004 core service tests
+# Plan — TEST-005 deploy test gate
 
-Add data.service.spec.ts and auto-fetch.service.spec.ts (minimum). Optionally stub others if time permits. Evidence.
+Add yarn test-ci step before build in dev/test/prod deploy workflows. Evidence.
