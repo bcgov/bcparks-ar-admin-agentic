@@ -1,8 +1,9 @@
-# Tasks — SECRET-005
+# Tasks — TEST-004
 
-> Issue [#98](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/98)
+> Issue [#99](https://github.com/bcgov/bcparks-ar-admin-agentic/issues/99)
 
-- [x] **TASK-001** — Add src/env.js to .gitignore
-- [x] **TASK-002** — Remove env.js from version control
-- [x] **TASK-003** — Document local setup
-- [x] **TASK-004** — Append evidence
+- [ ] **TASK-001** — DataService unit tests
+- [ ] **TASK-002** — AutoFetchService unit tests
+- [ ] **TASK-003** — Append evidence
+
+Assessment gap accepted: event/sidebar/toast/breadcrumb specs deferred.
