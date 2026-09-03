@@ -2637,3 +2637,113 @@ Same shape as `REVIEW.md` — required before merge. Do not replace with a free-
 only the DataService and AutoFetchService scope approved for TEST-004.
 
 - Reviewer: _______________ Date: _______________
+
+---
+
+# PR evidence — [RA TEST-005] Add test-ci gate to deploy workflows
+
+| Field | Value |
+| --- | --- |
+| PR / branch | copilot/ra-test-005-add-test-ci-step |
+| Spec refs | spec/features/auth-001-pkce.feature, spec/features/auth-002-token-claims.feature, spec/features/auth-003-logout.feature, spec/features/auth-004-token-refresh-redirect.feature, spec/features/auth-005-keycloak-client-id.feature, spec/features/auth-006-interceptor-401.feature, spec/features/auth-007-interceptor-allowlist.feature, spec/features/authz-001-admin-route-guard.feature, spec/features/authz-002-admin-only-routes.feature, spec/features/authz-003-header-manage-subareas.feature, spec/features/authz-004-isadmin-role-constant.feature, spec/features/authz-005-isadmin-optional-chaining.feature, spec/features/bw-001-lock-records-unlock.feature, spec/features/bw-002-export-variance-typo.feature, spec/features/config-002-cloudfront-csp.feature, spec/features/config-003-cloudfront-hsts.feature, spec/features/config-004-cloudfront-security-headers.feature, spec/features/config-005-trivy-triggers.feature, spec/features/config-006-deploy-log-level.feature, spec/features/crypto-001-cloudfront-tls-minimum.feature, spec/features/dep-001-remove-chartjs.feature, spec/features/dep-002-remove-jquery.feature, spec/features/dep-003-moment-to-luxon.feature, spec/features/example-happy-path.feature, spec/features/log-001-no-config-console-dump.feature, spec/features/log-002-keycloak-lifecycle-log-levels.feature, spec/features/log-003-authz-failure-logging.feature, spec/features/log-004-logger-default-level.feature, spec/features/log-005-sanitize-error-logging.feature, spec/features/log-006-structured-log-format.feature, spec/features/log-007-browser-console-logging.feature, spec/features/log-008-global-error-handler.feature, spec/features/log-009-sanitize-debug-logs.feature, spec/features/secret-001-prod-certificate-arn.feature, spec/features/secret-002-nonprod-account-ids.feature, spec/features/secret-003-route53-zone-id.feature, spec/features/secret-004-api-gateway-id.feature, spec/features/secret-005-env-js-gitignore.feature, spec/features/test-001-token-interceptor.feature, spec/features/test-003-e2e-scaffold.feature, spec/features/test-004-core-services-tests.feature, spec/features/test-005-deploy-test-gate.feature, spec/features/vuln-001-historical-pill-xss.feature |
+| Constitution articles touched | P1–P8 (confirm) |
+| Tasks | see spec/tasks.md |
+| Authoring agent | unspecified |
+| Generated | 2026-09-03T00:42:10.657Z |
+
+## Intent
+
+Added a `yarn test-ci` step immediately before the `Build application` step in
+`lza-deploy-admin-dev.yaml`, `lza-deploy-admin-test.yaml`, and
+`lza-deploy-admin-prod.yaml` so that all three deploy pipelines fail fast if
+unit tests fail, instead of building and deploying an untested `main`.
+
+## Spec traceability
+
+| Scenario / requirement | Implemented? | Notes |
+| --- | --- | --- |
+| `auth-001-pkce.feature` | TODO | |
+| `auth-002-token-claims.feature` | TODO | |
+| `auth-003-logout.feature` | TODO | |
+| `auth-004-token-refresh-redirect.feature` | TODO | |
+| `auth-005-keycloak-client-id.feature` | TODO | |
+| `auth-006-interceptor-401.feature` | TODO | |
+| `auth-007-interceptor-allowlist.feature` | TODO | |
+| `authz-001-admin-route-guard.feature` | TODO | |
+| `authz-002-admin-only-routes.feature` | TODO | |
+| `authz-003-header-manage-subareas.feature` | TODO | |
+| `authz-004-isadmin-role-constant.feature` | TODO | |
+| `authz-005-isadmin-optional-chaining.feature` | TODO | |
+| `bw-001-lock-records-unlock.feature` | TODO | |
+| `bw-002-export-variance-typo.feature` | TODO | |
+| `config-002-cloudfront-csp.feature` | TODO | |
+| `config-003-cloudfront-hsts.feature` | TODO | |
+| `config-004-cloudfront-security-headers.feature` | TODO | |
+| `config-005-trivy-triggers.feature` | TODO | |
+| `config-006-deploy-log-level.feature` | TODO | |
+| `crypto-001-cloudfront-tls-minimum.feature` | TODO | |
+| `dep-001-remove-chartjs.feature` | TODO | |
+| `dep-002-remove-jquery.feature` | TODO | |
+| `dep-003-moment-to-luxon.feature` | TODO | |
+| `example-happy-path.feature` | TODO | |
+| `log-001-no-config-console-dump.feature` | TODO | |
+| `log-002-keycloak-lifecycle-log-levels.feature` | TODO | |
+| `log-003-authz-failure-logging.feature` | TODO | |
+| `log-004-logger-default-level.feature` | TODO | |
+| `log-005-sanitize-error-logging.feature` | TODO | |
+| `log-006-structured-log-format.feature` | TODO | |
+| `log-007-browser-console-logging.feature` | TODO | |
+| `log-008-global-error-handler.feature` | TODO | |
+| `log-009-sanitize-debug-logs.feature` | TODO | |
+| `secret-001-prod-certificate-arn.feature` | TODO | |
+| `secret-002-nonprod-account-ids.feature` | TODO | |
+| `secret-003-route53-zone-id.feature` | TODO | |
+| `secret-004-api-gateway-id.feature` | TODO | |
+| `secret-005-env-js-gitignore.feature` | TODO | |
+| `test-001-token-interceptor.feature` | TODO | |
+| `test-003-e2e-scaffold.feature` | TODO | |
+| `test-004-core-services-tests.feature` | TODO | |
+| `test-005-deploy-test-gate.feature` | Yes | `yarn test-ci` added before `Build application` in all three lza-deploy-admin-*.yaml workflows |
+| `vuln-001-historical-pill-xss.feature` | N/A | |
+
+
+## Design system & accessibility
+
+| Check | Result |
+| --- | --- |
+| DS components used (list) | N/A — CI/CD workflow change only, no UI |
+| Tokens used (not hard-coded colour) | N/A |
+| BC Sans imported | N/A |
+| Manual a11y notes | N/A — no UI change |
+
+## Public-service minimums
+
+Checklist IDs addressed this PR: N/A — infrastructure/CI change, no public-facing UI
+
+## Tests
+
+| Type | Command / path | Result |
+| --- | --- | --- |
+| Unit | N/A (no application code changed) | |
+| Workflow validation | `python3 -c "import yaml; yaml.safe_load(open(f))"` for all three `.github/workflows/lza-deploy-admin-*.yaml` | Pass |
+| Acceptance / feature | spec/features/test-005-deploy-test-gate.feature | Pass — verified `yarn test-ci` step precedes `Build application` step in all three deploy workflows |
+| A11y automation | N/A | |
+
+## Risks & follow-ups
+
+- Deploy runtime increases slightly (a few minutes) due to running the Karma/Chrome
+  headless test suite on every deploy, in addition to the existing PR gate.
+- If `test-ci` is flaky in CI (e.g. sandbox/headless Chrome issues), deploys could
+  be blocked; no changes were made to the underlying test suite as part of this fix.
+
+## Review receipt (checkpoint 3)
+
+Same shape as `REVIEW.md` — required before merge. Do not replace with a free-form sign-off.
+
+**Checked:** R-42.1, R-42.2 (spec/features/test-005-deploy-test-gate.feature) — confirmed via YAML inspection that `yarn test-ci` now runs before `Build application` in `lza-deploy-admin-dev.yaml`, `lza-deploy-admin-test.yaml`, and `lza-deploy-admin-prod.yaml`.
+
+**Could not check:** Live execution of the deploy workflows in GitHub Actions (requires AWS credentials/environment secrets not available in this sandbox).
+
+**Residual risk:** Low — change only reorders/adds a step using an existing, already-used `test-ci` script; no application code was modified.
+
+- Reviewer: _______________ Date: _______________
