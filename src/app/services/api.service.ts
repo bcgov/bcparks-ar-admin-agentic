@@ -56,7 +56,7 @@ export class ApiService {
     let queryString = '';
     if (queryParamsObject) {
       for (let key of Object.keys(queryParamsObject)) {
-        queryString += `&${key}=${queryParamsObject[key]}`;
+        queryString += `&${key}=${encodeURIComponent(queryParamsObject[key])}`;
       }
       queryString = queryString.substring(1);
     }
